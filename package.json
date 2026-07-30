@@ -10,11 +10,13 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "vite --host 127.0.0.1 --port 4319 --strictPort",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4319 --strictPort",
+    "preview:capture": "pnpm build && node scripts/capture-preview.mjs",
     "preview:e2e": "pnpm build && node scripts/e2e-server.mjs",
     "readiness": "node scripts/check-readiness.mjs",
+    "verify:dev": "pnpm build && node scripts/verify-dev-contract.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

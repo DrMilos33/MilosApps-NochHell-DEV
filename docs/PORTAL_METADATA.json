@@ -1,0 +1,22 @@
+{
+  "appKey": "daylight",
+  "title": "Noch hell?",
+  "shortDescription": "Zeigt für einen gewählten Ort, wie lange es noch hell ist, wann die bürgerliche Dämmerung endet und wann morgen die Sonne aufgeht.",
+  "language": "de-DE",
+  "status": "local-dev-ready",
+  "devUrl": null,
+  "localDevUrl": "http://127.0.0.1:4319/",
+  "portalRoute": "/apps/daylight",
+  "auth": "none",
+  "previewImage": "/portal-preview.png",
+  "previewRights": "Eigenes Noch-hell-App-UI; keine Drittanbieterbilder oder Kartenkacheln.",
+  "healthcheck": {
+    "localUrl": "http://127.0.0.1:4319/health.json",
+    "expected": {
+      "status": "ready",
+      "appKey": "daylight"
+    }
+  },
+  "database": false,
+  "productionApproved": false
+}

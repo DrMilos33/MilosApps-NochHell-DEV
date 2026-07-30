@@ -454,13 +454,19 @@ test.describe("langsames Netz, Offline und App-Resume", () => {
     await context.setOffline(false);
   });
 
-  test("aktualisiert beim Resume über das Dämmerungsende", async ({ page, browserName }) => {
+  test("aktualisiert beim Resume über Sonnenuntergang und Dämmerungsende", async ({
+    page,
+    browserName,
+  }) => {
     test.skip(browserName !== "chromium", "Uhrsteuerung wird einmal in Chromium geprüft.");
     await page.addInitScript((location) => {
       localStorage.setItem("daylight.location.v1", JSON.stringify(location));
     }, berlinLocation);
-    await page.clock.install({ time: new Date("2026-05-01T18:45:00Z") });
+    await page.clock.install({ time: new Date("2026-05-01T18:00:00Z") });
     await page.goto("/");
+    await expect(page.locator("#answer-card")).toHaveAttribute("data-phase", "daylight");
+    await page.clock.setFixedTime(new Date("2026-05-01T18:45:00Z"));
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
     await expect(page.getByRole("heading", { name: /Restlicht/ })).toBeVisible();
     await page.clock.setFixedTime(new Date("2026-05-01T20:00:00Z"));
     await page.evaluate(() => window.dispatchEvent(new Event("focus")));

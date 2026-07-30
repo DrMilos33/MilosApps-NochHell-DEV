@@ -13,8 +13,8 @@ oder Heimweg – ohne vollständige Wetter- oder Astronomieoberfläche.
 - morgiger Sonnenaufgang;
 - lokale Berechnung, soweit fachlich sinnvoll;
 - ehrliche Zustände für Polartag, Polarnacht und Orte ohne Ereignis am Datum;
-- grobe Ortsangabe in einer bewusst teilbaren Karte, niemals genaue
-  Koordinaten;
+- grobe Ortsangabe in der Ansicht, niemals genaue Koordinaten oder
+  Standortparameter in der Seiten-URL;
 - sichtbare Zeitzone und Berechnungsdatum.
 
 ## Abgrenzung
@@ -25,8 +25,8 @@ Keine Sternkarte, kein Wetterbericht und keine Zuständigkeit für
 ## Datenschutz
 
 Standortzugriff erfolgt erst nach aktivem Tipp. Ort oder grobe Koordinaten
-dürfen lokal gespeichert und vollständig gelöscht werden. Teil-URLs enthalten
-nur eine bewusst gewählte grobe Ortsangabe oder keinen Ort.
+dürfen lokal gespeichert und vollständig gelöscht werden. Die Seiten-URL
+enthält keine Standortdaten.
 
 ## Portalvertrag
 

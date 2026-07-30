@@ -1,24 +1,33 @@
 # QA-Plan: Noch hell?
 
-## Automatisierbare Logik
+Der geplante Miteinander-Product-QA-Zyklus wurde am 30. Juli 2026 mit zwei
+vollständigen Verbesserungsrunden abgeschlossen. Ergebnisse, Defekte,
+Regressionen, Browserabdeckung und bekannte Grenzen stehen im
+[QA-Bericht](QA_REPORT.md).
 
-- Sonnenaufgang, Sonnenuntergang und bürgerliche Dämmerung mit Referenzfällen;
+## Verbindliche Abdeckung
+
+- Sonnenaufgang, Sonnenuntergang und bürgerliche Dämmerung gegen
+  USNO-Referenzen;
 - Zeitzonen, Sommerzeit, Mitternachtswechsel und Datumssprung;
-- Äquator, hohe Breiten, Polartag und Polarnacht;
-- Countdown vor, genau bei und nach Sonnenuntergang;
-- Rundung ohne widersprüchliche Restzeiten;
-- Teilansicht ohne genaue Koordinaten.
+- Äquator, hohe Breiten, Polartag und verschiedene Polarnacht-Zustände;
+- Resthelligkeit vor und nach Sonnenuntergang;
+- Standort erlaubt, verweigert/abgebrochen, Timeout und nicht verfügbar;
+- manueller, unbekannter und mehrere gleichnamige Orte;
+- Smartphone, Desktop, Tastatur, Semantik/Screenreader-Baum,
+  200-Prozent-Reflow und helle/dunkle Darstellung;
+- langsames Geocoding, Abbruch, Suchcache, Offline-Wiederöffnung und
+  App-Resume über Sonnenuntergang, Dämmerungsende und lokale Mitternacht;
+- App-spezifische Readiness auf dem strikt reservierten Port 4319.
 
-## Simulierte Nutzung
+## Wiederholung vor einer DEV-Veröffentlichung
 
-- Standort erlaubt, verweigert, abgebrochen und technisch nicht verfügbar;
-- manueller Ort, unbekannter Ort und mehrere gleichnamige Orte;
-- Smartphone, Desktop, Tastatur, Screenreader und 200 Prozent Zoom;
-- langsames Netz bei Geocoding sowie vollständig lokale Wiederöffnung;
-- Hintergrund/Resume über Sonnenuntergang oder Mitternacht.
+```powershell
+pnpm test:all
+pnpm verify:dev
+```
 
-## Verbesserungsrunden
-
-1. Berechnung, Standortalternativen und alle Tageslichtzustände.
-2. Fehler-, Datenschutz-, Barrierefreiheits-, Datumswechsel- und
-   Rushed-user-Test; Probleme beheben und volle Matrix erneut ausführen.
+`pnpm readiness` kann zusätzlich gegen einen separat gestarteten DEV-Dienst
+laufen. Eine externe DEV-Veröffentlichung benötigt außerdem einen direkten
+HTTPS-Aufruf, einen identischen Healthcheck und Portaltests für Mobil,
+Desktop, Direktaufruf sowie Portal-Ausfall.
