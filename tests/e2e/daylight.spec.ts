@@ -51,6 +51,18 @@ async function selectBerlin(page: Page): Promise<void> {
     .click();
 }
 
+async function openStoredLocationAt(
+  page: Page,
+  location: typeof berlinLocation,
+  instant: string,
+): Promise<void> {
+  await page.addInitScript((storedLocation) => {
+    localStorage.setItem("daylight.location.v1", JSON.stringify(storedLocation));
+  }, location);
+  await page.clock.install({ time: new Date(instant) });
+  await page.goto("/");
+}
+
 test.describe("öffentlicher Kernfluss", () => {
   test.beforeEach(async ({ page }) => {
     await mockGeocoder(page);
@@ -167,6 +179,43 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(results.violations).toEqual([]);
   });
 
+  test("verursacht im normalen Hauptfluss keine Konsolenfehler", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("console", (message) => {
+      if (message.type() === "error") {
+        errors.push(message.text());
+      }
+    });
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.goto("/");
+    await selectBerlin(page);
+    expect(errors).toEqual([]);
+  });
+
+  test("bleibt in hellem und dunklem Systemmodus lesbar", async ({ page }) => {
+    await page.emulateMedia({ colorScheme: "light" });
+    await page.goto("/");
+    const lightColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    await expect(page.getByRole("heading", { name: "Passt der Spaziergang noch ins Helle?" })).toBeVisible();
+
+    await page.emulateMedia({ colorScheme: "dark" });
+    const darkColor = await page.evaluate(() => getComputedStyle(document.body).color);
+    expect(lightColor).not.toBe(darkColor);
+    await expect(page.getByRole("button", { name: "Ort suchen" })).toBeVisible();
+  });
+
+  test("hält DOM und Startressourcen bewusst klein", async ({ page }) => {
+    await page.goto("/");
+    const metrics = await page.evaluate(() => ({
+      domElements: document.querySelectorAll("*").length,
+      transferredBytes: performance
+        .getEntriesByType("resource")
+        .reduce((sum, entry) => sum + (entry as PerformanceResourceTiming).transferSize, 0),
+    }));
+    expect(metrics.domElements).toBeLessThan(180);
+    expect(metrics.transferredBytes).toBeLessThan(300_000);
+  });
+
   test("fließt bei einer 200-Prozent-äquivalenten Breite ohne horizontales Scrollen um", async ({
     page,
   }) => {
@@ -179,6 +228,93 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(overflow).toBeLessThanOrEqual(1);
     await expect(page.getByRole("button", { name: "Ort ändern" })).toBeVisible();
     await expect(page.getByText("Ende bürgerliche Dämmerung", { exact: true })).toBeVisible();
+  });
+});
+
+test.describe("astronomische Grenzfälle in der Oberfläche", () => {
+  test("zeigt Polartag ohne erfundene Ereigniszeiten", async ({ page }) => {
+    await openStoredLocationAt(
+      page,
+      {
+        ...berlinLocation,
+        id: "tromsoe",
+        name: "Tromsø",
+        context: "Troms, Norge",
+        latitude: 69.6492,
+        longitude: 18.9553,
+        timeZone: "Europe/Oslo",
+      },
+      "2026-06-21T12:00:00Z",
+    );
+    await expect(page.getByRole("heading", { name: "Ja – durchgehend" })).toBeVisible();
+    await expect(page.getByText("Polartag: Die Sonne bleibt über dem Horizont.")).toHaveCount(3);
+    await expect(page.getByText("Endet nicht", { exact: true })).toBeVisible();
+  });
+
+  test("zeigt tiefe Polarnacht ohne bürgerliche Dämmerung ehrlich", async ({ page }) => {
+    await openStoredLocationAt(
+      page,
+      {
+        ...berlinLocation,
+        id: "longyearbyen",
+        name: "Longyearbyen",
+        context: "Svalbard, Norge",
+        latitude: 78.2232,
+        longitude: 15.6469,
+        timeZone: "Arctic/Longyearbyen",
+      },
+      "2026-12-21T12:00:00Z",
+    );
+    await expect(page.getByRole("heading", { name: "Nein – Polarnacht" })).toBeVisible();
+    await expect(page.getByText("Keine Dämmerung", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("Die Sonne erreicht die bürgerliche Dämmerungsgrenze nicht."),
+    ).toBeVisible();
+  });
+
+  test("zeigt am Äquator die USNO-nahen Referenzzeiten", async ({ page }) => {
+    await openStoredLocationAt(
+      page,
+      {
+        ...berlinLocation,
+        id: "equator",
+        name: "Nullmeridian am Äquator",
+        context: "Referenzpunkt",
+        latitude: 0,
+        longitude: 0,
+        timeZone: "UTC",
+      },
+      "2026-05-01T12:00:00Z",
+    );
+    await expect(page.locator("#sunrise-time")).toHaveText("05:53");
+    await expect(page.locator("#sunset-time")).toHaveText("18:00");
+    await expect(page.locator("#civil-dusk-time")).toHaveText("18:21");
+  });
+
+  test("kennzeichnet beide Berliner Sommerzeittage mit 23 und 25 Stunden", async ({ page }) => {
+    await openStoredLocationAt(page, berlinLocation, "2026-03-29T10:00:00Z");
+    await expect(page.getByText(/Zeitumstellung \(23 Std\.\)/)).toBeVisible();
+
+    await page.clock.setFixedTime(new Date("2026-10-25T10:00:00Z"));
+    await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+    await expect(page.getByText(/Zeitumstellung \(25 Std\.\)/)).toBeVisible();
+  });
+
+  test("verwendet am internationalen Datumssprung das Ortsdatum", async ({ page }) => {
+    await openStoredLocationAt(
+      page,
+      {
+        ...berlinLocation,
+        id: "kiritimati",
+        name: "Kiritimati",
+        context: "Kiribati",
+        latitude: 1.8721,
+        longitude: -157.4278,
+        timeZone: "Pacific/Kiritimati",
+      },
+      "2025-12-31T11:00:00Z",
+    );
+    await expect(page.getByText("Donnerstag, 01. Januar 2026")).toBeVisible();
   });
 });
 
@@ -257,6 +393,31 @@ test.describe("Standortzustände und Datenschutz", () => {
     await expect(page.getByText("vollständig gelöscht")).toBeVisible();
     const keys = await page.evaluate(() => Object.keys(localStorage));
     expect(keys.filter((key) => key.startsWith("daylight."))).toEqual([]);
+  });
+
+  test("bedient dieselbe Ortssuche für wiederholte Eingaben aus dem lokalen Cache", async ({
+    page,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Request-Cache wird einmal browserseitig geprüft.");
+    let requests = 0;
+    await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
+      requests += 1;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([berlinResult]),
+      });
+    });
+    await page.goto("/");
+    const searchbox = page.getByRole("searchbox", { name: "Ort oder Region" });
+    await searchbox.fill("Berlin");
+    await page.getByRole("button", { name: "Ort suchen" }).click();
+    await expect(page.getByRole("button", { name: "Berlin Deutschland city" })).toBeVisible();
+    await searchbox.fill("  Berlin  ");
+    await page.getByRole("button", { name: "Ort suchen" }).click();
+    await expect(page.getByRole("button", { name: "Berlin Deutschland city" })).toBeVisible();
+    expect(requests).toBe(1);
   });
 });
 
