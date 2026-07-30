@@ -3,18 +3,32 @@
   "title": "Noch hell?",
   "shortDescription": "Zeigt für einen gewählten Ort, wie lange es noch hell ist, wann die bürgerliche Dämmerung endet und wann morgen die Sonne aufgeht.",
   "language": "de-DE",
-  "status": "local-dev-ready",
-  "devUrl": null,
+  "status": "dev-online",
+  "devUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
   "localDevUrl": "http://127.0.0.1:4319/",
+  "sourceCommit": "f4ee359367f9b89766976a627bc6b9a82719f89f",
+  "deploymentRevision": "2735413d04d1a300fc67424f3e2e50f3ea0d93e0",
+  "lastHealthyDeploymentRevision": "2735413d04d1a300fc67424f3e2e50f3ea0d93e0",
+  "repositoryUrl": "https://github.com/DrMilos33/MilosApps-NochHell-DEV",
+  "hosting": {
+    "provider": "GitHub Pages",
+    "branch": "gh-pages",
+    "path": "/",
+    "httpsEnforced": true
+  },
   "portalRoute": "/apps/daylight",
   "auth": "none",
   "previewImage": "/portal-preview.png",
+  "previewImageUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/portal-preview.png",
   "previewRights": "Eigenes Noch-hell-App-UI; keine Drittanbieterbilder oder Kartenkacheln.",
   "healthcheck": {
     "localUrl": "http://127.0.0.1:4319/health.json",
+    "url": "https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json",
     "expected": {
       "status": "ready",
-      "appKey": "daylight"
+      "appKey": "daylight",
+      "environment": "dev",
+      "database": false
     }
   },
   "database": false,

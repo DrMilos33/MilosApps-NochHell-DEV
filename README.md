@@ -70,16 +70,22 @@ pnpm preview:capture
 
 ## DEV- und Portalstatus
 
-Der vollständig getestete lokale DEV-Stand ist bereit. Eine unabhängige
-öffentliche HTTPS-DEV-URL existiert noch nicht, weil kein Hosting-Ziel und kein
-GitHub-Repository bereitgestellt sind. Production ist ausdrücklich nicht
-freigegeben. Deshalb darf die Portalroute `/apps/daylight` noch nicht auf diese
-App umgestellt werden.
+Der verifizierte App-Stand `f4ee359367f9b89766976a627bc6b9a82719f89f`
+läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
+
+- DEV: <https://drmilos33.github.io/MilosApps-NochHell-DEV/>
+- Health: <https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json>
+- GitHub: <https://github.com/DrMilos33/MilosApps-NochHell-DEV>
+
+Das Hosting erfolgt app-eigen über den `gh-pages`-Branch. Production ist
+ausdrücklich nicht freigegeben. Die Portalroute `/apps/daylight` bleibt bis
+zur Validierung und Einbindung durch den Portal-Task unverändert.
 
 Details:
 
 - [Produktbrief](docs/PRODUCT_BRIEF.md)
 - [Quellen und Lizenzen](docs/SOURCES_AND_LICENSES.md)
 - [QA-Bericht](docs/QA_REPORT.md)
+- [DEV-Deployment](docs/DEV_DEPLOYMENT.md)
 - [DEV- und Portalübergabe](docs/DEV_HANDOFF.md)
 - [Erkenntnisse](docs/LEARNINGS.md)

@@ -99,13 +99,31 @@ Eine fehlerhafte E2E-Erwartung von 17:59 Uhr wurde auf die USNO-Referenz
 - `tz-lookup` ist nahe Zeitzonengrenzen eine Approximation.
 - Die öffentliche Nominatim-Instanz ist ein austauschbarer externer
   DEV-Dienst mit eigener Verfügbarkeit und Nutzungsrichtlinie.
-- Eine öffentliche HTTPS-DEV-URL ist mangels Hostingziel nicht vorhanden.
-  Portal-Direktaufruf und Portal-Ausfallgrenze können erst danach geprüft
-  werden.
 
 ## Freigabeempfehlung
 
-Der lokale DEV-Stand ist freigabefähig. Vor einer Portal-Integration sind ein
-unabhängiges HTTPS-DEV-Deployment, dessen inhaltlicher Healthcheck sowie die
-Portaltests aus dem Integrationsvertrag erforderlich. Production bleibt
-gesperrt.
+Der unabhängige HTTPS-DEV-Stand ist freigabefähig. Portal & Identity muss die
+URL noch nach dem eigenen Integrationsvertrag validieren und einbinden.
+Production bleibt gesperrt.
+
+## Externe DEV-Verifikation
+
+Am 30. Juli 2026 wurde die aus
+`f4ee359367f9b89766976a627bc6b9a82719f89f` erzeugte Pages-Revision
+`2735413d04d1a300fc67424f3e2e50f3ea0d93e0` direkt unter
+`https://drmilos33.github.io/MilosApps-NochHell-DEV/` geprüft.
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Startseite und `/health.json` | HTTP 200 über HTTPS |
+| Health-Inhalt | `status=ready`, `appKey=daylight`, `environment=dev`, `database=false` |
+| Frischer Desktop-Chromium-Kontext | Live-Suche „Berlin“, Auswahl und vier Ereigniskarten bestanden |
+| Frisches Pixel-7-Profil | 412 px breit, kein horizontaler Überlauf |
+| Offline-Grenze einer neuen Suche | „Du bist offline. Ein gespeicherter Ort funktioniert weiterhin.“ |
+| Authentifizierung | null Cookies, keine Login- oder Kontooberfläche |
+| Datenschutz | keine Koordinaten oder Suchparameter in der App-URL |
+| Konsole | keine Fehler im normalen Online-Hauptfluss |
+
+Der direkte Aufruf benötigt weder Portal-Cookie noch Milos-Login. Die
+Online-Ortssuche bleibt bewusst eine externe Netzfunktion; lokale Berechnung
+und gespeicherter Ort sind davon getrennt.

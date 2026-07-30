@@ -11,16 +11,26 @@ Stand: 30. Juli 2026.
 | Kurzbeschreibung | Zeigt für einen gewählten Ort, wie lange es noch hell ist, wann die bürgerliche Dämmerung endet und wann morgen die Sonne aufgeht. |
 | Sprache | `de-DE` |
 | Konto | keines; vollständig öffentlich |
-| Status | lokaler DEV-Stand bereit, externes HTTPS-DEV blockiert |
+| Status | unabhängiges öffentliches HTTPS-DEV bereit |
+| Externe DEV-URL | `https://drmilos33.github.io/MilosApps-NochHell-DEV/` |
 | Lokale DEV-URL | `http://127.0.0.1:4319/` |
 | Gewünschte Portalroute | `/apps/daylight` |
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
+| GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
+| Deployte Quellrevision | `f4ee359367f9b89766976a627bc6b9a82719f89f` |
+| Pages-Artefaktrevision | `2735413d04d1a300fc67424f3e2e50f3ea0d93e0` |
 
 ## Readiness
 
 ```text
 GET http://127.0.0.1:4319/health.json
+```
+
+Extern:
+
+```text
+GET https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json
 ```
 
 Erforderlicher Inhalt:
@@ -56,22 +66,26 @@ Bekannter Portalvertrag:
 - Portal-Commit `708669c`
 - Datei `DEV_APP_INTEGRATION_CONTRACT.md`
 
-Die spätere stabile Portalroute `/apps/daylight` soll ausschließlich auf eine
-unabhängige HTTPS-DEV-URL weiterleiten. Die App bleibt ohne Portal-Login
-nutzbar. Portal-Ausfall darf Direktaufruf und App-Readiness nicht beeinflussen.
-Rollback ist das Entfernen beziehungsweise Zurücksetzen dieses Redirects; das
-eigenständige App-Deployment bleibt dabei unberührt.
+Die spätere stabile Portalroute `/apps/daylight` soll ausschließlich auf die
+oben genannte unabhängige HTTPS-DEV-URL weiterleiten. Die App bleibt ohne
+Portal-Login nutzbar. Portal-Ausfall beeinflusst Direktaufruf und
+App-Readiness nicht.
 
-## Offene Blocker
+Der app-eigene Rollback erfolgt durch Zurücksetzen des `gh-pages`-Branches auf
+die letzte gesunde Artefaktrevision. Aktuell ist dies
+`2735413d04d1a300fc67424f3e2e50f3ea0d93e0`. Die Quellrevision bleibt davon
+unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
-1. Es gibt kein eingetragenes GitHub-Repository, kein freigegebenes
-   Hostingziel und keine DEV-Zugangsdaten. Deshalb kann keine echte
-   unabhängige HTTPS-DEV-URL übergeben werden.
-2. Sites-Deployment wäre eine Production-URL und ist ohne
-   Production-Freigabe nicht zulässig.
-3. Die Portalroute darf bis zur echten HTTPS-URL nicht geändert werden.
-4. Dieses Eigentümer-Task läuft vorübergehend aus dem Workspace-Projekt. Das
+## Verbleibende Blocker und Grenzen
+
+1. Die Portalroute bleibt bis zur Validierung durch Portal & Identity
+   unverändert.
+2. Dieses Eigentümer-Task läuft vorübergehend aus dem Workspace-Projekt. Das
    Repository muss als eigenes lokales Codex-Projekt registriert und die
    Fortsetzung dorthin übergeben werden.
+3. GitHub Pages besitzt keine eigene App-Datenbank oder Secrets; neue
+   Ortssuchen bleiben von der Erreichbarkeit des konfigurierten
+   Nominatim-Dienstes abhängig.
 
-Es wurde keine URL erfunden und kein fremdes Repository verändert.
+OpenAI Sites, MilosApps-Production und das Portal-Repository wurden nicht
+verändert.
