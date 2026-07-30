@@ -70,8 +70,8 @@ App-Task nicht verändert.
   `reuseExistingServer` ist deaktiviert. Fremde Prozesse werden nicht beendet.
 - **Regression:** Healthcheck-E2E-Test sowie
   `scripts/check-readiness.mjs` und `scripts/e2e-server.mjs`.
-- **Commit:** `2b5ffe7`; normaler DEV-Start in der abschließenden
-  Übergabedokumentation ebenfalls auf 4319 festgelegt.
+- **Commit:** `2b5ffe7`; normaler DEV-Start, Kollisionsnachweis und Übergabe in
+  `8071fe2`.
 - **Gültigkeitsgrenze:** Die Identitätsprüfung schützt die lokale
   Prozessauswahl; sie ersetzt keine Authentifizierung eines späteren
   Deployment-Systems.

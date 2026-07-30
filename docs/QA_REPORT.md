@@ -4,6 +4,7 @@ Stand: 30. Juli 2026
 Branch: `codex/daylight-dev`  
 Implementierungsmeilenstein: `2b5ffe7`  
 Erweiterte QA-Matrix: `a259a5f`
+DEV-Vertrag und Übergabe: `8071fe2`
 
 ## Ergebnis
 
