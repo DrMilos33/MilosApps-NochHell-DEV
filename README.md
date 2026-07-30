@@ -78,8 +78,10 @@ läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 - GitHub: <https://github.com/DrMilos33/MilosApps-NochHell-DEV>
 
 Das Hosting erfolgt app-eigen über den `gh-pages`-Branch. Production ist
-ausdrücklich nicht freigegeben. Die Portalroute `/apps/daylight` bleibt bis
-zur Validierung und Einbindung durch den Portal-Task unverändert.
+ausdrücklich nicht freigegeben. Portal & Identity hat die DEV-Integration am
+30. Juli 2026 final abgenommen: Die Portalroute `/apps/daylight` leitet im
+aktiven Portal-DEV ohne Login auf die unabhängige App-URL weiter. Der
+Direktaufruf und der App-Lifecycle bleiben vom Portal unabhängig.
 
 Details:
 

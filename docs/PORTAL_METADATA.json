@@ -17,6 +17,14 @@
     "httpsEnforced": true
   },
   "portalRoute": "/apps/daylight",
+  "portalDevIntegration": {
+    "status": "validated",
+    "validatedAt": "2026-07-30",
+    "portalIntegrationCommit": "eab551a",
+    "activePortalDevRevision": "e74bc712",
+    "redirectTarget": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
+    "productionIncluded": false
+  },
   "auth": "none",
   "previewImage": "/portal-preview.png",
   "previewImageUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/portal-preview.png",

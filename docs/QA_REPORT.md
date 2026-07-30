@@ -102,8 +102,8 @@ Eine fehlerhafte E2E-Erwartung von 17:59 Uhr wurde auf die USNO-Referenz
 
 ## Freigabeempfehlung
 
-Der unabhängige HTTPS-DEV-Stand ist freigabefähig. Portal & Identity muss die
-URL noch nach dem eigenen Integrationsvertrag validieren und einbinden.
+Der unabhängige HTTPS-DEV-Stand ist freigabefähig. Portal & Identity hat URL,
+Redirect und Darstellung im Portal-DEV am 30. Juli 2026 final validiert.
 Production bleibt gesperrt.
 
 ## Externe DEV-Verifikation
@@ -127,3 +127,22 @@ Am 30. Juli 2026 wurde die aus
 Der direkte Aufruf benötigt weder Portal-Cookie noch Milos-Login. Die
 Online-Ortssuche bleibt bewusst eine externe Netzfunktion; lokale Berechnung
 und gespeicherter Ort sind davon getrennt.
+
+## Portal-DEV-Finalabnahme
+
+Portal & Identity bestätigte am 30. Juli 2026:
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| Portalübersicht `/apps` | Karte „Noch hell?“ sichtbar |
+| Route `/apps/daylight` | Redirect auf die unabhängige HTTPS-DEV-URL korrekt |
+| Portal-DEV-Revision | Integrationscommit `eab551a`, direkter Vorgänger des aktiven Railway-Stands `e74bc712` |
+| Portal-Smoke | Direktaufruf, Desktop und 390 Pixel ohne Login, Browserfehler oder Überlauf |
+| Production-Grenze | Karte nicht sichtbar; Production unverändert |
+| Repository-Grenze | Portal-Task änderte das App-Repository nicht |
+
+Der zugehörige GitHub-Actions-Lauf startete wegen eines
+Billing-/Spending-Limits keinen einzigen Step. Die Portalprüfung stützte sich
+deshalb auf den aktiven Railway-Stand und grüne lokale Portaltests. Dieser
+externe CI-Infrastrukturfehler ändert weder App-Readiness noch den bestätigten
+Portal-DEV-Redirect.
