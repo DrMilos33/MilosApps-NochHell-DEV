@@ -111,6 +111,21 @@ wurde zusätzlich mit einer echten Berlin-Suche geprüft: Nominatim antwortete
 englisch, vier Ereigniskarten waren sichtbar, die URL blieb frei von
 Koordinaten und die Seite ohne horizontalen Überlauf.
 
+## Runde 5: Externe Service-Worker- und Netzgrenze
+
+Der erste externe 0.2-Kandidat bestand Health, Direktaufruf, echte
+Berlin-Suche und Offline-Wiederöffnung. Beim Versuch einer neuen Suche im
+offline wiedereröffneten Chromium-Kontext blieb `navigator.onLine` jedoch
+unerwartet wahr. Die App zeigte dadurch die zu allgemeine Meldung
+„Ortssuche fehlgeschlagen“.
+
+Die Geocoding-Schicht liefert für Fetch-Netzfehler nun einen eigenen
+sprachneutralen Zustand. DE und EN erklären ausdrücklich, dass eine neue
+Ortssuche eine erreichbare Netzwerkverbindung braucht, während der
+gespeicherte Ort weiter funktioniert. Ein automatisierter externer
+Desktop-/390-Pixel-Smoke reproduziert diese Grenze künftig gegen die echte
+HTTPS-DEV-URL.
+
 ## Nutzungsmatrix
 
 | Szenario | Ergebnis |

@@ -42,6 +42,7 @@ interface CacheEntry {
 
 export type GeocodingErrorCode =
   | "invalid-query"
+  | "network"
   | "http"
   | "invalid-response";
 
@@ -205,13 +206,21 @@ export async function searchPlaces(
   endpoint.searchParams.set("limit", "7");
   endpoint.searchParams.set("accept-language", language);
 
-  const response = await fetch(endpoint, {
-    signal,
-    headers: {
-      Accept: "application/json",
-      "Accept-Language": language,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(endpoint, {
+      signal,
+      headers: {
+        Accept: "application/json",
+        "Accept-Language": language,
+      },
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw error;
+    }
+    throw new GeocodingError("network");
+  }
   if (!response.ok) {
     throw new GeocodingError("http", response.status);
   }

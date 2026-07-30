@@ -91,6 +91,8 @@ const deMessages = {
   searchCancelled: "Ortssuche abgebrochen.",
   searchFailed: "Die Ortssuche ist fehlgeschlagen.",
   searchOffline: "Du bist offline. Ein gespeicherter Ort funktioniert weiterhin.",
+  searchNetworkUnavailable:
+    "Eine neue Ortssuche braucht eine erreichbare Netzwerkverbindung. Ein gespeicherter Ort funktioniert weiterhin.",
   searchHttpError: "Die Ortssuche antwortet gerade nicht ({status}).",
   searchInvalidResponse: "Die Ortssuche hat ein unerwartetes Ergebnis geliefert.",
   locationUnsupported:
@@ -221,6 +223,8 @@ const enMessages: Record<MessageKey, string> = {
   searchCancelled: "Place search cancelled.",
   searchFailed: "The place search failed.",
   searchOffline: "You are offline. A saved place will continue to work.",
+  searchNetworkUnavailable:
+    "A new place search needs an available network connection. A saved place will continue to work.",
   searchHttpError: "The place search is not responding right now ({status}).",
   searchInvalidResponse: "The place search returned an unexpected result.",
   locationUnsupported:

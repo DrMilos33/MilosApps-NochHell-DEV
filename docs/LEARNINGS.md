@@ -118,3 +118,21 @@ App-Task nicht verändert.
   Production-Konfiguration.
 - **Gültigkeitsgrenze:** Die geprüfte Production-Abbildung ist keine fachliche
   Production-Freigabe.
+
+## 2026-07-30: `navigator.onLine` beweist keine erreichbare Ortssuche
+
+- **Evidenz:** Im externen Chromium-Smoke blieb die gespeicherte App nach
+  Offline-Wiederöffnung vollständig nutzbar. Der Browser sperrte neue
+  Netzwerkzugriffe, meldete `navigator.onLine` in dieser
+  Service-Worker-Konstellation aber weiterhin als wahr. Die neue Ortssuche
+  fiel deshalb zunächst auf eine zu allgemeine Fehlermeldung zurück.
+- **Folge:** Die Geocoding-Schicht unterscheidet abgebrochene Anfragen,
+  HTTP-Antworten und echte Fetch-Netzfehler. Ein Netzfehler erklärt jetzt
+  unabhängig vom Browser-Hinweis, dass nur eine neue Suche Netz benötigt und
+  ein gespeicherter Ort weiter funktioniert.
+- **Regression:** Englischer Shell-E2E-Fall mit absichtlich abgebrochener
+  Netzroute sowie `scripts/verify-external-dev.mjs` mit echter
+  Offline-Wiederöffnung.
+- **Gültigkeitsgrenze:** Die Meldung unterscheidet bewusst nicht zwischen
+  fehlender Geräteverbindung, DNS-, CORS- oder Endpunktfehler. Ohne
+  Serverantwort ist nur die fehlende Erreichbarkeit sicher bekannt.

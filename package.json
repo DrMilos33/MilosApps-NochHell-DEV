@@ -17,6 +17,7 @@
     "preview:e2e": "pnpm build && node scripts/e2e-server.mjs",
     "readiness": "node scripts/check-readiness.mjs",
     "verify:dev": "pnpm build && node scripts/verify-dev-contract.mjs",
+    "verify:external-dev": "node scripts/verify-external-dev.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

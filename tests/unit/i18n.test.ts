@@ -96,6 +96,12 @@ describe("public-app-shell/v1 Lokalisierung", () => {
   it("übersetzt Fehlermeldungen und Ortstypen", () => {
     expect(translate("de", "searchOffline")).toContain("offline");
     expect(translate("en", "searchOffline")).toContain("offline");
+    expect(translate("de", "searchNetworkUnavailable")).toContain(
+      "Netzwerkverbindung",
+    );
+    expect(translate("en", "searchNetworkUnavailable")).toContain(
+      "network connection",
+    );
     expect(formatPlaceType("city", "de")).toBe("Stadt");
     expect(formatPlaceType("city", "en")).toBe("city");
   });

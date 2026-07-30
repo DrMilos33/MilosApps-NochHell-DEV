@@ -691,6 +691,11 @@ placeForm.addEventListener("submit", async (event) => {
       setSearchMessage("searchCancelled");
     } else if (!navigator.onLine) {
       setSearchMessage("searchOffline", "error");
+    } else if (
+      error instanceof GeocodingError &&
+      error.code === "network"
+    ) {
+      setSearchMessage("searchNetworkUnavailable", "error");
     } else if (error instanceof GeocodingError && error.code === "http") {
       setSearchMessage("searchHttpError", "error", {
         status: error.status ?? "–",

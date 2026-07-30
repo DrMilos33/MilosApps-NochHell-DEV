@@ -349,8 +349,18 @@ test.describe("public-app-shell/v1", () => {
     await expect(page.getByRole("searchbox", { name: "Place or region" })).toBeFocused();
 
     await page.unroute("https://nominatim.openstreetmap.org/search**");
-    await context.setOffline(true);
+    await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
+      await route.abort("internetdisconnected");
+    });
     await page.getByRole("searchbox", { name: "Place or region" }).fill("Hamburg");
+    await page.getByRole("button", { name: "Search place" }).click();
+    await expect(page.getByRole("alert")).toContainText(
+      "A new place search needs an available network connection.",
+    );
+
+    await page.unroute("https://nominatim.openstreetmap.org/search**");
+    await context.setOffline(true);
+    await page.getByRole("searchbox", { name: "Place or region" }).fill("Bremen");
     await page.getByRole("button", { name: "Search place" }).click();
     await expect(page.getByRole("alert")).toContainText(
       "You are offline. A saved place will continue to work.",
