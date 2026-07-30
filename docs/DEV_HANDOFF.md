@@ -9,7 +9,7 @@ Stand: 30. Juli 2026.
 | App-Key | `daylight` |
 | Titel | Noch hell? |
 | Kurzbeschreibung | Zeigt für einen gewählten Ort, wie lange es noch hell ist, wann die bürgerliche Dämmerung endet und wann morgen die Sonne aufgeht. |
-| Sprache | `de-DE` |
+| Sprachen | `de-DE`, `en-GB`; vollständige Umschaltung mit lokaler Persistenz |
 | Konto | keines; vollständig öffentlich |
 | Status | unabhängiges öffentliches HTTPS-DEV bereit |
 | Externe DEV-URL | `https://drmilos33.github.io/MilosApps-NochHell-DEV/` |
@@ -18,8 +18,9 @@ Stand: 30. Juli 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `f4ee359367f9b89766976a627bc6b9a82719f89f` |
-| Pages-Artefaktrevision | `2735413d04d1a300fc67424f3e2e50f3ea0d93e0` |
+| Deployte Quellrevision | `e31603a9f0fb532bf0accaa2a97b62f398785a2f` |
+| Pages-Artefaktrevision | `269faf8611fc17777af997eea846fc20cbaf4238` |
+| Gepinnter Shell-Vertrag | `public-app-shell-v1.0.0` aus Shared `f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4` |
 
 ## Readiness
 
@@ -39,15 +40,16 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "environment": "dev",
   "database": false
 }
 ```
 
 Portal und E2E dürfen den Dienst nur akzeptieren, wenn mindestens
-`status=ready` und `appKey=daylight` übereinstimmen. Der Start bricht bei einer
-Portkollision ab und beendet keinen bestehenden Prozess.
+`status=ready`, `appKey=daylight` und `environment=dev` übereinstimmen. Der
+Start bricht bei einer Portkollision ab und beendet keinen bestehenden
+Prozess.
 
 ## Vorschaubild
 
@@ -77,9 +79,10 @@ Login, Browserfehler oder horizontalen Überlauf. Production zeigt die Karte
 nicht und blieb unverändert. Der App-Direktaufruf und die App-Readiness bleiben
 auch bei einem Portal-Ausfall unabhängig verfügbar.
 
-Der app-eigene Rollback erfolgt durch Zurücksetzen des `gh-pages`-Branches auf
-die letzte gesunde Artefaktrevision. Aktuell ist dies
-`2735413d04d1a300fc67424f3e2e50f3ea0d93e0`. Die Quellrevision bleibt davon
+Aktuell gesund ist `269faf8611fc17777af997eea846fc20cbaf4238`. Der
+app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
+Artefaktrevision `2735413d04d1a300fc67424f3e2e50f3ea0d93e0` als neuen
+vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
 ## Verbleibende Blocker und Grenzen

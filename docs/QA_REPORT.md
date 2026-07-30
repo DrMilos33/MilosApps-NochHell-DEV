@@ -163,20 +163,21 @@ Production bleibt gesperrt.
 ## Externe DEV-Verifikation
 
 Am 30. Juli 2026 wurde die aus
-`f4ee359367f9b89766976a627bc6b9a82719f89f` erzeugte Pages-Revision
-`2735413d04d1a300fc67424f3e2e50f3ea0d93e0` direkt unter
+`e31603a9f0fb532bf0accaa2a97b62f398785a2f` erzeugte Pages-Revision
+`269faf8611fc17777af997eea846fc20cbaf4238` direkt unter
 `https://drmilos33.github.io/MilosApps-NochHell-DEV/` geprüft.
 
 | Prüfung | Ergebnis |
 | --- | --- |
 | Startseite und `/health.json` | HTTP 200 über HTTPS |
-| Health-Inhalt | `status=ready`, `appKey=daylight`, `environment=dev`, `database=false` |
-| Frischer Desktop-Chromium-Kontext | Live-Suche „Berlin“, Auswahl und vier Ereigniskarten bestanden |
-| Frisches Pixel-7-Profil | 412 px breit, kein horizontaler Überlauf |
-| Offline-Grenze einer neuen Suche | „Du bist offline. Ein gespeicherter Ort funktioniert weiterhin.“ |
-| Authentifizierung | null Cookies, keine Login- oder Kontooberfläche |
+| Health-Inhalt | exakt `status=ready`, `appKey=daylight`, `version=0.2.0`, `environment=dev`, `database=false` |
+| Frischer Desktop-Chromium-Kontext | 1440 × 900, echte Live-Suche „Berlin“, Auswahl und vier Ereigniskarten bestanden |
+| Frischer Smartphone-Kontext | 390 × 844, kein horizontaler Überlauf |
+| Sprache | vollständige Umschaltung DE/EN und Persistenz nach Reload bestanden |
+| Offline-Grenze | gespeicherter Ort öffnet offline; neue Suche erklärt die fehlende Netz-Erreichbarkeit |
+| Authentifizierung | Kontext ohne `storageState`, kein Redirect und keine Login- oder Kontooberfläche |
 | Datenschutz | keine Koordinaten oder Suchparameter in der App-URL |
-| Konsole | keine Fehler im normalen Online-Hauptfluss |
+| Konsole | keine unerwarteten Fehler; der absichtlich provozierte Browser-Netzfehler wird separat erkannt |
 
 Der direkte Aufruf benötigt weder Portal-Cookie noch Milos-Login. Die
 Online-Ortssuche bleibt bewusst eine externe Netzfunktion; lokale Berechnung

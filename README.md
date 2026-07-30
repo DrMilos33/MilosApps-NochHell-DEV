@@ -52,6 +52,9 @@ pnpm preview:capture
   Chromium-Profil aus.
 - `verify:dev` prüft Readiness-Identität und den strikten Abbruch bei
   Portkollision.
+- `verify:external-dev` prüft die echte HTTPS-DEV-URL in frischen
+  Desktop- und Smartphone-Kontexten einschließlich Sprache, Ortssuche und
+  Offline-Netzgrenze.
 - `preview:capture` erzeugt das reproduzierbare Portal-Vorschaubild aus der
   eigenen App-Oberfläche.
 
@@ -82,7 +85,7 @@ Runtime-Umgebung. Production bleibt nicht freigegeben.
 
 ## DEV- und Portalstatus
 
-Der verifizierte App-Stand `f4ee359367f9b89766976a627bc6b9a82719f89f`
+Der verifizierte App-Stand `e31603a9f0fb532bf0accaa2a97b62f398785a2f`
 läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 
 - DEV: <https://drmilos33.github.io/MilosApps-NochHell-DEV/>

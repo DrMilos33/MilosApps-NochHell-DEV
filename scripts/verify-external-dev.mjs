@@ -108,6 +108,11 @@ async function verifyViewport({
       await result.click();
       await page.getByText("Sunrise", { exact: true }).waitFor();
       assert.equal(
+        await page.locator(".event-card").count(),
+        4,
+        "Selected place must expose all four required event cards.",
+      );
+      assert.equal(
         new URL(page.url()).search,
         "",
         "Coordinates and place data must not enter the app URL.",
@@ -131,8 +136,15 @@ async function verifyViewport({
       await context.setOffline(false);
     }
 
+    const unexpectedBrowserErrors = browserErrors.filter(
+      (message) =>
+        !(
+          runNetworkBoundary &&
+          message.includes("net::ERR_INTERNET_DISCONNECTED")
+        ),
+    );
     assert.deepEqual(
-      browserErrors,
+      unexpectedBrowserErrors,
       [],
       `${name}: browser console and page errors must remain empty.`,
     );

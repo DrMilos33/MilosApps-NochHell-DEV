@@ -3,12 +3,19 @@
   "title": "Noch hell?",
   "shortDescription": "Zeigt für einen gewählten Ort, wie lange es noch hell ist, wann die bürgerliche Dämmerung endet und wann morgen die Sonne aufgeht.",
   "language": "de-DE",
+  "supportedLanguages": [
+    "de-DE",
+    "en-GB"
+  ],
+  "version": "0.2.0",
   "status": "dev-online",
   "devUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
   "localDevUrl": "http://127.0.0.1:4319/",
-  "sourceCommit": "f4ee359367f9b89766976a627bc6b9a82719f89f",
-  "deploymentRevision": "2735413d04d1a300fc67424f3e2e50f3ea0d93e0",
-  "lastHealthyDeploymentRevision": "2735413d04d1a300fc67424f3e2e50f3ea0d93e0",
+  "sourceCommit": "e31603a9f0fb532bf0accaa2a97b62f398785a2f",
+  "deploymentRevision": "269faf8611fc17777af997eea846fc20cbaf4238",
+  "lastHealthyDeploymentRevision": "269faf8611fc17777af997eea846fc20cbaf4238",
+  "previousHealthySourceCommit": "f4ee359367f9b89766976a627bc6b9a82719f89f",
+  "previousHealthyDeploymentRevision": "2735413d04d1a300fc67424f3e2e50f3ea0d93e0",
   "repositoryUrl": "https://github.com/DrMilos33/MilosApps-NochHell-DEV",
   "hosting": {
     "provider": "GitHub Pages",
@@ -17,6 +24,14 @@
     "httpsEnforced": true
   },
   "portalRoute": "/apps/daylight",
+  "sharedContracts": [
+    {
+      "name": "public-app-shell/v1",
+      "version": "public-app-shell-v1.0.0",
+      "sourceCommit": "f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4",
+      "runtimeImport": false
+    }
+  ],
   "portalDevIntegration": {
     "status": "validated",
     "validatedAt": "2026-07-30",
@@ -35,6 +50,7 @@
     "expected": {
       "status": "ready",
       "appKey": "daylight",
+      "version": "0.2.0",
       "environment": "dev",
       "database": false
     }
