@@ -1,3 +1,4 @@
 {
+  "environment": "dev",
   "geocodingEndpoint": "https://nominatim.openstreetmap.org/search"
 }
