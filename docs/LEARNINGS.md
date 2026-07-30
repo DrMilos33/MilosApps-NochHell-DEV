@@ -75,3 +75,46 @@ App-Task nicht verändert.
 - **Gültigkeitsgrenze:** Die Identitätsprüfung schützt die lokale
   Prozessauswahl; sie ersetzt keine Authentifizierung eines späteren
   Deployment-Systems.
+
+## 2026-07-30: Vollständige Lokalisierung braucht Fachzustände statt fertiger Sätze
+
+- **Evidenz:** Die frühere Tageslichtlogik gab deutsche Antwortsätze zurück.
+  Eine bloße Shell-Übersetzung hätte dadurch Resthelligkeit, Polartag,
+  Polarnacht und Resume-Zustände teilweise deutsch belassen.
+- **Folge:** Die Berechnung liefert sprachneutrale Zustandskennungen und
+  Zeitziele. Erst die UI formatiert daraus DE oder EN. Statische und dynamische
+  Texte, Dokumenttitel, zugängliche Namen sowie Datums-/Zeitformate wechseln
+  gemeinsam.
+- **Regression:** `tests/unit/i18n.test.ts` sowie die Shell-E2E-Fälle für
+  Sprache, Reload, Suche, Sonnenzeiten, Fehler und axe.
+- **Gültigkeitsgrenze:** Eigennamen und gespeicherte Ortskontexte werden nicht
+  ohne Netz rückübersetzt. Neue Suchen fragen Nominatim mit der aktuell
+  gewählten Sprache an.
+
+## 2026-07-30: Sprachabhängige Netzdaten brauchen getrennte Cache-Schlüssel
+
+- **Evidenz:** Ein nur nach Suchtext indizierter Geocoding-Cache hätte nach
+  einem Sprachwechsel weiterhin deutsche Ländernamen in der englischen
+  Ergebnisliste gezeigt.
+- **Folge:** Der Cache-Schlüssel enthält Sprache und normalisierten Suchtext.
+  `accept-language` und `Accept-Language` verwenden dieselbe aktuelle Sprache.
+- **Regression:** Browsertest mit englischer Suche, Ergebnistypen und
+  Persistenz; die bestehende Cache-Wiederverwendung bleibt für dieselbe Sprache
+  grün.
+- **Gültigkeitsgrenze:** Orts-Eigennamen folgen der Antwort des Geocoders und
+  sind nicht für jede Region vollständig lokalisierbar.
+
+## 2026-07-30: DEV-Badge und Portal-Linkbasis teilen eine Umgebungsquelle
+
+- **Evidenz:** Ein festes DEV-Badge neben separat hartcodierten Links könnte
+  später zu einem widersprüchlichen Build führen, der sich als DEV ausgibt,
+  aber Production verlinkt.
+- **Folge:** `public/runtime-config.json` setzt explizit `environment=dev`.
+  Badge, Body-Identität und alle absoluten Shell-Links werden daraus gemeinsam
+  gebildet. Die Production-Abbildung ist automatisiert geprüft, aber nicht
+  veröffentlicht.
+- **Regression:** Unit-Test beider Linkkarten und E2E-Test für DEV-Badge,
+  absolute Links sowie ausgeblendetes Badge in simulierter
+  Production-Konfiguration.
+- **Gültigkeitsgrenze:** Die geprüfte Production-Abbildung ist keine fachliche
+  Production-Freigabe.

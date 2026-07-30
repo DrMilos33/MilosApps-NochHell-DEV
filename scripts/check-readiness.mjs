@@ -11,9 +11,13 @@ if (!response.ok) {
 }
 
 const body = await response.json();
-if (body?.status !== "ready" || body?.appKey !== "daylight") {
+if (
+  body?.status !== "ready" ||
+  body?.appKey !== "daylight" ||
+  body?.environment !== "dev"
+) {
   throw new Error(
-    `Falscher DEV-Dienst auf ${url}: erwartet status=ready und appKey=daylight.`,
+    `Falscher DEV-Dienst auf ${url}: erwartet status=ready, appKey=daylight und environment=dev.`,
   );
 }
 

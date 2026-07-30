@@ -1,7 +1,23 @@
 import "./styles.css";
 import type { DaylightLocation, PlaceSearchResult } from "./types";
 import { createSnapshot, type DaylightSnapshot } from "./lib/daylight";
-import { searchPlaces, toStoredLocation } from "./lib/geocoding";
+import {
+  GeocodingError,
+  searchPlaces,
+  toStoredLocation,
+} from "./lib/geocoding";
+import {
+  formatLightSummary,
+  formatPlaceType,
+  localeFor,
+  normalizeLanguage,
+  persistLanguage,
+  readStoredLanguage,
+  shellLinks,
+  translate,
+  type Language,
+  type MessageKey,
+} from "./lib/i18n";
 import {
   browserStorage,
   clearLocalData,
@@ -17,29 +33,80 @@ import {
 } from "./lib/timezone";
 import { loadRuntimeConfig } from "./lib/runtime-config";
 
-await loadRuntimeConfig();
+const runtimeConfig = await loadRuntimeConfig();
+let language: Language = readStoredLanguage();
+const environment = runtimeConfig.environment;
+const links = shellLinks(environment);
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) {
-  throw new Error("App-Container fehlt.");
+  throw new Error("App container is missing.");
 }
 
+document.body.dataset.appKey = "daylight";
+document.body.dataset.environment = environment;
+app.dataset.milosShell = "";
+app.dataset.appKey = "daylight";
+app.dataset.environment = environment;
+
 app.innerHTML = `
+  <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
+
   <header class="site-header">
     <div class="shell header-inner">
-      <a class="brand" href="./" aria-label="Noch hell? Startseite">
-        <span class="brand-mark" aria-hidden="true"><span></span></span>
-        <span>Noch hell?</span>
+      <a
+        id="brand-home"
+        class="brand"
+        href="${links.home}"
+        data-i18n-aria-label="brandHome"
+        aria-label="MilosApps-Startseite"
+      >
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" focusable="false">
+            <circle cx="20" cy="20" r="18" fill="currentColor" opacity=".14"></circle>
+            <path d="M13 25a7 7 0 0 1 14 0z" fill="currentColor"></path>
+            <path
+              d="M8 27h24M20 8v5M9.5 16l4.3 2.2M30.5 16l-4.3 2.2"
+              fill="none"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-width="2.2"
+            ></path>
+            <path d="M11 31h18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
+          </svg>
+        </span>
+        <span class="brand-word">MilosApps</span>
+        <span class="dev-badge"${environment === "dev" ? "" : " hidden"}>DEV</span>
       </a>
-      <span class="privacy-pill">Ohne Konto · lokal</span>
+
+      <nav
+        class="app-nav"
+        data-i18n-aria-label="appNav"
+        aria-label="App-Navigation"
+      >
+        <div
+          class="language-switcher"
+          role="group"
+          data-i18n-aria-label="languageNav"
+          aria-label="Sprache"
+        >
+          <button class="language-button" type="button" data-language="de" aria-pressed="true">
+            DE
+          </button>
+          <button class="language-button" type="button" data-language="en" aria-pressed="false">
+            EN
+          </button>
+        </div>
+        <a class="all-apps-link" href="${links.apps}" data-i18n="allApps">Alle Apps</a>
+      </nav>
     </div>
   </header>
 
   <main id="main" class="shell">
     <section class="intro" aria-labelledby="intro-title">
-      <p class="eyebrow">Tageslicht, auf einen Blick</p>
-      <h1 id="intro-title">Passt der Spaziergang noch ins Helle?</h1>
-      <p class="intro-copy">
+      <p class="eyebrow" data-i18n="introEyebrow">Tageslicht, auf einen Blick</p>
+      <h1 id="intro-title" data-i18n="introTitle">Passt der Spaziergang noch ins Helle?</h1>
+      <p class="intro-copy" data-i18n="introCopy">
         Ein Ort genügt. Du siehst Sonnenuntergang, Dämmerungsende und den
         nächsten Sonnenaufgang – ohne Wetter, Konto oder Standorttracking.
       </p>
@@ -48,15 +115,17 @@ app.innerHTML = `
     <section class="location-card" aria-labelledby="location-title">
       <div class="section-heading">
         <div>
-          <p class="section-kicker">Dein Ort</p>
-          <h2 id="location-title">Suchen oder Gerät fragen</h2>
+          <p class="section-kicker" data-i18n="locationKicker">Dein Ort</p>
+          <h2 id="location-title" data-i18n="locationTitle">Suchen oder Gerät fragen</h2>
         </div>
-        <p class="section-note">Beide Wege liefern dieselbe vollständige Ansicht.</p>
+        <p class="section-note" data-i18n="locationNote">
+          Beide Wege liefern dieselbe vollständige Ansicht.
+        </p>
       </div>
 
       <div class="location-options">
         <form id="place-form" class="search-form" novalidate>
-          <label for="place-query">Ort oder Region</label>
+          <label for="place-query" data-i18n="placeLabel">Ort oder Region</label>
           <div class="input-row">
             <input
               id="place-query"
@@ -68,24 +137,42 @@ app.innerHTML = `
               placeholder="z. B. Freiburg oder Tromsø"
               aria-describedby="search-hint"
             />
-            <button id="search-button" class="button button-primary" type="submit">
+            <button
+              id="search-button"
+              class="button button-primary"
+              type="submit"
+              data-i18n="searchButton"
+            >
               Ort suchen
             </button>
-            <button id="cancel-search" class="button button-quiet" type="button" hidden>
+            <button
+              id="cancel-search"
+              class="button button-quiet"
+              type="button"
+              data-i18n="cancel"
+              hidden
+            >
               Abbrechen
             </button>
           </div>
-          <p id="search-hint" class="field-hint">
+          <p id="search-hint" class="field-hint" data-i18n="searchHint">
             Suche erst nach dem Absenden. Der Suchtext geht dann an OpenStreetMap.
           </p>
         </form>
 
         <div class="device-option">
           <div>
-            <strong>Gerätestandort</strong>
-            <span>Nur nach deinem Tipp, auf etwa 1 km gerundet gespeichert.</span>
+            <strong data-i18n="deviceTitle">Gerätestandort</strong>
+            <span data-i18n="deviceCopy">
+              Nur nach deinem Tipp, auf etwa 1 km gerundet gespeichert.
+            </span>
           </div>
-          <button id="locate-button" class="button button-secondary" type="button">
+          <button
+            id="locate-button"
+            class="button button-secondary"
+            type="button"
+            data-i18n="locateButton"
+          >
             Standort verwenden
           </button>
         </div>
@@ -93,8 +180,13 @@ app.innerHTML = `
 
       <div id="search-state" class="search-state" role="status" aria-live="polite"></div>
       <div id="search-results" class="search-results" aria-live="off" hidden>
-        <h3 id="results-title">Gefundene Orte</h3>
-        <div id="results-list" class="results-list" role="list" aria-labelledby="results-title"></div>
+        <h3 id="results-title" data-i18n="resultsHeading">Gefundene Orte</h3>
+        <div
+          id="results-list"
+          class="results-list"
+          role="list"
+          aria-labelledby="results-title"
+        ></div>
       </div>
     </section>
 
@@ -107,16 +199,23 @@ app.innerHTML = `
         <div class="answer-content">
           <div class="answer-location">
             <div>
-              <p id="location-context" class="section-kicker">Ausgewählter Ort</p>
+              <p id="location-context" class="section-kicker" data-i18n="selectedLocation">
+                Ausgewählter Ort
+              </p>
               <h2 id="location-name"></h2>
               <p id="location-detail" class="location-detail"></p>
             </div>
-            <button id="change-location" class="button button-glass" type="button">
+            <button
+              id="change-location"
+              class="button button-glass"
+              type="button"
+              data-i18n="changeLocation"
+            >
               Ort ändern
             </button>
           </div>
           <div class="answer-main">
-            <p class="answer-label">Noch hell?</p>
+            <p class="answer-label" data-i18n="answerLabel">Noch hell?</p>
             <h2 id="answer-title" tabindex="-1"></h2>
             <p id="answer-detail" class="answer-detail"></p>
           </div>
@@ -127,30 +226,30 @@ app.innerHTML = `
       <div class="events-section">
         <div class="section-heading events-heading">
           <div>
-            <p class="section-kicker">Heute & morgen</p>
-            <h2>Sonnenzeiten</h2>
+            <p class="section-kicker" data-i18n="eventsKicker">Heute & morgen</p>
+            <h2 data-i18n="eventsTitle">Sonnenzeiten</h2>
           </div>
           <p id="calculation-date" class="section-note"></p>
         </div>
 
         <dl class="event-grid">
           <div class="event-card event-sunrise">
-            <dt>Sonnenaufgang</dt>
+            <dt data-i18n="sunrise">Sonnenaufgang</dt>
             <dd id="sunrise-time"></dd>
             <dd id="sunrise-note" class="event-note"></dd>
           </div>
           <div class="event-card event-sunset">
-            <dt>Sonnenuntergang</dt>
+            <dt data-i18n="sunset">Sonnenuntergang</dt>
             <dd id="sunset-time"></dd>
             <dd id="sunset-note" class="event-note"></dd>
           </div>
           <div class="event-card event-twilight">
-            <dt>Ende bürgerliche Dämmerung</dt>
+            <dt data-i18n="civilDusk">Ende bürgerliche Dämmerung</dt>
             <dd id="civil-dusk-time"></dd>
             <dd id="civil-dusk-note" class="event-note"></dd>
           </div>
           <div class="event-card event-tomorrow">
-            <dt>Morgen: Sonnenaufgang</dt>
+            <dt data-i18n="tomorrowSunrise">Morgen: Sonnenaufgang</dt>
             <dd id="tomorrow-sunrise-time"></dd>
             <dd id="tomorrow-sunrise-note" class="event-note"></dd>
           </div>
@@ -160,8 +259,10 @@ app.innerHTML = `
       <aside class="accuracy-note" aria-labelledby="accuracy-title">
         <div class="accuracy-mark" aria-hidden="true">≈</div>
         <div>
-          <h2 id="accuracy-title">Gute Orientierung, keine Sichtgarantie</h2>
-          <p>
+          <h2 id="accuracy-title" data-i18n="accuracyTitle">
+            Gute Orientierung, keine Sichtgarantie
+          </h2>
+          <p data-i18n="accuracyCopy">
             Berge, Gebäude und die aktuelle Atmosphäre können den sichtbaren
             Sonnenauf- oder -untergang verschieben. Nahe den Polen wächst die
             rechnerische Unsicherheit.
@@ -172,15 +273,22 @@ app.innerHTML = `
 
     <section class="privacy-section" aria-labelledby="privacy-title">
       <div>
-        <p class="section-kicker">Privat by design</p>
-        <h2 id="privacy-title">Dein genauer Standort bleibt auf diesem Gerät.</h2>
+        <p class="section-kicker" data-i18n="privacyKicker">Privat by design</p>
+        <h2 id="privacy-title" data-i18n="privacyTitle">
+          Dein genauer Standort bleibt auf diesem Gerät.
+        </h2>
       </div>
       <div class="privacy-grid">
-        <p>
+        <p data-i18n="privacyCopy">
           Gerätekoordinaten werden vor dem Speichern gerundet. Es gibt kein
           Konto, keine App-Datenbank und keine Koordinaten in der Seitenadresse.
         </p>
-        <button id="clear-data" class="button button-danger" type="button">
+        <button
+          id="clear-data"
+          class="button button-danger"
+          type="button"
+          data-i18n="clearData"
+        >
           Lokale Ortsdaten löschen
         </button>
       </div>
@@ -190,12 +298,25 @@ app.innerHTML = `
 
   <footer class="site-footer">
     <div class="shell footer-inner">
-      <p>
-        Ortsdaten ©
-        <a href="https://www.openstreetmap.org/copyright" rel="noreferrer">OpenStreetMap-Mitwirkende</a>,
-        ODbL. Sonnenzeiten nach NOAA/Meeus-Näherung.
-      </p>
-      <p><a href="./health.json">DEV-Healthcheck</a> · App-Key <code>daylight</code></p>
+      <div class="footer-copy">
+        <p data-i18n="footerText">
+          Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.
+        </p>
+        <p class="footer-attribution">
+          <span data-i18n="attributionPrefix">Ortsdaten ©</span>
+          <a href="https://www.openstreetmap.org/copyright" rel="noreferrer">
+            <span data-i18n="attributionName">OpenStreetMap-Mitwirkende</span>
+          </a>,
+          <span data-i18n="attributionSuffix">
+            ODbL. Sonnenzeiten nach NOAA/Meeus-Näherung.
+          </span>
+        </p>
+      </div>
+      <nav data-i18n-aria-label="footerNav" aria-label="Rechtliches">
+        <a href="${links.legal}" data-i18n="legal">Impressum</a>
+        <a href="${links.privacy}" data-i18n="privacy">Datenschutz</a>
+        <a href="${links.home}">MilosApps</a>
+      </nav>
     </div>
   </footer>
 `;
@@ -203,7 +324,7 @@ app.innerHTML = `
 function element<T extends HTMLElement>(selector: string): T {
   const value = document.querySelector<T>(selector);
   if (!value) {
-    throw new Error(`Erwartetes Element fehlt: ${selector}`);
+    throw new Error(`Expected element is missing: ${selector}`);
   }
   return value;
 }
@@ -223,14 +344,99 @@ const answerTitle = element<HTMLHeadingElement>("#answer-title");
 const clearDataButton = element<HTMLButtonElement>("#clear-data");
 const storageNote = element<HTMLParagraphElement>("#storage-note");
 
+type Feedback = {
+  key: MessageKey;
+  values?: Record<string, string | number> | undefined;
+  kind?: "info" | "error" | "success" | undefined;
+};
+
 let currentLocation: DaylightLocation | null = loadLocation();
+let currentResults: PlaceSearchResult[] = [];
 let searchController: AbortController | null = null;
 let refreshTimer: number | null = null;
+let searchFeedback: Feedback | null = null;
+let storageFeedback: Feedback | null = null;
+let searching = false;
+let locating = false;
 
-function setSearchMessage(message: string, kind: "info" | "error" | "success" = "info"): void {
-  searchState.textContent = message;
+function renderFeedback(target: HTMLElement, feedback: Feedback | null): void {
+  target.textContent = feedback
+    ? translate(language, feedback.key, feedback.values)
+    : "";
+}
+
+function setSearchMessage(
+  key: MessageKey,
+  kind: "info" | "error" | "success" = "info",
+  values?: Record<string, string | number>,
+): void {
+  searchFeedback = { key, kind, values };
+  renderFeedback(searchState, searchFeedback);
   searchState.dataset.kind = kind;
   searchState.setAttribute("role", kind === "error" ? "alert" : "status");
+}
+
+function setStorageMessage(
+  key: MessageKey,
+  values?: Record<string, string | number>,
+): void {
+  storageFeedback = { key, values };
+  renderFeedback(storageNote, storageFeedback);
+}
+
+function setSearching(active: boolean): void {
+  searching = active;
+  searchButton.disabled = active;
+  placeQuery.disabled = active;
+  cancelSearchButton.hidden = !active;
+  searchButton.textContent = translate(
+    language,
+    active ? "searchRunning" : "searchButton",
+  );
+}
+
+function setLocating(active: boolean): void {
+  locating = active;
+  locateButton.disabled = active;
+  locateButton.textContent = translate(
+    language,
+    active ? "locatingButton" : "locateButton",
+  );
+}
+
+function applyStaticLanguage(): void {
+  document.documentElement.lang = language;
+  document.title = translate(language, "documentTitle");
+  const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+  if (description) {
+    description.content = translate(language, "documentDescription");
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-i18n]").forEach((target) => {
+    const key = target.dataset.i18n as MessageKey | undefined;
+    if (key) {
+      target.textContent = translate(language, key);
+    }
+  });
+  document
+    .querySelectorAll<HTMLElement>("[data-i18n-aria-label]")
+    .forEach((target) => {
+      const key = target.dataset.i18nAriaLabel as MessageKey | undefined;
+      if (key) {
+        target.setAttribute("aria-label", translate(language, key));
+      }
+    });
+  document.querySelectorAll<HTMLButtonElement>("[data-language]").forEach((button) => {
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.language === language),
+    );
+  });
+  placeQuery.placeholder = translate(language, "placePlaceholder");
+  setSearching(searching);
+  setLocating(locating);
+  renderFeedback(searchState, searchFeedback);
+  renderFeedback(storageNote, storageFeedback);
 }
 
 function eventCopy(
@@ -240,8 +446,15 @@ function eventCopy(
 ): { value: string; note: string } {
   if (instant) {
     return {
-      value: formatLocalTime(instant, snapshot.location.timeZone),
-      note: kind === "tomorrow-sunrise" ? "Ortszeit am nächsten Kalendertag" : "Ortszeit",
+      value: formatLocalTime(
+        instant,
+        snapshot.location.timeZone,
+        localeFor(language),
+      ),
+      note: translate(
+        language,
+        kind === "tomorrow-sunrise" ? "nextDayLocalTime" : "localTime",
+      ),
     };
   }
 
@@ -249,25 +462,31 @@ function eventCopy(
   const events = kind === "civil-dusk" ? day.civil : day.horizon;
   if (events.condition === "always-above") {
     return {
-      value: kind === "civil-dusk" ? "Endet nicht" : "Kein Ereignis",
-      note:
-        kind === "civil-dusk"
-          ? "Die Sonne bleibt über der Dämmerungsgrenze."
-          : "Polartag: Die Sonne bleibt über dem Horizont.",
+      value: translate(
+        language,
+        kind === "civil-dusk" ? "endsNever" : "noEvent",
+      ),
+      note: translate(
+        language,
+        kind === "civil-dusk" ? "sunAboveTwilight" : "polarDayNote",
+      ),
     };
   }
   if (events.condition === "always-below") {
     return {
-      value: kind === "civil-dusk" ? "Keine Dämmerung" : "Kein Ereignis",
-      note:
-        kind === "civil-dusk"
-          ? "Die Sonne erreicht die bürgerliche Dämmerungsgrenze nicht."
-          : "Polarnacht: Die Sonne bleibt unter dem Horizont.",
+      value: translate(
+        language,
+        kind === "civil-dusk" ? "noTwilight" : "noEvent",
+      ),
+      note: translate(
+        language,
+        kind === "civil-dusk" ? "sunBelowTwilight" : "polarNightNote",
+      ),
     };
   }
   return {
-    value: "Nicht an diesem Datum",
-    note: "Das Ereignis liegt außerhalb dieses lokalen Kalendertags.",
+    value: translate(language, "notOnDate"),
+    note: translate(language, "eventOutsideDate"),
   };
 }
 
@@ -288,27 +507,49 @@ function renderSnapshot(focusAnswer = false): void {
   }
 
   const snapshot = createSnapshot(currentLocation);
+  const summary = formatLightSummary(
+    snapshot.summary,
+    snapshot.generatedAt,
+    language,
+  );
   dashboard.hidden = false;
   document.body.dataset.phase = snapshot.summary.phase;
   answerCard.dataset.phase = snapshot.summary.phase;
-  element("#location-name").textContent = currentLocation.name;
-  element("#location-context").textContent =
-    currentLocation.source === "device" ? "Gerundeter Gerätestandort" : "Ausgewählter Ort";
+  element("#location-name").textContent =
+    currentLocation.source === "device"
+      ? translate(language, "nearbyName")
+      : currentLocation.name;
+  element("#location-context").textContent = translate(
+    language,
+    currentLocation.source === "device"
+      ? "roundedDeviceLocation"
+      : "selectedLocation",
+  );
   element("#location-detail").textContent = [
-    currentLocation.context,
-    formatTimeZoneLabel(snapshot.generatedAt, currentLocation.timeZone),
+    currentLocation.source === "device"
+      ? translate(language, "nearbyContext")
+      : currentLocation.context,
+    formatTimeZoneLabel(
+      snapshot.generatedAt,
+      currentLocation.timeZone,
+      localeFor(language),
+    ),
   ]
     .filter(Boolean)
     .join(" · ");
-  answerTitle.textContent = snapshot.summary.answer;
-  element("#answer-detail").textContent = snapshot.summary.detail;
-  element("#answer-updated").textContent = `Aktualisiert ${formatLocalTime(
-    snapshot.generatedAt,
-    currentLocation.timeZone,
-  )} Uhr Ortszeit`;
+  answerTitle.textContent = summary.answer;
+  element("#answer-detail").textContent = summary.detail;
+  element("#answer-updated").textContent = translate(language, "updated", {
+    time: formatLocalTime(
+      snapshot.generatedAt,
+      currentLocation.timeZone,
+      localeFor(language),
+    ),
+  });
   element("#calculation-date").textContent = formatLocalDate(
     snapshot.localDate,
     currentLocation.timeZone,
+    localeFor(language),
   );
 
   writeEvent(
@@ -334,7 +575,11 @@ function renderSnapshot(focusAnswer = false): void {
 
   const duration = snapshot.today.bounds.durationHours;
   if (duration !== 24) {
-    element("#calculation-date").textContent += ` · Zeitumstellung (${duration} Std.)`;
+    element("#calculation-date").textContent += ` · ${translate(
+      language,
+      "dstDay",
+      { hours: duration },
+    )}`;
   }
   if (focusAnswer) {
     answerTitle.focus({ preventScroll: true });
@@ -345,25 +590,33 @@ function renderSnapshot(focusAnswer = false): void {
 function selectLocation(location: DaylightLocation): void {
   currentLocation = location;
   const stored = saveLocation(location);
-  storageNote.textContent = stored
-    ? "Der gewählte Ort ist lokal für die nächste Wiederöffnung gespeichert."
-    : "Lokales Speichern ist in diesem Browser nicht verfügbar; die Ansicht funktioniert trotzdem.";
+  setStorageMessage(stored ? "storedLocation" : "storageUnavailable");
   searchResults.hidden = true;
+  currentResults = [];
   resultsList.replaceChildren();
-  setSearchMessage(`${location.name} ist ausgewählt.`, "success");
+  setSearchMessage("selectedMessage", "success", {
+    name:
+      location.source === "device"
+        ? translate(language, "nearbyName")
+        : location.name,
+  });
   renderSnapshot(true);
 }
 
 function renderResults(results: PlaceSearchResult[]): void {
+  currentResults = results;
   resultsList.replaceChildren();
   searchResults.hidden = false;
-  resultsTitle.textContent =
-    results.length === 1 ? "1 gefundener Ort" : `${results.length} gefundene Orte`;
+  resultsTitle.textContent = translate(
+    language,
+    results.length === 1 ? "resultCountOne" : "resultCountMany",
+    { count: results.length },
+  );
 
   if (results.length === 0) {
     const empty = document.createElement("p");
     empty.className = "empty-result";
-    empty.textContent = "Kein passender Ort gefunden. Ergänze Land oder Region und versuche es erneut.";
+    empty.textContent = translate(language, "emptyResult");
     resultsList.append(empty);
     return;
   }
@@ -379,7 +632,7 @@ function renderResults(results: PlaceSearchResult[]): void {
     const context = document.createElement("span");
     context.textContent = result.context;
     const type = document.createElement("small");
-    type.textContent = result.osmType;
+    type.textContent = formatPlaceType(result.osmType, language);
     button.append(name, context, type);
     button.addEventListener("click", () => selectLocation(toStoredLocation(result)));
     item.append(button);
@@ -387,52 +640,74 @@ function renderResults(results: PlaceSearchResult[]): void {
   }
 }
 
-function setSearching(active: boolean): void {
-  searchButton.disabled = active;
-  placeQuery.disabled = active;
-  cancelSearchButton.hidden = !active;
-  searchButton.textContent = active ? "Suche läuft …" : "Ort suchen";
+function changeLanguage(nextLanguage: unknown): void {
+  const selected = normalizeLanguage(nextLanguage);
+  if (selected === language) {
+    return;
+  }
+  searchController?.abort();
+  language = selected;
+  persistLanguage(language);
+  applyStaticLanguage();
+  if (!searchResults.hidden) {
+    renderResults(currentResults);
+  }
+  renderSnapshot();
 }
+
+document.querySelectorAll<HTMLButtonElement>("[data-language]").forEach((button) => {
+  button.addEventListener("click", () => changeLanguage(button.dataset.language));
+});
 
 placeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const query = placeQuery.value.trim();
   if (query.length < 2) {
-    setSearchMessage("Bitte gib mindestens zwei Zeichen ein.", "error");
+    setSearchMessage("searchMinimum", "error");
     placeQuery.focus();
     return;
   }
+
   searchController?.abort();
-  searchController = new AbortController();
+  const controller = new AbortController();
+  searchController = controller;
+  const requestedLanguage = language;
   setSearching(true);
-  setSearchMessage(`Suche nach „${query}“ …`);
+  setSearchMessage("searchingFor", "info", { query });
   searchResults.hidden = true;
 
   try {
-    const results = await searchPlaces(query, searchController.signal);
+    const results = await searchPlaces(query, controller.signal, requestedLanguage);
+    if (requestedLanguage !== language) {
+      return;
+    }
     renderResults(results);
     setSearchMessage(
-      results.length === 0
-        ? "Kein Ort gefunden."
-        : "Wähle den passenden Ort aus der Ergebnisliste.",
+      results.length === 0 ? "searchNotFound" : "chooseResult",
       results.length === 0 ? "error" : "success",
     );
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      setSearchMessage("Ortssuche abgebrochen.");
+      setSearchMessage("searchCancelled");
+    } else if (!navigator.onLine) {
+      setSearchMessage("searchOffline", "error");
+    } else if (error instanceof GeocodingError && error.code === "http") {
+      setSearchMessage("searchHttpError", "error", {
+        status: error.status ?? "–",
+      });
+    } else if (
+      error instanceof GeocodingError &&
+      error.code === "invalid-response"
+    ) {
+      setSearchMessage("searchInvalidResponse", "error");
     } else {
-      setSearchMessage(
-        navigator.onLine
-          ? error instanceof Error
-            ? error.message
-            : "Die Ortssuche ist fehlgeschlagen."
-          : "Du bist offline. Ein gespeicherter Ort funktioniert weiterhin.",
-        "error",
-      );
+      setSearchMessage("searchFailed", "error");
     }
   } finally {
-    setSearching(false);
-    searchController = null;
+    if (searchController === controller) {
+      setSearching(false);
+      searchController = null;
+    }
   }
 });
 
@@ -442,17 +717,13 @@ cancelSearchButton.addEventListener("click", () => {
 
 locateButton.addEventListener("click", () => {
   if (!navigator.geolocation) {
-    setSearchMessage(
-      "Dieses Gerät bietet keine Standortfunktion. Nutze stattdessen die gleichwertige Ortssuche.",
-      "error",
-    );
+    setSearchMessage("locationUnsupported", "error");
     placeQuery.focus();
     return;
   }
 
-  locateButton.disabled = true;
-  locateButton.textContent = "Standort wird gefragt …";
-  setSearchMessage("Der Browser fragt jetzt nach deiner Standortfreigabe.");
+  setLocating(true);
+  setSearchMessage("locationPermissionPrompt");
   navigator.geolocation.getCurrentPosition(
     (position) => {
       try {
@@ -460,36 +731,28 @@ locateButton.addEventListener("click", () => {
         const longitude = coarsenDeviceCoordinate(position.coords.longitude);
         const location: DaylightLocation = {
           id: `device-${latitude.toFixed(2)}-${longitude.toFixed(2)}`,
-          name: "In deiner Nähe",
-          context: "Auf etwa 1 km gerundet",
+          name: "Near you",
+          context: "Rounded to about 1 km",
           latitude,
           longitude,
           timeZone: resolveTimeZone(latitude, longitude),
           source: "device",
         };
         selectLocation(location);
-      } catch (error) {
-        setSearchMessage(
-          error instanceof Error ? error.message : "Der Standort konnte nicht verarbeitet werden.",
-          "error",
-        );
+      } catch {
+        setSearchMessage("locationProcessFailed", "error");
       } finally {
-        locateButton.disabled = false;
-        locateButton.textContent = "Standort verwenden";
+        setLocating(false);
       }
     },
     (error) => {
-      const messages: Record<number, string> = {
-        [error.PERMISSION_DENIED]:
-          "Standort nicht freigegeben oder Abfrage abgebrochen. Die Ortssuche funktioniert vollständig ohne Freigabe.",
-        [error.POSITION_UNAVAILABLE]:
-          "Das Gerät konnte gerade keinen Standort bestimmen. Nutze die Ortssuche oder versuche es später erneut.",
-        [error.TIMEOUT]:
-          "Die Standortbestimmung hat zu lange gedauert. Nutze die Ortssuche oder versuche es erneut.",
+      const keys: Record<number, MessageKey> = {
+        [error.PERMISSION_DENIED]: "locationDenied",
+        [error.POSITION_UNAVAILABLE]: "locationUnavailable",
+        [error.TIMEOUT]: "locationTimeout",
       };
-      setSearchMessage(messages[error.code] ?? "Die Standortbestimmung ist fehlgeschlagen.", "error");
-      locateButton.disabled = false;
-      locateButton.textContent = "Standort verwenden";
+      setSearchMessage(keys[error.code] ?? "locationFailed", "error");
+      setLocating(false);
       placeQuery.focus();
     },
     {
@@ -501,7 +764,10 @@ locateButton.addEventListener("click", () => {
 });
 
 element<HTMLButtonElement>("#change-location").addEventListener("click", () => {
-  element<HTMLElement>(".location-card").scrollIntoView({ behavior: "smooth", block: "start" });
+  element<HTMLElement>(".location-card").scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
   placeQuery.focus({ preventScroll: true });
 });
 
@@ -509,10 +775,8 @@ clearDataButton.addEventListener("click", () => {
   const cleared = clearLocalData();
   currentLocation = null;
   renderSnapshot();
-  storageNote.textContent = cleared
-    ? "Gespeicherter Ort und Suchcache wurden vollständig gelöscht."
-    : "Es waren keine zugänglichen lokalen Ortsdaten vorhanden.";
-  setSearchMessage("Lokale Ortsdaten gelöscht. Du kannst jederzeit neu suchen.", "success");
+  setStorageMessage(cleared ? "dataCleared" : "noLocalData");
+  setSearchMessage("dataClearedStatus", "success");
   placeQuery.value = "";
   placeQuery.focus();
 });
@@ -526,10 +790,8 @@ function refreshForResume(): void {
 document.addEventListener("visibilitychange", refreshForResume);
 window.addEventListener("focus", refreshForResume);
 window.addEventListener("pageshow", refreshForResume);
-window.addEventListener("online", () => setSearchMessage("Wieder online.", "success"));
-window.addEventListener("offline", () =>
-  setSearchMessage("Offline. Gespeicherte Sonnenzeiten werden weiter lokal berechnet."),
-);
+window.addEventListener("online", () => setSearchMessage("online", "success"));
+window.addEventListener("offline", () => setSearchMessage("offline"));
 
 if ("serviceWorker" in navigator && import.meta.env.PROD && window.isSecureContext) {
   const registerServiceWorker = () => {
@@ -545,10 +807,10 @@ if ("serviceWorker" in navigator && import.meta.env.PROD && window.isSecureConte
 }
 
 if (!browserStorage()) {
-  storageNote.textContent =
-    "Dieser Browser blockiert lokale Speicherung. Die App funktioniert für die aktuelle Sitzung.";
+  setStorageMessage("browserStorageBlocked");
 }
 
+applyStaticLanguage();
 renderSnapshot();
 refreshTimer = window.setInterval(() => renderSnapshot(), 60_000);
 window.addEventListener("beforeunload", () => {

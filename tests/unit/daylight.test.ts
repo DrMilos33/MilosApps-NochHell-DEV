@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DaylightLocation } from "../../src/types";
-import { createSnapshot, formatRemaining } from "../../src/lib/daylight";
+import { createSnapshot } from "../../src/lib/daylight";
 
 const berlin: DaylightLocation = {
   id: "berlin",
@@ -13,13 +13,6 @@ const berlin: DaylightLocation = {
 };
 
 describe("Resthelligkeit", () => {
-  it("rundet verbleibende Zeit nicht vorzeitig auf null", () => {
-    expect(formatRemaining(1)).toBe("1 Min.");
-    expect(formatRemaining(60_001)).toBe("2 Min.");
-    expect(formatRemaining(3_600_000)).toBe("1 Std.");
-    expect(formatRemaining(3_660_000)).toBe("1 Std. 1 Min.");
-  });
-
   it("unterscheidet Morgen-, Tages-, Abend- und Nachtzustand", () => {
     const morning = createSnapshot(berlin, new Date("2026-05-01T03:30:00Z"));
     const day = createSnapshot(berlin, new Date("2026-05-01T11:00:00Z"));
@@ -45,9 +38,9 @@ describe("Resthelligkeit", () => {
     const winter = createSnapshot(tromsoe, new Date("2026-12-21T12:00:00Z"));
 
     expect(summer.summary.phase).toBe("polar-day");
-    expect(summer.summary.answer).toContain("durchgehend");
+    expect(summer.summary.state).toBe("polar-day");
     expect(winter.summary.phase).toBe("polar-night");
-    expect(winter.summary.detail).toContain("unter dem Horizont");
+    expect(winter.summary.state).toBe("polar-night-twilight");
   });
 
   it("wechselt beim Erzeugen eines neuen Snapshots über lokale Mitternacht", () => {

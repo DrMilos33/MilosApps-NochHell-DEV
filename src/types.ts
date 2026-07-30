@@ -16,6 +16,7 @@ export interface PlaceSearchResult extends DaylightLocation {
 
 export interface RuntimeConfig {
   geocodingEndpoint: string;
+  environment: "dev" | "production";
 }
 
 declare global {

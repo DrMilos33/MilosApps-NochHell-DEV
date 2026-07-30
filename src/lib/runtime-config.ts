@@ -2,6 +2,7 @@ import type { RuntimeConfig } from "../types";
 
 const defaults: RuntimeConfig = {
   geocodingEndpoint: "https://nominatim.openstreetmap.org/search",
+  environment: "dev",
 };
 
 export async function loadRuntimeConfig(): Promise<RuntimeConfig> {
@@ -11,11 +12,12 @@ export async function loadRuntimeConfig(): Promise<RuntimeConfig> {
       return defaults;
     }
     const value = (await response.json()) as Partial<RuntimeConfig>;
-    const config = {
+    const config: RuntimeConfig = {
       geocodingEndpoint:
         typeof value.geocodingEndpoint === "string" && value.geocodingEndpoint.startsWith("https://")
           ? value.geocodingEndpoint
           : defaults.geocodingEndpoint,
+      environment: value.environment === "production" ? "production" : "dev",
     };
     window.__DAYLIGHT_CONFIG__ = config;
     return config;

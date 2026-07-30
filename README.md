@@ -10,7 +10,8 @@ Geräteortung zeigt die Web-App:
 - ehrliche Zustände für Polartag, Polarnacht, Zeitumstellung und Datumssprung.
 
 Die App benötigt weder Konto noch App-Datenbank. Sie enthält keine Sternkarte
-und keinen Wetterbericht.
+und keinen Wetterbericht. Die gesamte sichtbare Oberfläche ist auf Deutsch und
+Englisch verfügbar; die lokale Sprachwahl bleibt nach dem Neuladen erhalten.
 
 ## Lokal starten
 
@@ -54,6 +55,17 @@ pnpm preview:capture
 - `preview:capture` erzeugt das reproduzierbare Portal-Vorschaubild aus der
   eigenen App-Oberfläche.
 
+## Public App Shell
+
+Die App adaptiert `public-app-shell/v1` aus dem exakt gepinnten
+Shared-Commit `f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4` beziehungsweise Tag
+`public-app-shell-v1.0.0`. Header, Sprache, Umgebungslinks und Footer sind
+app-eigener Code; es gibt keinen Runtime-Import aus `MilosApps-Shared`.
+
+Im DEV-Build führen alle Shell-Links absolut zu `https://dev.milos-apps.de`.
+Das DEV-Badge und diese Linkbasis stammen aus derselben expliziten
+Runtime-Umgebung. Production bleibt nicht freigegeben.
+
 ## Datenschutz und Datenfluss
 
 - Standortzugriff erfolgt nur nach einem bewussten Klick.
@@ -90,4 +102,5 @@ Details:
 - [QA-Bericht](docs/QA_REPORT.md)
 - [DEV-Deployment](docs/DEV_DEPLOYMENT.md)
 - [DEV- und Portalübergabe](docs/DEV_HANDOFF.md)
+- [Gepinnte Shared-Verträge](docs/SHARED_CONTRACTS.md)
 - [Erkenntnisse](docs/LEARNINGS.md)

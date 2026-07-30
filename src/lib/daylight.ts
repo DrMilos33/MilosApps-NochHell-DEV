@@ -22,8 +22,15 @@ export type LightPhase =
 
 export interface LightSummary {
   phase: LightPhase;
-  answer: string;
-  detail: string;
+  state:
+    | "polar-day"
+    | "polar-night-twilight"
+    | "polar-night-dark"
+    | "daylight-until-dusk"
+    | "daylight-over-horizon"
+    | "morning-twilight"
+    | "evening-twilight"
+    | "night";
   target: Date | null;
 }
 
@@ -38,20 +45,6 @@ export interface DaylightSnapshot {
   civilDusk: Date | null;
   tomorrowSunrise: Date | null;
   summary: LightSummary;
-}
-
-export function formatRemaining(milliseconds: number): string {
-  const totalMinutes = Math.max(1, Math.ceil(milliseconds / 60_000));
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-
-  if (hours === 0) {
-    return `${minutes} Min.`;
-  }
-  if (minutes === 0) {
-    return `${hours} Std.`;
-  }
-  return `${hours} Std. ${minutes} Min.`;
 }
 
 function firstFuture(...instants: Array<Date | null>): Date | null {
@@ -74,8 +67,7 @@ export function summarizeLight(
   if (today.horizon.condition === "always-above") {
     return {
       phase: "polar-day",
-      answer: "Ja – durchgehend",
-      detail: "Die Sonne geht an diesem Ort heute nicht unter.",
+      state: "polar-day",
       target: null,
     };
   }
@@ -87,16 +79,10 @@ export function summarizeLight(
     );
     return {
       phase: "polar-night",
-      answer:
+      state:
         elevation >= solarThresholds.civilTwilight
-          ? "Dämmerlicht"
-          : "Nein – Polarnacht",
-      detail:
-        nextLight && nextLight > now
-          ? `Die Sonne bleibt heute unter dem Horizont. Nächstes Licht in ${formatRemaining(
-              nextLight.getTime() - now.getTime(),
-            )}`
-          : "Die Sonne bleibt heute unter dem Horizont.",
+          ? "polar-night-twilight"
+          : "polar-night-dark",
       target: nextLight,
     };
   }
@@ -105,14 +91,10 @@ export function summarizeLight(
     const target = civilDusk && civilDusk > now ? civilDusk : sunset;
     return {
       phase: "daylight",
-      answer:
-        target && target > now
-          ? `Noch ${formatRemaining(target.getTime() - now.getTime())} hell`
-          : "Ja – noch hell",
-      detail:
+      state:
         civilDusk && civilDusk > now
-          ? "Bis zum Ende der bürgerlichen Dämmerung."
-          : "Die Sonne steht noch über dem Horizont.",
+          ? "daylight-until-dusk"
+          : "daylight-over-horizon",
       target,
     };
   }
@@ -121,16 +103,14 @@ export function summarizeLight(
     if (sunrise && sunrise > now) {
       return {
         phase: "morning-twilight",
-        answer: "Es wird hell",
-        detail: `Sonnenaufgang in ${formatRemaining(sunrise.getTime() - now.getTime())}`,
+        state: "morning-twilight",
         target: sunrise,
       };
     }
     if (civilDusk && civilDusk > now) {
       return {
         phase: "evening-twilight",
-        answer: `Noch ${formatRemaining(civilDusk.getTime() - now.getTime())} Restlicht`,
-        detail: "Bis zum Ende der bürgerlichen Dämmerung.",
+        state: "evening-twilight",
         target: civilDusk,
       };
     }
@@ -142,11 +122,7 @@ export function summarizeLight(
   );
   return {
     phase: "night",
-    answer: "Nein – es ist dunkel",
-    detail:
-      nextSunrise && nextSunrise > now
-        ? `Sonnenaufgang in ${formatRemaining(nextSunrise.getTime() - now.getTime())}`
-        : "Heute und morgen gibt es keinen Sonnenaufgang.",
+    state: "night",
     target: nextSunrise,
   };
 }

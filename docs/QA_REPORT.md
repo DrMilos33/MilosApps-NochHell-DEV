@@ -5,6 +5,8 @@ Branch: `codex/daylight-dev`
 Implementierungsmeilenstein: `2b5ffe7`  
 Erweiterte QA-Matrix: `a259a5f`
 DEV-Vertrag und Übergabe: `8071fe2`
+Shared-Vertrag: `public-app-shell/v1` aus Shared-Commit
+`f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4`
 
 ## Ergebnis
 
@@ -17,21 +19,22 @@ abgesichert. Production und fremde Repositories blieben unverändert.
 
 | Prüfung | Ergebnis | Abdeckung |
 | --- | --- | --- |
-| `pnpm test` | 20 bestanden | Astronomie, Tageslichtlogik, Zeitzonen, Geocoding, Speicherung |
+| `pnpm test` | 24 bestanden | Astronomie, Tageslichtlogik, Zeitzonen, Geocoding, Speicherung, DE/EN und Umgebungslinks |
 | `pnpm build` | bestanden | TypeScript und Produktionsbundle |
-| `pnpm test:e2e` | 68 bestanden, 10 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil |
+| `pnpm test:e2e` | 84 bestanden, 15 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil |
 | `pnpm verify:dev` | bestanden | App-Key-Readiness und strikter Portkollisionsabbruch |
 | axe-core | keine automatisiert erkennbaren Verstöße | Start- und Ergebnisfluss |
 | Ressourcenbudget | bestanden | unter 180 DOM-Elementen und 300 kB Transfer im geprüften Startzustand |
 
-Das Produktionsbundle der zweiten Runde umfasst ungefähr 97,0 kB JavaScript
-(39,2 kB gzip) und 12,4 kB CSS (3,7 kB gzip).
+Das Bundle nach der Shell-Integration umfasst ungefähr 113,9 kB JavaScript
+(43,9 kB gzip) und 14,0 kB CSS (4,0 kB gzip).
 
-Die zehn übersprungenen Fälle sind bewusst auf Chromium begrenzte
+Die fünfzehn übersprungenen Fälle sind bewusst auf passende Projekte begrenzte
 Browser-Simulationen: Geolocation-Berechtigungen, lokales Löschen/Suchcache,
 langsamer Request-Abbruch, Service-Worker-Offlinebetrieb und künstliche
-Uhr-/Resume-Wechsel. Diese Fälle liefen jeweils in Desktop- und
-Mobil-Chromium. Kernfluss, astronomische Oberfläche, Tastatur, Reflow,
+Uhr-/Resume-Wechsel sowie die einmalige explizite
+Desktop-Fokus-/Viewportgeometrie. Die fachlichen Chromium-Fälle liefen jeweils
+in Desktop- und Mobil-Chromium. Kernfluss, astronomische Oberfläche, Tastatur, Reflow,
 Farbschemata, Konsolenfreiheit, Ressourcenbudget und axe liefen zusätzlich in
 Firefox.
 
@@ -74,6 +77,40 @@ Zusätzlich bestätigt:
 Eine fehlerhafte E2E-Erwartung von 17:59 Uhr wurde auf die USNO-Referenz
 18:00 Uhr korrigiert; die App-Berechnung war korrekt.
 
+## Runde 3: `public-app-shell/v1` und vollständige Lokalisierung
+
+Der erste lauffähige app-eigene Shell-Stand übernahm den gepinnten
+Shared-Vertrag ohne Runtime-Import. Ergänzt wurden:
+
+- eigenes 38-Pixel-SVG, `MilosApps`, DEV-Badge und absolute DEV-Links;
+- vollständige DE-/EN-UI einschließlich Suche, Ortstypen, Ereigniskarten,
+  Polartag/-nacht, Speicher-, Standort-, Offline- und Fehlermeldungen;
+- lokale Sprachpersistenz unter `milosapps.daylight.language` und DE-Fallback
+  für beschädigte oder nicht unterstützte Werte;
+- sprachgetrennte Geocoding-Caches und `Accept-Language` für neue Suchen;
+- semantischer kompakter Footer mit Attribution, Impressum, Datenschutz und
+  MilosApps.
+
+Der fokussierte Chromium-Lauf bestand nach der ersten Korrektur mit 7/7
+Shell-Fällen. Die visuelle Prüfung bei 1440 × 900 und 390 × 844 bestätigte
+Überlauffreiheit, 44-Pixel-Ziele und sichtbaren Fokus. Das erste SVG wirkte in
+kleiner Darstellung eher wie eine Person; es wurde zu einer eindeutigeren
+Sonnenaufgang-Geometrie geändert.
+
+## Runde 4: Cross-Browser, Fokus und Wiederholung
+
+Die vollständige Matrix erweiterte sich auf 99 E2E-Fälle. Ein
+nondeterministischer Teststart konnte die erste Tab-Position vom vorherigen
+Browserfokus abhängig machen. Der Regressionstest setzt den Ausgangsfokus nun
+explizit zurück und bestand anschließend dreimal parallel sowie in der
+vollständigen Matrix.
+
+Der Abschlusslauf bestätigt 24/24 Unit-Tests, den Build sowie 84 ausgeführte
+E2E-Fälle bei 15 dokumentierten Projektskips. Die englische Ergebnisansicht
+wurde zusätzlich mit einer echten Berlin-Suche geprüft: Nominatim antwortete
+englisch, vier Ereigniskarten waren sichtbar, die URL blieb frei von
+Koordinaten und die Seite ohne horizontalen Überlauf.
+
 ## Nutzungsmatrix
 
 | Szenario | Ergebnis |
@@ -90,6 +127,8 @@ Eine fehlerhafte E2E-Erwartung von 17:59 Uhr wurde auf die USNO-Referenz
 | Screenreader-Semantik | Landmarken, Überschriften, Live-Status und Definitionen geprüft |
 | 200-Prozent-Reflow | kein horizontaler Dokumentüberlauf |
 | Mobil / Desktop | automatisiert und visuell geprüft |
+| DE / EN und Persistenz | gesamte sichtbare UI, Reload und dynamische Zustände bestanden |
+| Header / Footer / Umgebungslinks | semantisch, absolut, DEV-/Production-getrennt und überlauffrei |
 
 ## Verbleibende Grenzen
 

@@ -19,6 +19,12 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
 - langsames Geocoding, Abbruch, Suchcache, Offline-Wiederöffnung und
   App-Resume über Sonnenuntergang, Dämmerungsende und lokale Mitternacht;
 - App-spezifische Readiness auf dem strikt reservierten Port 4319.
+- vollständige DE-/EN-Umschaltung von Shell, Suche, Ergebnisansicht,
+  Sonnenzeiten und Fehlerzuständen mit Persistenz nach Reload;
+- DEV-/Production-Linkabbildung, DEV-Badge, semantische
+  Header-/Nav-/Main-/Footer-Struktur und genau ein Haupt-H1;
+- 44-Pixel-Shellziele, Fokusreihenfolge, Reduced Motion sowie Header und Footer
+  bei Desktop, 390 × 844 und 200-Prozent-Reflow.
 
 ## Wiederholung vor einer DEV-Veröffentlichung
 

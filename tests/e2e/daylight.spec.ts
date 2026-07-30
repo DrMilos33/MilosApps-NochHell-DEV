@@ -47,7 +47,7 @@ async function selectBerlin(page: Page): Promise<void> {
   await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Berlin");
   await page.getByRole("button", { name: "Ort suchen" }).click();
   await page
-    .getByRole("button", { name: "Berlin Deutschland city" })
+    .getByRole("button", { name: "Berlin Deutschland Stadt" })
     .click();
 }
 
@@ -76,6 +76,8 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
+      version: "0.2.0",
+      environment: "dev",
     });
   });
 
@@ -139,10 +141,10 @@ test.describe("öffentlicher Kernfluss", () => {
     await page.getByRole("button", { name: "Ort suchen" }).click();
 
     await expect(
-      page.getByRole("button", { name: "Neustadt Rheinland-Pfalz, Deutschland city" }),
+      page.getByRole("button", { name: "Neustadt Rheinland-Pfalz, Deutschland Stadt" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Neustadt Hamburg, Deutschland city" }),
+      page.getByRole("button", { name: "Neustadt Hamburg, Deutschland Stadt" }),
     ).toBeVisible();
   });
 
@@ -163,7 +165,7 @@ test.describe("öffentlicher Kernfluss", () => {
     await search.focus();
     await search.fill("Berlin");
     await search.press("Enter");
-    const result = page.getByRole("button", { name: "Berlin Deutschland city" });
+    const result = page.getByRole("button", { name: "Berlin Deutschland Stadt" });
     await result.focus();
     await result.press("Enter");
     await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
@@ -228,6 +230,241 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(overflow).toBeLessThanOrEqual(1);
     await expect(page.getByRole("button", { name: "Ort ändern" })).toBeVisible();
     await expect(page.getByText("Ende bürgerliche Dämmerung", { exact: true })).toBeVisible();
+  });
+});
+
+test.describe("public-app-shell/v1", () => {
+  test("setzt semantische Shell, DEV-Identität und absolute DEV-Links", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    await expect(page.locator("body")).toHaveAttribute("data-app-key", "daylight");
+    await expect(page.locator("body")).toHaveAttribute("data-environment", "dev");
+    await expect(page.locator("header")).toHaveCount(1);
+    await expect(page.locator("main")).toHaveCount(1);
+    await expect(page.locator("footer")).toHaveCount(1);
+    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.getByText("DEV", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "MilosApps-Startseite" })).toHaveAttribute(
+      "href",
+      "https://dev.milos-apps.de/",
+    );
+    await expect(page.getByRole("link", { name: "Alle Apps" })).toHaveAttribute(
+      "href",
+      "https://dev.milos-apps.de/apps",
+    );
+    await expect(page.getByRole("link", { name: "Impressum" })).toHaveAttribute(
+      "href",
+      "https://dev.milos-apps.de/impressum",
+    );
+    await expect(page.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+      "href",
+      "https://dev.milos-apps.de/datenschutz",
+    );
+  });
+
+  test("schaltet die vollständige sichtbare UI auf EN und behält die Wahl nach Reload", async ({
+    page,
+  }) => {
+    await mockGeocoder(page);
+    await page.clock.install({ time: new Date("2026-05-01T12:00:00Z") });
+    await page.goto("/");
+    await page.getByRole("button", { name: "EN", exact: true }).click();
+
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page).toHaveTitle("Still light? – MilosApps");
+    await expect(
+      page.getByRole("heading", { name: "Is there enough daylight left for a walk?" }),
+    ).toBeVisible();
+    await expect(page.getByRole("searchbox", { name: "Place or region" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Use location" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "All apps" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Legal notice" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Privacy" })).toBeVisible();
+
+    await page.getByRole("searchbox", { name: "Place or region" }).fill("Berlin");
+    await page.getByRole("button", { name: "Search place" }).click();
+    await page
+      .getByRole("button", { name: "Berlin Deutschland city" })
+      .click();
+
+    await expect(page.getByText("Sunrise", { exact: true })).toBeVisible();
+    await expect(page.getByText("Sunset", { exact: true })).toBeVisible();
+    await expect(page.getByText("End of civil twilight", { exact: true })).toBeVisible();
+    await expect(page.getByText("Tomorrow: sunrise", { exact: true })).toBeVisible();
+    await expect(page.getByText("Local time", { exact: true }).first()).toBeVisible();
+    await expect(page.locator("#answer-title")).toContainText(/daylight left|still light/i);
+    await expect(page.getByText(/Until the end of civil twilight|above the horizon/)).toBeVisible();
+    await expect(page.getByText("Private by design", { exact: true })).toBeVisible();
+
+    expect(
+      await page.evaluate(() =>
+        localStorage.getItem("milosapps.daylight.language"),
+      ),
+    ).toBe("en");
+    await page.reload();
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await expect(page.getByRole("link", { name: "All apps" })).toBeVisible();
+    await expect(page.getByText("Sunrise", { exact: true })).toBeVisible();
+  });
+
+  test("übersetzt Such-, Standort- und Offlinefehler vollständig", async ({
+    page,
+    context,
+    browserName,
+  }) => {
+    test.skip(browserName !== "chromium", "Fehlerzustände werden einmal in Chromium geprüft.");
+    await mockGeocoder(page, []);
+    await page.addInitScript(() => {
+      const geolocation = {
+        getCurrentPosition: (
+          _success: PositionCallback,
+          error: PositionErrorCallback,
+        ) => {
+          error({
+            code: 1,
+            message: "simulated",
+            PERMISSION_DENIED: 1,
+            POSITION_UNAVAILABLE: 2,
+            TIMEOUT: 3,
+          } as GeolocationPositionError);
+        },
+      };
+      Object.defineProperty(navigator, "geolocation", {
+        configurable: true,
+        value: geolocation,
+      });
+    });
+    await page.goto("/");
+    await page.getByRole("button", { name: "EN", exact: true }).click();
+
+    await page.getByRole("searchbox", { name: "Place or region" }).fill("Unknownville");
+    await page.getByRole("button", { name: "Search place" }).click();
+    await expect(page.getByRole("alert")).toContainText("No place found");
+    await expect(page.getByText(/Add a country or region/)).toBeVisible();
+
+    await page.getByRole("button", { name: "Use location" }).click();
+    await expect(page.getByRole("alert")).toContainText("Location was not allowed");
+    await expect(page.getByRole("searchbox", { name: "Place or region" })).toBeFocused();
+
+    await page.unroute("https://nominatim.openstreetmap.org/search**");
+    await context.setOffline(true);
+    await page.getByRole("searchbox", { name: "Place or region" }).fill("Hamburg");
+    await page.getByRole("button", { name: "Search place" }).click();
+    await expect(page.getByRole("alert")).toContainText(
+      "You are offline. A saved place will continue to work.",
+    );
+    await context.setOffline(false);
+  });
+
+  test("leitet Production-Konfiguration nur auf absolute Production-Links und blendet DEV aus", async ({
+    page,
+  }) => {
+    await page.route("**/runtime-config.json", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          environment: "production",
+          geocodingEndpoint: "https://nominatim.openstreetmap.org/search",
+        }),
+      });
+    });
+    await page.goto("/");
+
+    await expect(page.locator("body")).toHaveAttribute(
+      "data-environment",
+      "production",
+    );
+    await expect(page.locator(".dev-badge")).toBeHidden();
+    await expect(page.getByRole("link", { name: "Alle Apps" })).toHaveAttribute(
+      "href",
+      "https://milos-apps.de/apps",
+    );
+    await expect(page.getByRole("link", { name: "Impressum" })).toHaveAttribute(
+      "href",
+      "https://milos-apps.de/impressum",
+    );
+    await expect(page.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+      "href",
+      "https://milos-apps.de/datenschutz",
+    );
+  });
+
+  test("hat logische Tastaturreihenfolge, sichtbaren Fokus und 44-Pixel-Ziele", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Geometrie und Fokus werden im Desktop-Chromium geprüft.");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+    });
+
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "Zum Inhalt springen" })).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("link", { name: "MilosApps-Startseite" })).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("button", { name: "DE", exact: true })).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByRole("button", { name: "EN", exact: true })).toBeFocused();
+    const outline = await page
+      .getByRole("button", { name: "EN", exact: true })
+      .evaluate((target) => getComputedStyle(target).outlineStyle);
+    expect(outline).not.toBe("none");
+
+    const sizes = await page
+      .locator(
+        ".brand, .language-button, .all-apps-link, .footer-inner nav a",
+      )
+      .evaluateAll((targets) =>
+        targets.map((target) => {
+          const rect = target.getBoundingClientRect();
+          return { width: rect.width, height: rect.height };
+        }),
+      );
+    expect(sizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true);
+  });
+
+  test("bleibt bei 1440 sowie 390 × 844 einschließlich Header und Footer überlauffrei", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Explizite Viewports werden einmal geprüft.");
+    for (const viewport of [
+      { width: 1440, height: 900 },
+      { width: 390, height: 844 },
+      { width: 640, height: 720 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      const overflow = await page.evaluate(
+        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(1);
+      await expect(page.getByRole("link", { name: "Alle Apps" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Impressum" })).toBeVisible();
+    }
+  });
+
+  test("hat auch in EN keine automatisiert erkennbaren WCAG-Verstöße", async ({
+    page,
+  }) => {
+    await mockGeocoder(page);
+    await page.goto("/");
+    await page.getByRole("button", { name: "EN", exact: true }).click();
+    await page.getByRole("searchbox", { name: "Place or region" }).fill("Berlin");
+    await page.getByRole("button", { name: "Search place" }).click();
+    await page
+      .getByRole("button", { name: "Berlin Deutschland city" })
+      .click();
+    const results = await new AxeBuilder({ page })
+      .exclude(".answer-sun")
+      .analyze();
+    expect(results.violations).toEqual([]);
   });
 });
 
@@ -413,10 +650,10 @@ test.describe("Standortzustände und Datenschutz", () => {
     const searchbox = page.getByRole("searchbox", { name: "Ort oder Region" });
     await searchbox.fill("Berlin");
     await page.getByRole("button", { name: "Ort suchen" }).click();
-    await expect(page.getByRole("button", { name: "Berlin Deutschland city" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Berlin Deutschland Stadt" })).toBeVisible();
     await searchbox.fill("  Berlin  ");
     await page.getByRole("button", { name: "Ort suchen" }).click();
-    await expect(page.getByRole("button", { name: "Berlin Deutschland city" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Berlin Deutschland Stadt" })).toBeVisible();
     expect(requests).toBe(1);
   });
 });

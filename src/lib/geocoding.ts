@@ -1,4 +1,5 @@
 import type { DaylightLocation, PlaceSearchResult, RuntimeConfig } from "../types";
+import type { Language } from "./i18n";
 import { resolveTimeZone } from "./timezone";
 import {
   browserStorage,
@@ -39,6 +40,21 @@ interface CacheEntry {
   results: PlaceSearchResult[];
 }
 
+export type GeocodingErrorCode =
+  | "invalid-query"
+  | "http"
+  | "invalid-response";
+
+export class GeocodingError extends Error {
+  constructor(
+    readonly code: GeocodingErrorCode,
+    readonly status?: number,
+  ) {
+    super(code);
+    this.name = "GeocodingError";
+  }
+}
+
 type GeocodingCache = Record<string, CacheEntry>;
 
 function runtimeConfig(): RuntimeConfig {
@@ -46,6 +62,10 @@ function runtimeConfig(): RuntimeConfig {
     geocodingEndpoint:
       window.__DAYLIGHT_CONFIG__?.geocodingEndpoint ??
       "https://nominatim.openstreetmap.org/search",
+    environment:
+      window.__DAYLIGHT_CONFIG__?.environment === "production"
+        ? "production"
+        : "dev",
   };
 }
 
@@ -98,7 +118,7 @@ function abortableDelay(milliseconds: number, signal: AbortSignal): Promise<void
   });
 }
 
-function placeName(result: NominatimResult): string {
+function placeName(result: NominatimResult, language: Language): string {
   const address = result.address ?? {};
   return (
     result.name ??
@@ -108,7 +128,7 @@ function placeName(result: NominatimResult): string {
     address.municipality ??
     address.hamlet ??
     result.display_name.split(",")[0]?.trim() ??
-    "Unbenannter Ort"
+    (language === "en" ? "Unnamed place" : "Unbenannter Ort")
   );
 }
 
@@ -120,7 +140,7 @@ function placeContext(result: NominatimResult, name: string): string {
   return values.join(", ") || result.display_name;
 }
 
-function toPlace(result: NominatimResult): PlaceSearchResult | null {
+function toPlace(result: NominatimResult, language: Language): PlaceSearchResult | null {
   const latitude = Number(result.lat);
   const longitude = Number(result.lon);
   if (
@@ -135,7 +155,7 @@ function toPlace(result: NominatimResult): PlaceSearchResult | null {
   }
 
   try {
-    const name = placeName(result);
+    const name = placeName(result, language);
     return {
       id: `${result.osm_type}-${result.osm_id}`,
       name,
@@ -154,15 +174,18 @@ function toPlace(result: NominatimResult): PlaceSearchResult | null {
 export async function searchPlaces(
   rawQuery: string,
   signal: AbortSignal,
+  language: Language = "de",
   storage = browserStorage(),
   now = Date.now(),
 ): Promise<PlaceSearchResult[]> {
   const query = rawQuery.trim().replace(/\s+/g, " ");
   if (query.length < 2) {
-    throw new Error("Bitte gib mindestens zwei Zeichen ein.");
+    throw new GeocodingError("invalid-query");
   }
 
-  const cacheKey = query.toLocaleLowerCase("de-DE");
+  const cacheKey = `${language}:${query.toLocaleLowerCase(
+    language === "en" ? "en-GB" : "de-DE",
+  )}`;
   const cache = readCache(storage);
   const cached = cache[cacheKey];
   if (cached && now - cached.storedAt <= CACHE_MAX_AGE_MS) {
@@ -180,25 +203,25 @@ export async function searchPlaces(
   endpoint.searchParams.set("format", "jsonv2");
   endpoint.searchParams.set("addressdetails", "1");
   endpoint.searchParams.set("limit", "7");
-  endpoint.searchParams.set("accept-language", "de");
+  endpoint.searchParams.set("accept-language", language);
 
   const response = await fetch(endpoint, {
     signal,
     headers: {
       Accept: "application/json",
-      "Accept-Language": "de",
+      "Accept-Language": language,
     },
   });
   if (!response.ok) {
-    throw new Error(`Die Ortssuche antwortet gerade nicht (${response.status}).`);
+    throw new GeocodingError("http", response.status);
   }
 
   const body: unknown = await response.json();
   if (!Array.isArray(body)) {
-    throw new Error("Die Ortssuche hat ein unerwartetes Ergebnis geliefert.");
+    throw new GeocodingError("invalid-response");
   }
   const results = body
-    .map((entry) => toPlace(entry as NominatimResult))
+    .map((entry) => toPlace(entry as NominatimResult, language))
     .filter((entry): entry is PlaceSearchResult => entry !== null);
   cache[cacheKey] = { storedAt: Date.now(), results };
   writeCache(cache, storage);

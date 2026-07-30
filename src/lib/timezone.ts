@@ -115,8 +115,12 @@ export function localDayBounds(
   };
 }
 
-export function formatLocalTime(instant: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("de-DE", {
+export function formatLocalTime(
+  instant: Date,
+  timeZone: string,
+  locale = "de-DE",
+): string {
+  return new Intl.DateTimeFormat(locale, {
     timeZone,
     hour: "2-digit",
     minute: "2-digit",
@@ -124,8 +128,12 @@ export function formatLocalTime(instant: Date, timeZone: string): string {
   }).format(instant);
 }
 
-export function formatLocalDate(date: LocalDate, timeZone: string): string {
-  return new Intl.DateTimeFormat("de-DE", {
+export function formatLocalDate(
+  date: LocalDate,
+  timeZone: string,
+  locale = "de-DE",
+): string {
+  return new Intl.DateTimeFormat(locale, {
     timeZone,
     weekday: "long",
     day: "2-digit",
@@ -134,8 +142,12 @@ export function formatLocalDate(date: LocalDate, timeZone: string): string {
   }).format(firstInstantOfLocalDate(date, timeZone));
 }
 
-export function formatTimeZoneLabel(instant: Date, timeZone: string): string {
-  const formatter = new Intl.DateTimeFormat("de-DE", {
+export function formatTimeZoneLabel(
+  instant: Date,
+  timeZone: string,
+  locale = "de-DE",
+): string {
+  const formatter = new Intl.DateTimeFormat(locale, {
     timeZone,
     timeZoneName: "longOffset",
   });

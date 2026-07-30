@@ -22,7 +22,11 @@ try {
     headers: { Accept: "application/json" },
   });
   const body = response.ok ? await response.json() : null;
-  if (body?.status !== "ready" || body?.appKey !== "daylight") {
+  if (
+    body?.status !== "ready" ||
+    body?.appKey !== "daylight" ||
+    body?.environment !== "dev"
+  ) {
     throw new Error("Vorschaubild-Quelle gehört nicht zu App-Key daylight.");
   }
 
