@@ -193,6 +193,7 @@ Portal & Identity bestätigte am 30. Juli 2026:
 | Route `/apps/daylight` | Redirect auf die unabhängige HTTPS-DEV-URL korrekt |
 | Portal-DEV-Revision | Integrationscommit `eab551a`, direkter Vorgänger des aktiven Railway-Stands `e74bc712` |
 | Portal-Smoke | Direktaufruf, Desktop und 390 Pixel ohne Login, Browserfehler oder Überlauf |
+| Shell-Revalidierung | unveränderte Route nach 0.2-Deploy erneut read-only bei 1440 × 900 und 390 × 844 ohne Überlauf geprüft |
 | Production-Grenze | Karte nicht sichtbar; Production unverändert |
 | Repository-Grenze | Portal-Task änderte das App-Repository nicht |
 

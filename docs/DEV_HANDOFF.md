@@ -79,6 +79,16 @@ Login, Browserfehler oder horizontalen Überlauf. Production zeigt die Karte
 nicht und blieb unverändert. Der App-Direktaufruf und die App-Readiness bleiben
 auch bei einem Portal-Ausfall unabhängig verfügbar.
 
+Nach dem Shell-Update wurde die unveränderte Portal-DEV-Route erneut
+read-only aufgerufen. `https://dev.milos-apps.de/apps/daylight` leitete auf die
+exakte unabhängige App-URL weiter. Der Zielstand wies
+`appKey=daylight`, `environment=dev`, das DEV-Badge, die vollständige
+Sprachumschaltung und den absoluten DEV-Link zu „Alle Apps“ aus. Bei
+390 × 844 und 1440 × 900 trat kein horizontaler Überlauf auf. Der separate
+Portal-Task konnte diese Wiederholung wegen seines noch alten
+Berechtigungskontexts nicht selbst ausführen; das ist kein App-, Route- oder
+Hostingblocker.
+
 Aktuell gesund ist `269faf8611fc17777af997eea846fc20cbaf4238`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision `2735413d04d1a300fc67424f3e2e50f3ea0d93e0` als neuen
