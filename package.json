@@ -1,0 +1,36 @@
+{
+  "name": "@milosapps/daylight",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Öffentlicher lokaler Tageslichthelfer für Sonnenaufgang, Sonnenuntergang und bürgerliche Dämmerung.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4319 --strictPort",
+    "preview:e2e": "pnpm build && node scripts/e2e-server.mjs",
+    "readiness": "node scripts/check-readiness.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:chromium": "playwright test --project=chromium",
+    "test:all": "pnpm test && pnpm build && pnpm test:e2e"
+  },
+  "dependencies": {
+    "tz-lookup": "6.1.25"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.12.1",
+    "@playwright/test": "1.62.0",
+    "@types/node": "^24.13.3",
+    "@types/tz-lookup": "6.1.2",
+    "typescript": "7.0.2",
+    "vite": "8.1.5",
+    "vitest": "4.1.10"
+  }
+}
