@@ -11,10 +11,39 @@
     <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="./app.webmanifest" />
     <title>Noch hell?</title>
-    <script type="module" crossorigin src="./assets/index-B501ffUV.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-8x1fYhk1.css">
+    <script type="module" crossorigin src="./assets/index-DDTuhjPJ.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-UaqZ10R9.css">
   </head>
   <body data-app-key="daylight" data-environment="dev">
-    <div id="app"></div>
+    <milos-app-shell>
+      <svg
+        slot="app-icon"
+        viewBox="0 0 40 40"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <circle cx="20" cy="20" r="18" fill="currentColor" opacity=".14"></circle>
+        <path d="M13 25a7 7 0 0 1 14 0z" fill="currentColor"></path>
+        <path
+          d="M8 27h24M20 8v5M9.5 16l4.3 2.2M30.5 16l-4.3 2.2"
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-width="2.2"
+        ></path>
+        <path
+          d="M11 31h18"
+          fill="none"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-width="2"
+        ></path>
+      </svg>
+      <main id="main" slot="main">
+        <div id="app">
+          <h1>Passt der Spaziergang noch ins Helle?</h1>
+        </div>
+      </main>
+    </milos-app-shell>
   </body>
 </html>
