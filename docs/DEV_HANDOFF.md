@@ -122,5 +122,12 @@ auf exakt die unabhängige Daylight-DEV-URL; App und Health antworten HTTP 200,
 die aktuelle Health-Identität ist `ready/daylight/0.3.1/dev`. Weder Portalcode
 noch Portal-Deployment wurden dafür verändert.
 
+Portal & Identity bestätigte diese Revalidierung anschließend auf dem aktiven
+Portal-DEV-Stand `ca84446a263d4fc0d38c177da606ae5ae3cde34c` und dem
+Railway-Deployment `59ebcbec-fedc-4cc0-8d17-e59e353278b6`: cookie-lose GET-
+und HEAD-Aufrufe liefern exakt denselben Redirect, App und Health HTTP 200 und
+die vollständige Health-Antwort für 0.3.1. Daylight verursachte keine
+Portalmutation; Production blieb unverändert.
+
 OpenAI Sites, MilosApps-Production und das Portal-Repository wurden nicht
 verändert.

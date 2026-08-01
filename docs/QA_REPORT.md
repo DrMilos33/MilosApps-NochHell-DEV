@@ -298,3 +298,8 @@ Nach dem 0.3.1-App-Publish wurden cookie-lose GET- und HEAD-Aufrufe der
 unveränderten Route erneut read-only geprüft; beide liefern weiterhin HTTP 302
 auf exakt die App-DEV-URL. App und Health antworten HTTP 200 mit
 `ready/daylight/0.3.1/dev`. Portal und Production blieben unverändert.
+
+Portal & Identity wiederholte diese Prüfung unabhängig auf dem aktiven
+Portal-DEV-Stand `ca84446a263d4fc0d38c177da606ae5ae3cde34c` / Railway
+`59ebcbec-fedc-4cc0-8d17-e59e353278b6`: cookie-lose GET und HEAD jeweils
+exakt 302, App und Health 200 sowie die vollständige 0.3.1-Health-Identität.
