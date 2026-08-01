@@ -203,8 +203,8 @@ wirklich veröffentlichten, app-eigenen CSS-URLs und leerer Fehlerkonsole.
 ## Freigabeempfehlung
 
 Der unabhängige HTTPS-DEV-Stand ist freigabefähig. Portal & Identity hat URL,
-Redirect und Darstellung im Portal-DEV am 30. Juli 2026 final validiert.
-Production bleibt gesperrt.
+cookie-losen GET-/HEAD-Redirect und Health am 1. August 2026 auf dem aktiven
+Portal-Stagingstand final validiert. Production bleibt gesperrt.
 
 ## Externe DEV-Verifikation
 
@@ -233,20 +233,20 @@ und gespeicherter Ort sind davon getrennt.
 
 ## Portal-DEV-Finalabnahme
 
-Portal & Identity bestätigte am 30. Juli 2026:
+Portal & Identity bestätigte nach dem 0.3-Deploy am 1. August 2026:
 
 | Prüfung | Ergebnis |
 | --- | --- |
 | Portalübersicht `/apps` | Karte „Noch hell?“ sichtbar |
-| Route `/apps/daylight` | Redirect auf die unabhängige HTTPS-DEV-URL korrekt |
-| Portal-DEV-Revision | Integrationscommit `eab551a`, direkter Vorgänger des aktiven Railway-Stands `e74bc712` |
-| Portal-Smoke | Direktaufruf, Desktop und 390 Pixel ohne Login, Browserfehler oder Überlauf |
-| Shell-Revalidierung | unveränderte Route nach 0.3-Deploy vom App-Eigentümer read-only bei 1440 × 900 und 390 × 844 ohne Überlauf geprüft; separates Portal-Handoff folgt |
+| Route `/apps/daylight` | cookie-lose GET- und HEAD-Aufrufe liefern HTTP 302 auf exakt die unabhängige HTTPS-DEV-URL |
+| Portal-DEV-Revision | `9643129b5688e4bd925b3ac198619ac260a61071`; Railway-Deployment `f82ad853-1134-48cb-a67d-bb05bf754b99` aktiv |
+| Portal-CI | Run `30703116695` / Job `91377476515` vollständig erfolgreich |
+| Portal-Smoke | App und Health HTTP 200; Health exakt `ready/daylight/0.3.0/dev`; kein Portal-Cookie nötig |
+| Shell-Revalidierung | App-Eigentümer visuell bei 1440 × 900 und 390 × 844 ohne Überlauf; Portalroute separat cookie-los validiert |
 | Production-Grenze | Karte nicht sichtbar; Production unverändert |
 | Repository-Grenze | Portal-Task änderte das App-Repository nicht |
 
-Der zugehörige GitHub-Actions-Lauf startete wegen eines
-Billing-/Spending-Limits keinen einzigen Step. Die Portalprüfung stützte sich
-deshalb auf den aktiven Railway-Stand und grüne lokale Portaltests. Dieser
-externe CI-Infrastrukturfehler ändert weder App-Readiness noch den bestätigten
-Portal-DEV-Redirect.
+Die ältere Portalabnahme vom 30. Juli stützte sich wegen des damaligen
+Billing-/Spending-Limits auf den aktiven Railway-Stand und lokale Tests. Die
+aktuelle Revalidierung besitzt nun zusätzlich einen vollständig grünen
+GitHub-CI-Lauf und ein erfolgreiches aktives Railway-Staging-Deployment.

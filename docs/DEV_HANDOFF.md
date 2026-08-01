@@ -85,8 +85,15 @@ exakte unabhängige App-URL weiter. Der Zielstand wies
 `appKey=daylight`, `environment=dev`, das DEV-Badge, die vollständige
 Sprachumschaltung und den absoluten DEV-Link zu „Alle Apps“ aus. Bei
 390 × 844 und 1440 × 900 trat kein horizontaler Überlauf auf. Die frische
-App-QA erfolgte ohne Portal-Cookie oder Loginzustand; Portal & Identity erhält
-den finalen Stand anschließend zur separaten read-only Revalidierung.
+App-QA erfolgte ohne Portal-Cookie oder Loginzustand.
+
+Portal & Identity bestätigte anschließend den aktiven Gate-Stand
+`9643129b5688e4bd925b3ac198619ac260a61071` und das erfolgreiche
+Railway-Staging-Deployment `f82ad853-1134-48cb-a67d-bb05bf754b99`.
+Cookie-lose GET- und HEAD-Aufrufe von `/apps/daylight` liefern jeweils HTTP 302
+mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
+HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
+Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
 Aktuell gesund ist `53acdf37d08fdb0a21881119d35b6d7bfe390394`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
@@ -103,11 +110,11 @@ unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
    Ortssuchen bleiben von der Erreichbarkeit des konfigurierten
    Nominatim-Dienstes abhängig.
 
-Die Portal-DEV-Validierung und -route sind abgeschlossen. Der zugehörige
-GitHub-Actions-Lauf scheiterte laut Portal-Task vor dem ersten Step
-ausschließlich am Billing-/Spending-Limit; die aktive Railway-Integration
-wurde separat live sowie mit lokalen Portaltests validiert. Dies ist kein
-Blocker für die aktive `daylight`-DEV-Route.
+Die Portal-DEV-Validierung und -route sind abgeschlossen. Der historische
+Actions-Lauf vom 30. Juli startete wegen des damaligen Billing-/Spending-Limits
+keinen Step; die aktuelle Gate-Revision besitzt dagegen den oben genannten
+vollständig erfolgreichen CI- und Railway-Nachweis. Dies ist kein Blocker für
+die aktive `daylight`-DEV-Route.
 
 OpenAI Sites, MilosApps-Production und das Portal-Repository wurden nicht
 verändert.
