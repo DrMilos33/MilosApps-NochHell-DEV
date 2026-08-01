@@ -174,3 +174,19 @@ App-Task nicht verändert.
   44-Pixel-Zielprüfung.
 - **Gültigkeitsgrenze:** Ein zentral getestetes Shell-Defaulttheme beweist nicht
   den Kontrast beliebiger app-eigener Theme-Tokens.
+
+## 2026-08-01: CSP-sichere Quelldateien müssen auch extern gebaut bleiben
+
+- **Evidenz:** `public-app-shell/v2.0.3` liefert Shadow- und Theme-CSS korrekt
+  als Same-Origin-Dateien. Vite bettete die kleinen Dateien standardmäßig als
+  `data:`-URLs in das JavaScript-Bundle ein; `style-src 'self'` blockierte sie
+  weiterhin und die Komponente wurde nicht registriert.
+- **Folge:** Der Daylight-Build setzt `assetsInlineLimit: 0`. So bleiben beide
+  Stylesheets externe app-eigene Assets; weder `unsafe-inline` noch `data:`,
+  Nonces, Hashlisten oder Portal-Ausnahmen sind nötig.
+- **Regression:** Echter Response-CSP-Fall mit Host-Grid, Markenlayout,
+  Themefarbe, 44-Pixel-Ziel und leerer CSP-Konsole sowie anschließender
+  360 × 800/200-Prozent- und Vollmatrixlauf.
+- **Gültigkeitsgrenze:** Der Shared-Quellvertrag allein beweist nicht, dass ein
+  Verbraucher-Bundler externe Assets unverändert extern ausliefert; diese
+  Eigenschaft muss im erzeugten App-Build geprüft werden.

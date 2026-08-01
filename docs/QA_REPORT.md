@@ -5,8 +5,8 @@ Branch: `codex/daylight-dev`
 Implementierungsmeilenstein: `2b5ffe7`  
 Erweiterte QA-Matrix: `a259a5f`
 DEV-Vertrag und Übergabe: `8071fe2`
-Shared-Vertrag: `public-app-shell/v2.0.2` aus Shared-Commit
-`97f695be3bdfcfdc51ad286c6ed231c4b9585295`
+Shared-Vertrag: `public-app-shell/v2.0.3` aus Shared-Commit
+`ed898412306e22c6ae1b10ee8953df29f8acd627`
 
 ## Ergebnis
 
@@ -19,25 +19,26 @@ abgesichert. Production und fremde Repositories blieben unverändert.
 
 | Prüfung | Ergebnis | Abdeckung |
 | --- | --- | --- |
-| `pnpm verify:shell` | bestanden | Manifest, v2.0.2-Pin, vendorte Hashes, Lock, HTML-Slots und Locale-Modul |
+| `pnpm verify:shell` | bestanden | Manifest, v2.0.3-Pin, fünf vendorte Artefakte, Hashes, Lock, HTML-Slots und Locale-Modul |
 | `pnpm test` | 22 bestanden | Astronomie, Tageslichtlogik, Zeitzonen, Geocoding, Speicherung und DE/EN-Fachtexte |
 | `pnpm build` | bestanden | TypeScript und Produktionsbundle |
-| `pnpm test:e2e` | 83 bestanden, 19 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil; 102 Fälle gesamt |
+| `pnpm test:e2e` | 84 bestanden, 21 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil; 105 Fälle gesamt |
 | `pnpm verify:dev` | bestanden | App-Key-Readiness und strikter Portkollisionsabbruch |
 | axe-core | keine automatisiert erkennbaren Verstöße | Start- und Ergebnisfluss |
 | Ressourcenbudget | bestanden | unter 180 DOM-Elementen und 300 kB Transfer im geprüften Startzustand |
 
-Das Bundle nach der v2-Integration umfasst 123,95 kB JavaScript
-(47,55 kB gzip) und 10,96 kB CSS (3,36 kB gzip).
+Das Bundle nach der v2.0.3-Integration umfasst 117,99 kB JavaScript
+(45,94 kB gzip), 10,96 kB App-CSS (3,36 kB gzip), 5,47 kB externe
+Shell-CSS (1,55 kB gzip) und 0,40 kB externe Theme-CSS (0,20 kB gzip).
 
-Die neunzehn übersprungenen Fälle sind bewusst auf passende Projekte begrenzte
+Die einundzwanzig übersprungenen Fälle sind bewusst auf passende Projekte begrenzte
 Browser-Simulationen: Geolocation-Berechtigungen, lokales Löschen/Suchcache,
 langsamer Request-Abbruch, Service-Worker-Offlinebetrieb und künstliche
 Uhr-/Resume-Wechsel sowie die einmalige explizite
 Desktop-Fokus-/Viewportgeometrie. Die fachlichen Chromium-Fälle liefen jeweils
 in Desktop- und Mobil-Chromium. Kernfluss, astronomische Oberfläche, Tastatur, Reflow,
 Farbschemata, Konsolenfreiheit, Ressourcenbudget und axe liefen zusätzlich in
-  Firefox. Vier zusätzliche Shell-Geometrie-/Reduced-Motion-Fälle laufen
+  Firefox. Fünf zusätzliche Shell-Geometrie-/Reduced-Motion-/CSP-Fälle laufen
   absichtlich nur einmal in Desktop-Chromium.
 
 ## Runde 1: Funktion, Zustände und Datenschutz
@@ -151,6 +152,24 @@ visuelle Browserprüfung bestätigte Desktop und 390 × 844 ohne Überlauf,
 mindestens 44 Pixel große Shellziele, bündigen Footer, leere Warn-/Fehlerkonsole
 und DE/EN-Persistenz. Der separate Chromium-Regressionsfall bestätigte
 360 × 800 bei 200 Prozent Textskalierung ohne horizontalen Überlauf.
+
+## Runde 7: strikte CSP mit `public-app-shell/v2.0.3`
+
+Ein echter Response-CSP-Test mit `default-src 'self'; script-src 'self';
+style-src 'self'` belegte, dass v2.0.2 die Shell- und Theme-Styles noch inline
+einbrachte. Ohne CSP-Lockerung fiel die Web Component deshalb auf
+Browser-Defaults zurück. Der zentral veröffentlichte v2.0.3-Patch liefert
+Shadow- und Theme-CSS als app-eigene Same-Origin-Dateien.
+
+Vite wollte die kleinen CSS-Dateien zunächst als `data:`-URLs einbetten, die
+von `style-src 'self'` ebenfalls korrekt abgelehnt werden. Der App-Build setzt
+deshalb `assetsInlineLimit: 0` und bewahrt die externen Styles auch im Bundle.
+Der gezielte Chromium-Fall bestätigt Host-Grid, Marken-Flexlayout,
+Daylight-Themefarbe, 44-Pixel-Steuerung und eine leere CSP-Fehlerkonsole. Die
+abschließende Vollmatrix bestätigte 22/22 Unit-Tests, den Build sowie 84
+ausgeführte E2E-Fälle bei 21 dokumentierten Projektskips. `pnpm verify:dev`
+bestätigte zusätzlich App-Key-Readiness und den strikten Portabbruch. Der
+externe DEV-Nachweis folgt erst nach dem koordinierten App-Publish.
 
 ## Nutzungsmatrix
 

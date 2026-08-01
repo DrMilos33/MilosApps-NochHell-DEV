@@ -60,10 +60,13 @@ pnpm preview:capture
 
 ## Public App Shell
 
-Die App vendort `public-app-shell/v2.0.2` aus dem exakt gepinnten
-Shared-Commit `97f695be3bdfcfdc51ad286c6ed231c4b9585295`. Manifest, Bootstrap,
-Web Component und SHA-256-Lock liegen app-eigen im Repository; es gibt keinen
-CDN- oder Runtime-Import aus `MilosApps-Shared`.
+Die App vendort `public-app-shell/v2.0.3` aus dem exakt gepinnten
+Shared-Commit `ed898412306e22c6ae1b10ee8953df29f8acd627`. Manifest, Bootstrap,
+Web Component, externe Same-Origin-Styles und SHA-256-Lock liegen app-eigen im
+Repository; es gibt keinen CDN- oder Runtime-Import aus `MilosApps-Shared`.
+Der Vite-Build hält CSS-Assets extern, damit die Shell auch unter
+`style-src 'self'` ohne `unsafe-inline`, Nonce oder Hash vollständig gestaltet
+bleibt.
 
 Im DEV-Build führen alle Shell-Links absolut zu `https://dev.milos-apps.de`.
 DEV-Badge, Linkbasis, Kurzbeschreibung und `productionApproved=false` stammen

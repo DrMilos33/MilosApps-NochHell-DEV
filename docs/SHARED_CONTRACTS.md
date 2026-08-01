@@ -7,10 +7,10 @@ Stand: 1. August 2026.
 | Feld | Wert |
 | --- | --- |
 | Contract-ID | `public-app-shell/v2` |
-| Version | `2.0.2` |
-| Shared-Commit | `97f695be3bdfcfdc51ad286c6ed231c4b9585295` |
-| Shared-Tag | `public-app-shell-v2.0.2` |
-| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/97f695be3bdfcfdc51ad286c6ed231c4b9585295/contracts/public-app-shell/v2` |
+| Version | `2.0.3` |
+| Shared-Commit | `ed898412306e22c6ae1b10ee8953df29f8acd627` |
+| Shared-Tag | `public-app-shell-v2.0.3` |
+| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/ed898412306e22c6ae1b10ee8953df29f8acd627/contracts/public-app-shell/v2` |
 | Lokaler Vendor | `vendor/milosapps-shell/v2/` |
 | Lock | `vendor/milosapps-shell/v2/shell-lock.json` |
 | Runtime-Abhängigkeit | keine |
@@ -35,7 +35,10 @@ Umgesetzt sind:
   Attribution bleibt im Daylight-Hauptinhalt sichtbar;
 - 44-Pixel-Ziele, sichtbarer Fokus, Reduced Motion, 390-Pixel-Reflow und
   360 × 800 bei 200 Prozent ohne horizontalen Überlauf;
-- portabler Validator und SHA-256-Lock für Component, Bootstrap und Verifier.
+- CSP-sichere externe Same-Origin-CSS-Dateien für Shadow DOM und App-Theme,
+  ohne Inline-Style, Nonce, Hash oder `unsafe-inline`;
+- portabler Validator und SHA-256-Lock für Component, Shadow-CSS, Bootstrap,
+  Theme-CSS und Verifier.
 
 Die Shell-Umgebung steht kanonisch in `milos-app.json`. Der DEV-Build verwendet
 `environment=dev`, absolute HTTPS-DEV-URLs und `productionApproved=false`.

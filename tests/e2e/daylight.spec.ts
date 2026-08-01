@@ -464,6 +464,72 @@ test.describe("public-app-shell/v2", () => {
     expect(Number.parseFloat(duration)).toBeLessThanOrEqual(0.00001);
   });
 
+  test("bleibt unter der Portal-CSP style-src self vollständig gestaltet", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Die CSP-Integration wird einmal geprüft.");
+    const cspErrors: string[] = [];
+    page.on("console", (message) => {
+      if (message.type() === "error" && /content security policy|style-src/i.test(message.text())) {
+        cspErrors.push(message.text());
+      }
+    });
+    await page.route("http://127.0.0.1:4319/", async (route) => {
+      const response = await route.fetch();
+      await route.fulfill({
+        response,
+        headers: {
+          ...response.headers(),
+          "content-security-policy": [
+            "default-src 'self'",
+            "script-src 'self'",
+            "style-src 'self'",
+            "img-src 'self' data:",
+            "connect-src 'self' https://nominatim.openstreetmap.org",
+            "manifest-src 'self'",
+            "worker-src 'self'",
+            "base-uri 'none'",
+          ].join("; "),
+        },
+      });
+    });
+
+    await page.goto("/");
+    await page.evaluate(() => customElements.whenDefined("milos-app-shell"));
+    await expect(page.getByRole("link", { name: "Alle Apps" })).toBeVisible();
+    const shellMetrics = await page.locator("milos-app-shell").evaluate((shell) => {
+      const root = shell.shadowRoot;
+      const brand = root?.querySelector<HTMLElement>(".brand");
+      const appIcon = root?.querySelector<HTMLElement>(".app-icon");
+      const control = root?.querySelector<HTMLElement>(".control");
+      const componentStyles = root?.querySelector<HTMLLinkElement>(
+        'link[data-milos-app-shell-component]',
+      );
+      const themeStyles = document.querySelector<HTMLLinkElement>(
+        'link[data-milos-app-shell-theme="daylight"]',
+      );
+      return {
+        hostDisplay: getComputedStyle(shell).display,
+        brandDisplay: brand ? getComputedStyle(brand).display : "missing",
+        appIconColor: appIcon ? getComputedStyle(appIcon).color : "missing",
+        controlHeight: control?.getBoundingClientRect().height ?? 0,
+        stylesheetUrls: [componentStyles?.href ?? "missing", themeStyles?.href ?? "missing"],
+      };
+    });
+    expect(shellMetrics).toMatchObject({
+      hostDisplay: "grid",
+      brandDisplay: "flex",
+      appIconColor: "rgb(151, 54, 31)",
+      controlHeight: 44,
+    });
+    expect(
+      shellMetrics.stylesheetUrls.every((url) =>
+        url.startsWith("http://127.0.0.1:4319/assets/"),
+      ),
+    ).toBe(true);
+    expect(cspErrors).toEqual([]);
+  });
+
   test("hat auch in EN keine automatisiert erkennbaren WCAG-Verstöße", async ({
     page,
   }) => {

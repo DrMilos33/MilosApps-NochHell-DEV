@@ -1,0 +1,15 @@
+body[data-milos-app-shell-page] {
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+}
+
+milos-app-shell[data-milos-app-key="daylight"] {
+  --milos-shell-accent: var(--accent-deep);
+  --milos-shell-accent-contrast: #ffffff;
+  --milos-shell-surface: var(--paper);
+  --milos-shell-text: var(--ink);
+  --milos-shell-muted: var(--muted);
+  --milos-shell-border: var(--line);
+  --milos-shell-focus: var(--amber);
+}
