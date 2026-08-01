@@ -1,6 +1,6 @@
 {
   "name": "@milosapps/daylight",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "description": "Öffentlicher lokaler Tageslichthelfer für Sonnenaufgang, Sonnenuntergang und bürgerliche Dämmerung.",

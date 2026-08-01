@@ -7,7 +7,7 @@
     "de-DE",
     "en-GB"
   ],
-  "version": "0.3.0",
+  "version": "0.3.1",
   "status": "dev-online",
   "devUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
   "localDevUrl": "http://127.0.0.1:4319/",
@@ -51,7 +51,7 @@
     "expected": {
       "status": "ready",
       "appKey": "daylight",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "environment": "dev",
       "database": false
     }

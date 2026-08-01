@@ -26,7 +26,7 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "0.3.0",
+  version: "0.3.1",
   environment: "dev",
   database: false,
 });

@@ -92,7 +92,7 @@ app.innerHTML = `
               type="submit"
               data-i18n="searchButton"
             >
-              Ort suchen
+              Suchen
             </button>
             <button
               id="cancel-search"

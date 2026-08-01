@@ -15,7 +15,7 @@ const deMessages = {
   locationNote: "Beide Wege liefern dieselbe vollständige Ansicht.",
   placeLabel: "Ort oder Region",
   placePlaceholder: "z. B. Freiburg oder Tromsø",
-  searchButton: "Ort suchen",
+  searchButton: "Suchen",
   searchRunning: "Suche läuft …",
   cancel: "Abbrechen",
   searchHint:
@@ -139,7 +139,7 @@ const enMessages: Record<MessageKey, string> = {
   locationNote: "Both options lead to the same complete view.",
   placeLabel: "Place or region",
   placePlaceholder: "e.g. Freiburg or Tromsø",
-  searchButton: "Search place",
+  searchButton: "Search",
   searchRunning: "Searching …",
   cancel: "Cancel",
   searchHint:

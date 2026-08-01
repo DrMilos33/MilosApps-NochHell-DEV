@@ -45,7 +45,7 @@ async function mockGeocoder(
 
 async function selectBerlin(page: Page): Promise<void> {
   await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Berlin");
-  await page.getByRole("button", { name: "Ort suchen" }).click();
+  await page.getByRole("button", { name: "Suchen" }).click();
   await page
     .getByRole("button", { name: "Berlin Deutschland Stadt" })
     .click();
@@ -76,7 +76,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.3.0",
+      version: "0.3.1",
       environment: "dev",
     });
   });
@@ -138,7 +138,7 @@ test.describe("öffentlicher Kernfluss", () => {
     ]);
     await page.goto("/");
     await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Neustadt");
-    await page.getByRole("button", { name: "Ort suchen" }).click();
+    await page.getByRole("button", { name: "Suchen" }).click();
 
     await expect(
       page.getByRole("button", { name: "Neustadt Rheinland-Pfalz, Deutschland Stadt" }),
@@ -153,7 +153,7 @@ test.describe("öffentlicher Kernfluss", () => {
     await mockGeocoder(page, []);
     await page.goto("/");
     await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Unbekanntshausen");
-    await page.getByRole("button", { name: "Ort suchen" }).click();
+    await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("alert")).toContainText("Kein Ort gefunden");
     await expect(page.getByText("Ergänze Land oder Region")).toBeVisible();
     await expect(page.getByRole("searchbox", { name: "Ort oder Region" })).toBeEnabled();
@@ -203,7 +203,7 @@ test.describe("öffentlicher Kernfluss", () => {
     await page.emulateMedia({ colorScheme: "dark" });
     const darkColor = await page.evaluate(() => getComputedStyle(document.body).color);
     expect(lightColor).not.toBe(darkColor);
-    await expect(page.getByRole("button", { name: "Ort suchen" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Suchen" })).toBeVisible();
   });
 
   test("hält DOM und Startressourcen bewusst klein", async ({ page }) => {
@@ -216,6 +216,49 @@ test.describe("öffentlicher Kernfluss", () => {
     }));
     expect(metrics.domElements).toBeLessThan(180);
     expect(metrics.transferredBytes).toBeLessThan(300_000);
+  });
+
+  test("hält Einstieg, Ortswahl und Tageslichtantwort bewusst kompakt", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
+
+    for (const viewport of [
+      { width: 1440, height: 900, introMax: 280, locationTopMax: 390 },
+      { width: 390, height: 844, introMax: 260, locationTopMax: 360 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      const metrics = await page.evaluate(() => {
+        const intro = document.querySelector<HTMLElement>(".intro");
+        const heading = document.querySelector<HTMLElement>(".intro h1");
+        const location = document.querySelector<HTMLElement>(".location-card");
+        if (!intro || !heading || !location) throw new Error("Layout-Grundelement fehlt");
+        return {
+          introHeight: intro.getBoundingClientRect().height,
+          headingSize: Number.parseFloat(getComputedStyle(heading).fontSize),
+          locationTop: location.getBoundingClientRect().top,
+        };
+      });
+      expect(metrics.introHeight).toBeLessThanOrEqual(viewport.introMax);
+      expect(metrics.headingSize).toBeLessThanOrEqual(viewport.width > 500 ? 56 : 36);
+      expect(metrics.locationTop).toBeLessThanOrEqual(viewport.locationTopMax);
+    }
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await selectBerlin(page);
+    const resultMetrics = await page.evaluate(() => {
+      const answer = document.querySelector<HTMLElement>(".answer-card");
+      const eventCards = [...document.querySelectorAll<HTMLElement>(".event-card")];
+      if (!answer || eventCards.length !== 4) throw new Error("Ergebnislayout fehlt");
+      return {
+        answerHeight: answer.getBoundingClientRect().height,
+        eventHeight: Math.max(...eventCards.map((card) => card.getBoundingClientRect().height)),
+      };
+    });
+    expect(resultMetrics.answerHeight).toBeLessThanOrEqual(360);
+    expect(resultMetrics.eventHeight).toBeLessThanOrEqual(160);
   });
 
   test("fließt bei einer 200-Prozent-äquivalenten Breite ohne horizontales Scrollen um", async ({
@@ -286,7 +329,7 @@ test.describe("public-app-shell/v2", () => {
     await expect(page.getByRole("link", { name: "Privacy" })).toBeVisible();
 
     await page.getByRole("searchbox", { name: "Place or region" }).fill("Berlin");
-    await page.getByRole("button", { name: "Search place" }).click();
+    await page.getByRole("button", { name: "Search" }).click();
     await page
       .getByRole("button", { name: "Berlin Deutschland city" })
       .click();
@@ -344,7 +387,7 @@ test.describe("public-app-shell/v2", () => {
     await page.getByRole("button", { name: "EN", exact: true }).click();
 
     await page.getByRole("searchbox", { name: "Place or region" }).fill("Unknownville");
-    await page.getByRole("button", { name: "Search place" }).click();
+    await page.getByRole("button", { name: "Search" }).click();
     await expect(page.getByRole("alert")).toContainText("No place found");
     await expect(page.getByText(/Add a country or region/)).toBeVisible();
 
@@ -357,7 +400,7 @@ test.describe("public-app-shell/v2", () => {
       await route.abort("internetdisconnected");
     });
     await page.getByRole("searchbox", { name: "Place or region" }).fill("Hamburg");
-    await page.getByRole("button", { name: "Search place" }).click();
+    await page.getByRole("button", { name: "Search" }).click();
     await expect(page.getByRole("alert")).toContainText(
       "A new place search needs an available network connection.",
     );
@@ -365,7 +408,7 @@ test.describe("public-app-shell/v2", () => {
     await page.unroute("https://nominatim.openstreetmap.org/search**");
     await context.setOffline(true);
     await page.getByRole("searchbox", { name: "Place or region" }).fill("Bremen");
-    await page.getByRole("button", { name: "Search place" }).click();
+    await page.getByRole("button", { name: "Search" }).click();
     await expect(page.getByRole("alert")).toContainText(
       "You are offline. A saved place will continue to work.",
     );
@@ -537,7 +580,7 @@ test.describe("public-app-shell/v2", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "EN", exact: true }).click();
     await page.getByRole("searchbox", { name: "Place or region" }).fill("Berlin");
-    await page.getByRole("button", { name: "Search place" }).click();
+    await page.getByRole("button", { name: "Search" }).click();
     await page
       .getByRole("button", { name: "Berlin Deutschland city" })
       .click();
@@ -729,10 +772,10 @@ test.describe("Standortzustände und Datenschutz", () => {
     await page.goto("/");
     const searchbox = page.getByRole("searchbox", { name: "Ort oder Region" });
     await searchbox.fill("Berlin");
-    await page.getByRole("button", { name: "Ort suchen" }).click();
+    await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("button", { name: "Berlin Deutschland Stadt" })).toBeVisible();
     await searchbox.fill("  Berlin  ");
-    await page.getByRole("button", { name: "Ort suchen" }).click();
+    await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("button", { name: "Berlin Deutschland Stadt" })).toBeVisible();
     expect(requests).toBe(1);
   });
@@ -744,12 +787,12 @@ test.describe("langsames Netz, Offline und App-Resume", () => {
     await mockGeocoder(page, [berlinResult], 2_500);
     await page.goto("/");
     await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Berlin");
-    await page.getByRole("button", { name: "Ort suchen" }).click();
+    await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("button", { name: "Abbrechen" })).toBeVisible();
     await expect(page.getByRole("status")).toContainText("Suche nach");
     await page.getByRole("button", { name: "Abbrechen" }).click();
     await expect(page.getByRole("status")).toContainText("abgebrochen");
-    await expect(page.getByRole("button", { name: "Ort suchen" })).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Suchen" })).toBeEnabled();
   });
 
   test("öffnet den gespeicherten Ort nach der Erstladung offline wieder", async ({

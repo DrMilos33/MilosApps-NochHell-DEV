@@ -190,3 +190,24 @@ App-Task nicht verändert.
 - **Gültigkeitsgrenze:** Der Shared-Quellvertrag allein beweist nicht, dass ein
   Verbraucher-Bundler externe Assets unverändert extern ausliefert; diese
   Eigenschaft muss im erzeugten App-Build geprüft werden.
+
+## 2026-08-01: Ein fokussierter Helfer braucht ein überprüfbares Dichtebudget
+
+- **Evidenz:** Die fachlich vollständige Startansicht war technisch responsiv,
+  belegte auf Desktop aber 606 Pixel allein für das Intro; die Überschrift war
+  309 Pixel hoch und die eigentliche Ortswahl begann erst bei 675 Pixel. Auf
+  Mobilgeräten verlängerten verschachtelte Karten und ein unnötig gestapelter
+  Suchknopf den ersten Arbeitsweg zusätzlich.
+- **Folge:** Überschriften, vertikale Abstände, Ergebnisfläche und Ereigniskarten
+  besitzen nun bewusst kleinere Obergrenzen. Suche und Geräteortung bleiben
+  gleichwertig, werden aber ohne zusätzliche Kartenebenen und bei 390 Pixel
+  mit Suchfeld und Knopf in einer Zeile dargestellt. 44-Pixel-Ziele werden
+  nicht zugunsten bloß kleinerer Bedienelemente geopfert.
+- **Regression:** Ein Chromium-Geometrietest begrenzt Introhöhe,
+  Überschriftgröße, Position der Ortswahl sowie Höhe von Antwort- und
+  Ereigniskarten. Die bestehende Matrix prüft zusätzlich 390 × 844,
+  360 × 800 bei 200 Prozent, DE/EN, Fokus, Touchziele und Überlauffreiheit.
+- **Gültigkeitsgrenze:** Die Grenzwerte gelten für diesen fokussierten
+  Tageslichthelfer. Datenreiche Werkzeuge dürfen andere Dichteziele benötigen;
+  entscheidend bleibt, dass die Hauptaufgabe früh sichtbar wird und Reflow
+  sowie Bedienbarkeit erhalten bleiben.

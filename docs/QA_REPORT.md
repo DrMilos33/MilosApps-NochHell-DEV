@@ -22,20 +22,20 @@ abgesichert. Production und fremde Repositories blieben unverändert.
 | `pnpm verify:shell` | bestanden | Manifest, v2.0.3-Pin, fünf vendorte Artefakte, Hashes, Lock, HTML-Slots und Locale-Modul |
 | `pnpm test` | 22 bestanden | Astronomie, Tageslichtlogik, Zeitzonen, Geocoding, Speicherung und DE/EN-Fachtexte |
 | `pnpm build` | bestanden | TypeScript und Produktionsbundle |
-| `pnpm test:e2e` | 84 bestanden, 21 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil; 105 Fälle gesamt |
+| `pnpm test:e2e` | 85 bestanden, 23 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil; 108 Fälle gesamt |
 | `pnpm verify:dev` | bestanden | App-Key-Readiness und strikter Portkollisionsabbruch |
 | axe-core | keine automatisiert erkennbaren Verstöße | Start- und Ergebnisfluss |
 | Ressourcenbudget | bestanden | unter 180 DOM-Elementen und 300 kB Transfer im geprüften Startzustand |
 
-Das Bundle nach der v2.0.3-Integration umfasst 117,99 kB JavaScript
-(45,94 kB gzip), 10,96 kB App-CSS (3,36 kB gzip), 5,47 kB externe
+Das Bundle nach der kompakten 0.3.1-Überarbeitung umfasst 117,97 kB JavaScript
+(45,93 kB gzip), 11,41 kB App-CSS (3,47 kB gzip), 5,47 kB externe
 Shell-CSS (1,55 kB gzip) und 0,40 kB externe Theme-CSS (0,20 kB gzip).
 
-Die einundzwanzig übersprungenen Fälle sind bewusst auf passende Projekte
+Die dreiundzwanzig übersprungenen Fälle sind bewusst auf passende Projekte
 begrenzte Browser-Simulationen: Geolocation-Berechtigungen, lokales Löschen/Suchcache,
 langsamer Request-Abbruch, Service-Worker-Offlinebetrieb und künstliche
 Uhr-/Resume-Wechsel sowie die einmalige explizite
-Desktop-Fokus-/Viewportgeometrie. Die fachlichen Chromium-Fälle liefen jeweils
+Desktop-Fokus-/Viewport- und Dichtegeometrie. Die fachlichen Chromium-Fälle liefen jeweils
 in Desktop- und Mobil-Chromium. Kernfluss, astronomische Oberfläche, Tastatur, Reflow,
 Farbschemata, Konsolenfreiheit, Ressourcenbudget und axe liefen zusätzlich in
 Firefox. Fünf zusätzliche Shell-Geometrie-/Reduced-Motion-/CSP-Fälle laufen
@@ -171,6 +171,35 @@ ausgeführte E2E-Fälle bei 21 dokumentierten Projektskips. `pnpm verify:dev`
 bestätigte zusätzlich App-Key-Readiness und den strikten Portabbruch. Der
 anschließende externe DEV-Nachweis bestätigte denselben CSP-Vertrag mit den
 wirklich veröffentlichten, app-eigenen CSS-URLs und leerer Fehlerkonsole.
+
+## Runde 8: schlankere Informationshierarchie
+
+Die visuelle Baseline bestätigte den Nutzerbefund: Bei 1440 × 900 belegte das
+Intro 606 Pixel Höhe, die Überschrift allein 309 Pixel und die Ortswahl begann
+erst bei 675 Pixel. Die gesamte gespeicherte Berlin-Ansicht war 2662 Pixel
+hoch. Nudelrechner, Himmel und Welcher Müll wurden read-only als
+Dichtereferenz geprüft; ihre Arbeitsüberschriften und oberen Abstände sind
+deutlich zurückhaltender.
+
+Die erste Verbesserungsrunde reduzierte die maximale Einstiegsüberschrift von
+6,7 auf 3,45 rem, die Introabstände, die 31-rem-Antwortfläche und die
+11-rem-Ereigniskarten. Suche und Geräteortung liegen nicht länger in zwei
+zusätzlichen verschachtelten Karten. Der fokussierte Chromium-Lauf bestand
+anschließend mit 36/36 Fällen.
+
+Die zweite Runde senkte die Überschrift weiter auf maximal 3,15 rem und auf
+390 Pixel Breite auf 2,05 rem. Suchfeld und kompakter Suchknopf bleiben dort
+in einer Zeile; unter 23 rem brechen sie weiterhin sicher um. Das mobile Intro
+misst nun 216 Pixel, die vollständige Ortswahl 369 Pixel und die Seite mit
+gespeichertem Berlin 2169 statt zuvor deutlich über 2300 Pixel. Desktop und
+Mobile bleiben ohne horizontalen Überlauf; die Bedienziele bleiben mindestens
+44 Pixel groß.
+
+Ein neuer Geometrie-Regressionsfall begrenzt Intro, Schriftgröße,
+Ortswahlposition, Antwortfläche und Ereigniskarten bewusst. Die abschließende
+Drei-Browser-Matrix bestätigt zusätzlich DE/EN mit Reload-Persistenz,
+Tastatur/Fokus, 360 × 800 bei 200 Prozent, Reduced Motion, strikte CSP,
+Offline-/Netzgrenzen sowie sämtliche astronomischen und Standortzustände.
 
 ## Nutzungsmatrix
 
