@@ -260,6 +260,20 @@ Der direkte Aufruf benötigt weder Portal-Cookie noch Milos-Login. Die
 Online-Ortssuche bleibt bewusst eine externe Netzfunktion; lokale Berechnung
 und gespeicherter Ort sind davon getrennt.
 
+Der kompakte 0.3.1-Stand aus
+`6d48e47ad6189cc98a22ca0424da1360c92bf1d6` wurde als Pages-Artefakt
+`2fb055e6b7f4a038142a82309d65a362b2e9ab6f` erneut extern verifiziert.
+GitHub Pages meldete den Build terminal als `built`. Der automatisierte frische
+Kontext bestätigte Health `ready/daylight/0.3.1/dev`, Direktaufruf ohne
+Authentifizierungszustand, Desktop, 390 × 844, DE/EN-Persistenz,
+Offline-Wiederöffnung, Netzgrenze, strikte CSP und 360 × 800 bei 200 Prozent.
+Die sichtbare Browserprüfung maß auf Desktop 255 Pixel Introhöhe, 102 Pixel
+Überschriftenhöhe, Ortswahlbeginn bei 324 Pixel und 1627 Pixel Seitenhöhe; auf
+390 Pixel blieben Intro und Ortswahl bei 194 beziehungsweise 352 Pixel ohne
+Überlauf. Ein erster Verifierlauf verwendete noch den alten englischen
+Knopfnamen `Search place`; der reine Testvertrag wurde auf den sichtbaren
+0.3.1-Namen `Search` korrigiert und lief anschließend vollständig grün.
+
 ## Portal-DEV-Finalabnahme
 
 Portal & Identity bestätigte nach dem 0.3-Deploy am 1. August 2026:
@@ -279,3 +293,8 @@ Die ältere Portalabnahme vom 30. Juli stützte sich wegen des damaligen
 Billing-/Spending-Limits auf den aktiven Railway-Stand und lokale Tests. Die
 aktuelle Revalidierung besitzt nun zusätzlich einen vollständig grünen
 GitHub-CI-Lauf und ein erfolgreiches aktives Railway-Staging-Deployment.
+
+Nach dem 0.3.1-App-Publish wurden cookie-lose GET- und HEAD-Aufrufe der
+unveränderten Route erneut read-only geprüft; beide liefern weiterhin HTTP 302
+auf exakt die App-DEV-URL. App und Health antworten HTTP 200 mit
+`ready/daylight/0.3.1/dev`. Portal und Production blieben unverändert.

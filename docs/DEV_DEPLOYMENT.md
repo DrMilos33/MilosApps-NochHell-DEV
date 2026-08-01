@@ -24,17 +24,17 @@ App-Datenbank, Portal-Session oder Production-Domain.
 
 | Rolle | Vollständiger SHA |
 | --- | --- |
-| Verifizierter App-Quellstand | `97efdc563e70c01ea4ae31f0d097df111e99e645` |
-| Gebautes und extern verifiziertes Pages-Artefakt | `53acdf37d08fdb0a21881119d35b6d7bfe390394` |
-| Vorherige gesunde Quellrevision | `e31603a9f0fb532bf0accaa2a97b62f398785a2f` |
-| Vorherige gesunde Pages-Revision | `269faf8611fc17777af997eea846fc20cbaf4238` |
+| Verifizierter App-Quellstand | `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` |
+| Gebautes und extern verifiziertes Pages-Artefakt | `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` |
+| Vorherige gesunde Quellrevision | `97efdc563e70c01ea4ae31f0d097df111e99e645` |
+| Vorherige gesunde Pages-Revision | `53acdf37d08fdb0a21881119d35b6d7bfe390394` |
 
 Das Pages-Artefakt wurde ausschließlich mit `pnpm build` aus der
-Quellrevision `97efdc563e70c01ea4ae31f0d097df111e99e645` erzeugt. Der
+Quellrevision `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` erzeugt. Der
 anschließende Dokumentationscommit wird nicht als anderer App-Build
 veröffentlicht.
 
-GitHub Pages meldete die Artefaktrevision am 1. August 2026 um 13:57:50Z
+GitHub Pages meldete die Artefaktrevision am 1. August 2026 um 15:24:23Z
 terminal als `built`. Die externe Prüfung umfasste zusätzlich die beiden
 app-eigenen CSS-Assets unter einer echten Response-CSP mit
 `style-src 'self'`; es gab weder Inline-Ausnahmen noch CSP-Fehler.
@@ -51,7 +51,7 @@ Die absolute Health-URL antwortet aktuell mit:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "environment": "dev",
   "database": false
 }
@@ -79,10 +79,10 @@ DEV-Hostingdienst; das Portal ist weder Build- noch Laufzeitvoraussetzung.
 ## Rollback
 
 Die aktuelle gesunde DEV-Artefaktrevision ist
-`53acdf37d08fdb0a21881119d35b6d7bfe390394`. Der unmittelbare Rückfallstand ist
+`2fb055e6b7f4a038142a82309d65a362b2e9ab6f`. Der unmittelbare Rückfallstand ist
 die vorherige gesunde Revision
-`269faf8611fc17777af997eea846fc20cbaf4238`, gebaut aus
-`e31603a9f0fb532bf0accaa2a97b62f398785a2f`.
+`53acdf37d08fdb0a21881119d35b6d7bfe390394`, gebaut aus
+`97efdc563e70c01ea4ae31f0d097df111e99e645`.
 
 Ein Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision erneut als neuen, vorwärts gerichteten `gh-pages`-Commit und

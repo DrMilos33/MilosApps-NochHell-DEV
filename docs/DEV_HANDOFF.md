@@ -18,8 +18,8 @@ Stand: 1. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `97efdc563e70c01ea4ae31f0d097df111e99e645` |
-| Pages-Artefaktrevision | `53acdf37d08fdb0a21881119d35b6d7bfe390394` |
+| Deployte Quellrevision | `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` |
+| Pages-Artefaktrevision | `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` |
 | Gepinnter Shell-Vertrag | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627` |
 
 ## Readiness
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "environment": "dev",
   "database": false
 }
@@ -95,9 +95,9 @@ mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
 HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
 Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
-Aktuell gesund ist `53acdf37d08fdb0a21881119d35b6d7bfe390394`. Der
+Aktuell gesund ist `2fb055e6b7f4a038142a82309d65a362b2e9ab6f`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `269faf8611fc17777af997eea846fc20cbaf4238` als neuen
+Artefaktrevision `53acdf37d08fdb0a21881119d35b6d7bfe390394` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
@@ -115,6 +115,12 @@ Actions-Lauf vom 30. Juli startete wegen des damaligen Billing-/Spending-Limits
 keinen Step; die aktuelle Gate-Revision besitzt dagegen den oben genannten
 vollständig erfolgreichen CI- und Railway-Nachweis. Dies ist kein Blocker für
 die aktive `daylight`-DEV-Route.
+
+Nach dem kompakten App-DEV-Update auf 0.3.1 wurde die unveränderte Portalroute
+erneut read-only ohne Cookies geprüft. GET und HEAD liefern weiterhin HTTP 302
+auf exakt die unabhängige Daylight-DEV-URL; App und Health antworten HTTP 200,
+die aktuelle Health-Identität ist `ready/daylight/0.3.1/dev`. Weder Portalcode
+noch Portal-Deployment wurden dafür verändert.
 
 OpenAI Sites, MilosApps-Production und das Portal-Repository wurden nicht
 verändert.

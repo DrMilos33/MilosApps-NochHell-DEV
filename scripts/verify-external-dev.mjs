@@ -123,7 +123,7 @@ async function verifyViewport({
       await page
         .getByRole("searchbox", { name: "Place or region" })
         .fill("Berlin");
-      await page.getByRole("button", { name: "Search place" }).click();
+      await page.getByRole("button", { name: "Search" }).click();
       const result = page.getByRole("button", { name: /Berlin.*city/i }).first();
       await result.waitFor({ timeout: 30_000 });
       await result.click();
@@ -147,7 +147,7 @@ async function verifyViewport({
       await page
         .getByRole("searchbox", { name: "Place or region" })
         .fill("Hamburg");
-      await page.getByRole("button", { name: "Search place" }).click();
+      await page.getByRole("button", { name: "Search" }).click();
       const offlineAlert = page.getByRole("alert");
       await offlineAlert.waitFor();
       assert.match(
