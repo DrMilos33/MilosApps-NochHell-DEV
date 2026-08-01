@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DrMilos33/MilosApps-Shared/97f695be3bdfcfdc51ad286c6ed231c4b9585295/contracts/public-app-shell/v2/app-manifest.schema.json",
+  "appKey": "daylight",
+  "ownerTask": "MilosApps – Noch hell?",
+  "public": true,
+  "loginRequired": false,
+  "shellContract": {
+    "id": "public-app-shell/v2",
+    "version": "2.0.2",
+    "sharedCommit": "97f695be3bdfcfdc51ad286c6ed231c4b9585295",
+    "vendorDirectory": "vendor/milosapps-shell/v2",
+    "entryHtml": "index.html",
+    "localeModule": "src/main.ts"
+  },
+  "environment": "dev",
+  "description": {
+    "de": "Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.",
+    "en": "Daylight times for your place – calculated locally, without an account."
+  },
+  "theme": {
+    "accent": "var(--accent-deep)",
+    "accentContrast": "#ffffff",
+    "surface": "var(--paper)",
+    "text": "var(--ink)",
+    "muted": "var(--muted)",
+    "border": "var(--line)",
+    "focus": "var(--amber)"
+  },
+  "integration": {
+    "portalRoute": "/apps/daylight"
+  },
+  "dev": {
+    "url": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
+    "healthUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json"
+  },
+  "productionApproved": false
+}

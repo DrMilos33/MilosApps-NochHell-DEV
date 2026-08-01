@@ -26,7 +26,7 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "0.2.0",
+  version: "0.3.0",
   environment: "dev",
   database: false,
 });
@@ -37,6 +37,7 @@ async function verifyViewport({
   name,
   viewport,
   runNetworkBoundary = false,
+  textScale = 1,
 }) {
   // Every context is deliberately created without storageState or authentication.
   const context = await browser.newContext({
@@ -58,6 +59,11 @@ async function verifyViewport({
     });
     assert.equal(response?.status(), 200, `${name}: app must return HTTP 200.`);
     assert.equal(page.url(), appUrl.href, `${name}: direct request must not redirect.`);
+    if (textScale !== 1) {
+      await page.addStyleTag({
+        content: `html { font-size: ${textScale * 100}% !important; }`,
+      });
+    }
     assert.equal(
       await page.locator("body").getAttribute("data-app-key"),
       "daylight",
@@ -72,6 +78,7 @@ async function verifyViewport({
     assert.equal(await page.locator("main").count(), 1);
     assert.equal(await page.locator("footer").count(), 1);
     assert.equal(await page.locator("h1").count(), 1);
+    assert.equal(await page.locator("milos-app-shell").count(), 1);
     assert.equal(
       await page.getByRole("link", { name: "Alle Apps" }).getAttribute("href"),
       "https://dev.milos-apps.de/apps",
@@ -85,6 +92,19 @@ async function verifyViewport({
       0,
       `${name}: document must not overflow horizontally.`,
     );
+    assert.equal(
+      await page.getByText(/Anmelden|Login|Konto erstellen/).count(),
+      0,
+      `${name}: public direct access must not expose a login gate.`,
+    );
+    const footerGap = await page.locator("milos-app-shell").evaluate((shell) => {
+      const footer = shell.shadowRoot?.querySelector("footer");
+      if (!(footer instanceof HTMLElement)) return Number.POSITIVE_INFINITY;
+      return Math.abs(
+        document.documentElement.scrollHeight - footer.getBoundingClientRect().bottom,
+      );
+    });
+    assert.ok(footerGap <= 1, `${name}: no empty area may remain below the footer.`);
 
     await page.getByRole("button", { name: "EN", exact: true }).click();
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
@@ -156,6 +176,7 @@ async function verifyViewport({
       networkBoundary: runNetworkBoundary
         ? "online search and offline reopening passed"
         : "shell smoke passed",
+      textScale: `${textScale * 100}%`,
     };
   } finally {
     await context.close();
@@ -175,6 +196,13 @@ try {
     await verifyViewport({
       name: "smartphone",
       viewport: { width: 390, height: 844 },
+    }),
+  );
+  results.push(
+    await verifyViewport({
+      name: "200-percent-reflow",
+      viewport: { width: 360, height: 800 },
+      textScale: 2,
     }),
   );
   console.log(

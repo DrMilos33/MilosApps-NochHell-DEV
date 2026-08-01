@@ -10,10 +10,6 @@ import {
   formatLightSummary,
   formatPlaceType,
   localeFor,
-  normalizeLanguage,
-  persistLanguage,
-  readStoredLanguage,
-  shellLinks,
   translate,
   type Language,
   type MessageKey,
@@ -33,10 +29,17 @@ import {
 } from "./lib/timezone";
 import { loadRuntimeConfig } from "./lib/runtime-config";
 
+const supportedLanguages: readonly Language[] = ["de", "en"];
+
+function languageFromShell(value: unknown): Language {
+  return supportedLanguages.includes(value as Language)
+    ? (value as Language)
+    : "de";
+}
+
 const runtimeConfig = await loadRuntimeConfig();
-let language: Language = readStoredLanguage();
+let language: Language = languageFromShell(document.documentElement.lang);
 const environment = runtimeConfig.environment;
-const links = shellLinks(environment);
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) {
@@ -45,65 +48,11 @@ if (!app) {
 
 document.body.dataset.appKey = "daylight";
 document.body.dataset.environment = environment;
-app.dataset.milosShell = "";
 app.dataset.appKey = "daylight";
 app.dataset.environment = environment;
 
 app.innerHTML = `
-  <a class="skip-link" href="#main" data-i18n="skip">Zum Inhalt springen</a>
-
-  <header class="site-header">
-    <div class="shell header-inner">
-      <a
-        id="brand-home"
-        class="brand"
-        href="${links.home}"
-        data-i18n-aria-label="brandHome"
-        aria-label="MilosApps-Startseite"
-      >
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 40 40" focusable="false">
-            <circle cx="20" cy="20" r="18" fill="currentColor" opacity=".14"></circle>
-            <path d="M13 25a7 7 0 0 1 14 0z" fill="currentColor"></path>
-            <path
-              d="M8 27h24M20 8v5M9.5 16l4.3 2.2M30.5 16l-4.3 2.2"
-              fill="none"
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-width="2.2"
-            ></path>
-            <path d="M11 31h18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"></path>
-          </svg>
-        </span>
-        <span class="brand-word">MilosApps</span>
-        <span class="dev-badge"${environment === "dev" ? "" : " hidden"}>DEV</span>
-      </a>
-
-      <nav
-        class="app-nav"
-        data-i18n-aria-label="appNav"
-        aria-label="App-Navigation"
-      >
-        <div
-          class="language-switcher"
-          role="group"
-          data-i18n-aria-label="languageNav"
-          aria-label="Sprache"
-        >
-          <button class="language-button" type="button" data-language="de" aria-pressed="true">
-            DE
-          </button>
-          <button class="language-button" type="button" data-language="en" aria-pressed="false">
-            EN
-          </button>
-        </div>
-        <a class="all-apps-link" href="${links.apps}" data-i18n="allApps">Alle Apps</a>
-      </nav>
-    </div>
-  </header>
-
-  <main id="main" class="shell">
-    <section class="intro" aria-labelledby="intro-title">
+  <section class="intro" aria-labelledby="intro-title">
       <p class="eyebrow" data-i18n="introEyebrow">Tageslicht, auf einen Blick</p>
       <h1 id="intro-title" data-i18n="introTitle">Passt der Spaziergang noch ins Helle?</h1>
       <p class="intro-copy" data-i18n="introCopy">
@@ -293,32 +242,17 @@ app.innerHTML = `
         </button>
       </div>
       <p id="storage-note" class="field-hint"></p>
-    </section>
-  </main>
+  </section>
 
-  <footer class="site-footer">
-    <div class="shell footer-inner">
-      <div class="footer-copy">
-        <p data-i18n="footerText">
-          Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.
-        </p>
-        <p class="footer-attribution">
-          <span data-i18n="attributionPrefix">Ortsdaten ©</span>
-          <a href="https://www.openstreetmap.org/copyright" rel="noreferrer">
-            <span data-i18n="attributionName">OpenStreetMap-Mitwirkende</span>
-          </a>,
-          <span data-i18n="attributionSuffix">
-            ODbL. Sonnenzeiten nach NOAA/Meeus-Näherung.
-          </span>
-        </p>
-      </div>
-      <nav data-i18n-aria-label="footerNav" aria-label="Rechtliches">
-        <a href="${links.legal}" data-i18n="legal">Impressum</a>
-        <a href="${links.privacy}" data-i18n="privacy">Datenschutz</a>
-        <a href="${links.home}">MilosApps</a>
-      </nav>
-    </div>
-  </footer>
+  <p class="data-attribution">
+    <span data-i18n="attributionPrefix">Ortsdaten ©</span>
+    <a href="https://www.openstreetmap.org/copyright" rel="noreferrer">
+      <span data-i18n="attributionName">OpenStreetMap-Mitwirkende</span>
+    </a>,
+    <span data-i18n="attributionSuffix">
+      ODbL. Sonnenzeiten nach NOAA/Meeus-Näherung.
+    </span>
+  </p>
 `;
 
 function element<T extends HTMLElement>(selector: string): T {
@@ -426,12 +360,6 @@ function applyStaticLanguage(): void {
         target.setAttribute("aria-label", translate(language, key));
       }
     });
-  document.querySelectorAll<HTMLButtonElement>("[data-language]").forEach((button) => {
-    button.setAttribute(
-      "aria-pressed",
-      String(button.dataset.language === language),
-    );
-  });
   placeQuery.placeholder = translate(language, "placePlaceholder");
   setSearching(searching);
   setLocating(locating);
@@ -641,13 +569,12 @@ function renderResults(results: PlaceSearchResult[]): void {
 }
 
 function changeLanguage(nextLanguage: unknown): void {
-  const selected = normalizeLanguage(nextLanguage);
+  const selected = languageFromShell(nextLanguage);
   if (selected === language) {
     return;
   }
   searchController?.abort();
   language = selected;
-  persistLanguage(language);
   applyStaticLanguage();
   if (!searchResults.hidden) {
     renderResults(currentResults);
@@ -655,8 +582,9 @@ function changeLanguage(nextLanguage: unknown): void {
   renderSnapshot();
 }
 
-document.querySelectorAll<HTMLButtonElement>("[data-language]").forEach((button) => {
-  button.addEventListener("click", () => changeLanguage(button.dataset.language));
+window.addEventListener("milosapps:localechange", (event) => {
+  const detail = (event as CustomEvent<{ locale?: unknown }>).detail;
+  changeLanguage(detail?.locale);
 });
 
 placeForm.addEventListener("submit", async (event) => {

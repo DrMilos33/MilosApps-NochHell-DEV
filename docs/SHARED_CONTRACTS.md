@@ -1,16 +1,18 @@
 # Gepinnte Shared-Verträge
 
-Stand: 30. Juli 2026.
+Stand: 1. August 2026.
 
-## `public-app-shell/v1`
+## `public-app-shell/v2`
 
 | Feld | Wert |
 | --- | --- |
-| Contract-ID | `public-app-shell/v1` |
-| Version | `1.0.0` |
-| Shared-Commit | `f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4` |
-| Shared-Tag | `public-app-shell-v1.0.0` |
-| Quelle | `MilosApps-Shared/contracts/public-app-shell/v1/` |
+| Contract-ID | `public-app-shell/v2` |
+| Version | `2.0.2` |
+| Shared-Commit | `97f695be3bdfcfdc51ad286c6ed231c4b9585295` |
+| Shared-Tag | `public-app-shell-v2.0.2` |
+| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/97f695be3bdfcfdc51ad286c6ed231c4b9585295/contracts/public-app-shell/v2` |
+| Lokaler Vendor | `vendor/milosapps-shell/v2/` |
+| Lock | `vendor/milosapps-shell/v2/shell-lock.json` |
 | Runtime-Abhängigkeit | keine |
 | Production-Freigabe | `false` |
 
@@ -19,23 +21,28 @@ Laufzeit keine Datei aus `MilosApps-Shared`.
 
 Umgesetzt sind:
 
-- normal fließender semantischer Header mit eigenem Sonnenaufgang-SVG,
-  `MilosApps`, DEV-Badge, DE/EN und `Alle Apps`/`All apps`;
+- normal fließende vendorte Web Component mit app-eigenem Sonnenaufgang-SVG,
+  `MilosApps`, DEV-Badge, DE-/UK-Flaggen, sichtbaren DE/EN-Labels und
+  `Alle Apps`/`All apps`;
 - vollständige sichtbare DE-/EN-Oberfläche einschließlich dynamischer
   Sonnenzustände, Suche, Standort-, Speicher-, Offline- und Fehlermeldungen;
-- Persistenz unter `milosapps.daylight.language` mit sicherem DE-Fallback;
+- Shell-Persistenz unter `milosapps.daylight.language`; das app-eigene
+  Locale-Modul initialisiert zusätzlich aus `document.documentElement.lang`
+  und hört auf `milosapps:localechange`;
 - absolute Portal-, App-Verzeichnis-, Impressums- und Datenschutzlinks aus
-  derselben expliziten DEV-/Production-Umgebung wie das DEV-Badge;
-- kompakter Footer mit App-Text, Attribution und den drei Pflichtlinks;
+  derselben expliziten DEV-Umgebung wie das DEV-Badge;
+- kompakter Shell-Footer mit App-Text und Pflichtlinks; die OSM-/NOAA-
+  Attribution bleibt im Daylight-Hauptinhalt sichtbar;
 - 44-Pixel-Ziele, sichtbarer Fokus, Reduced Motion, 390-Pixel-Reflow und
-  200-Prozent-Zoomabdeckung.
+  360 × 800 bei 200 Prozent ohne horizontalen Überlauf;
+- portabler Validator und SHA-256-Lock für Component, Bootstrap und Verifier.
 
-Die explizite Umgebung steht in `public/runtime-config.json`. Der veröffentlichte
-DEV-Build verwendet `environment=dev`; die vorhandene Production-Abbildung ist
-nur getestet und nicht veröffentlicht.
+Die Shell-Umgebung steht kanonisch in `milos-app.json`. Der DEV-Build verwendet
+`environment=dev`, absolute HTTPS-DEV-URLs und `productionApproved=false`.
+Eine Production-Abbildung wird weder erzeugt noch veröffentlicht.
 
 ## Rollback
 
-Ein Rollback setzt den app-eigenen Quell- und Pages-Stand auf die letzte
-gesunde Daylight-DEV-Revision zurück. Shared selbst wird nicht verändert und
-erzwingt kein Deployment.
+Ein Rollback setzt Quell- und Pages-Stand auf den letzten gesunden v1-DEV-Stand
+zurück. Shared selbst wird nicht verändert und erzwingt kein Deployment; der
+historische v1-Pin bleibt in der zurückgesetzten App-Revision enthalten.

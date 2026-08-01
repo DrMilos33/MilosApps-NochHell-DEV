@@ -1,20 +1,11 @@
 import type { LightSummary } from "./daylight";
 
 export type Language = "de" | "en";
-export type AppEnvironment = "dev" | "production";
-export type LanguageStorage = Pick<Storage, "getItem" | "setItem">;
-
-export const languageStorageKey = "milosapps.daylight.language";
 
 const deMessages = {
   documentTitle: "Noch hell? – MilosApps",
   documentDescription:
     "Noch hell? zeigt Sonnenaufgang, Sonnenuntergang, Dämmerungsende und die verbleibende Helligkeit für deinen Ort.",
-  skip: "Zum Inhalt springen",
-  brandHome: "MilosApps-Startseite",
-  appNav: "App-Navigation",
-  languageNav: "Sprache",
-  allApps: "Alle Apps",
   introEyebrow: "Tageslicht, auf einen Blick",
   introTitle: "Passt der Spaziergang noch ins Helle?",
   introCopy:
@@ -58,13 +49,9 @@ const deMessages = {
   privacyCopy:
     "Gerätekoordinaten werden vor dem Speichern gerundet. Es gibt kein Konto, keine App-Datenbank und keine Koordinaten in der Seitenadresse.",
   clearData: "Lokale Ortsdaten löschen",
-  footerText: "Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.",
   attributionPrefix: "Ortsdaten ©",
   attributionName: "OpenStreetMap-Mitwirkende",
   attributionSuffix: "ODbL. Sonnenzeiten nach NOAA/Meeus-Näherung.",
-  footerNav: "Rechtliches",
-  legal: "Impressum",
-  privacy: "Datenschutz",
   localTime: "Ortszeit",
   nextDayLocalTime: "Ortszeit am nächsten Kalendertag",
   endsNever: "Endet nicht",
@@ -143,11 +130,6 @@ const enMessages: Record<MessageKey, string> = {
   documentTitle: "Still light? – MilosApps",
   documentDescription:
     "Still light? shows sunrise, sunset, the end of civil twilight and remaining daylight for your location.",
-  skip: "Skip to content",
-  brandHome: "MilosApps home",
-  appNav: "App navigation",
-  languageNav: "Language",
-  allApps: "All apps",
   introEyebrow: "Daylight at a glance",
   introTitle: "Is there enough daylight left for a walk?",
   introCopy:
@@ -190,13 +172,9 @@ const enMessages: Record<MessageKey, string> = {
   privacyCopy:
     "Device coordinates are rounded before storage. There is no account, app database or coordinates in the page address.",
   clearData: "Delete local place data",
-  footerText: "Daylight times for your place – calculated locally, without an account.",
   attributionPrefix: "Place data ©",
   attributionName: "OpenStreetMap contributors",
   attributionSuffix: "ODbL. Sun times use a NOAA/Meeus approximation.",
-  footerNav: "Legal",
-  legal: "Legal notice",
-  privacy: "Privacy",
   localTime: "Local time",
   nextDayLocalTime: "Local time on the next calendar day",
   endsNever: "Does not end",
@@ -277,28 +255,6 @@ export function normalizeLanguage(value: unknown): Language {
   return value === "en" ? "en" : "de";
 }
 
-export function readStoredLanguage(storage?: LanguageStorage | null): Language {
-  try {
-    const target = storage ?? window.localStorage;
-    return normalizeLanguage(target.getItem(languageStorageKey));
-  } catch {
-    return "de";
-  }
-}
-
-export function persistLanguage(
-  language: Language,
-  storage?: LanguageStorage | null,
-): boolean {
-  try {
-    const target = storage ?? window.localStorage;
-    target.setItem(languageStorageKey, language);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function translate(
   language: Language,
   key: MessageKey,
@@ -312,22 +268,6 @@ export function translate(
 
 export function localeFor(language: Language): "de-DE" | "en-GB" {
   return language === "en" ? "en-GB" : "de-DE";
-}
-
-export function shellLinks(environment: AppEnvironment): {
-  home: string;
-  apps: string;
-  legal: string;
-  privacy: string;
-} {
-  const base =
-    environment === "production" ? "https://milos-apps.de" : "https://dev.milos-apps.de";
-  return {
-    home: `${base}/`,
-    apps: `${base}/apps`,
-    legal: `${base}/impressum`,
-    privacy: `${base}/datenschutz`,
-  };
 }
 
 export function formatRemaining(milliseconds: number, language: Language): string {

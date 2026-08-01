@@ -60,14 +60,16 @@ pnpm preview:capture
 
 ## Public App Shell
 
-Die App adaptiert `public-app-shell/v1` aus dem exakt gepinnten
-Shared-Commit `f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4` beziehungsweise Tag
-`public-app-shell-v1.0.0`. Header, Sprache, Umgebungslinks und Footer sind
-app-eigener Code; es gibt keinen Runtime-Import aus `MilosApps-Shared`.
+Die App vendort `public-app-shell/v2.0.2` aus dem exakt gepinnten
+Shared-Commit `97f695be3bdfcfdc51ad286c6ed231c4b9585295`. Manifest, Bootstrap,
+Web Component und SHA-256-Lock liegen app-eigen im Repository; es gibt keinen
+CDN- oder Runtime-Import aus `MilosApps-Shared`.
 
 Im DEV-Build führen alle Shell-Links absolut zu `https://dev.milos-apps.de`.
-Das DEV-Badge und diese Linkbasis stammen aus derselben expliziten
-Runtime-Umgebung. Production bleibt nicht freigegeben.
+DEV-Badge, Linkbasis, Kurzbeschreibung und `productionApproved=false` stammen
+gemeinsam aus `milos-app.json`. Die Shell besitzt Header, Footer,
+Sprachpersistenz und Locale-Event; Daylight übersetzt weiterhin die gesamte
+sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 
 ## Datenschutz und Datenfluss
 

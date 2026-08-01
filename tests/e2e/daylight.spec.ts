@@ -76,7 +76,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.2.0",
+      version: "0.3.0",
       environment: "dev",
     });
   });
@@ -233,7 +233,7 @@ test.describe("öffentlicher Kernfluss", () => {
   });
 });
 
-test.describe("public-app-shell/v1", () => {
+test.describe("public-app-shell/v2", () => {
   test("setzt semantische Shell, DEV-Identität und absolute DEV-Links", async ({
     page,
   }) => {
@@ -246,7 +246,8 @@ test.describe("public-app-shell/v1", () => {
     await expect(page.locator("footer")).toHaveCount(1);
     await expect(page.locator("h1")).toHaveCount(1);
     await expect(page.getByText("DEV", { exact: true })).toBeVisible();
-    await expect(page.getByRole("link", { name: "MilosApps-Startseite" })).toHaveAttribute(
+    await expect(page.locator("milos-app-shell")).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "MilosApps DEV", exact: true })).toHaveAttribute(
       "href",
       "https://dev.milos-apps.de/",
     );
@@ -262,6 +263,7 @@ test.describe("public-app-shell/v1", () => {
       "href",
       "https://dev.milos-apps.de/datenschutz",
     );
+    await expect(page.getByText("Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.")).toBeVisible();
   });
 
   test("schaltet die vollständige sichtbare UI auf EN und behält die Wahl nach Reload", async ({
@@ -297,6 +299,8 @@ test.describe("public-app-shell/v1", () => {
     await expect(page.locator("#answer-title")).toContainText(/daylight left|still light/i);
     await expect(page.getByText(/Until the end of civil twilight|above the horizon/)).toBeVisible();
     await expect(page.getByText("Private by design", { exact: true })).toBeVisible();
+    await expect(page.getByText("Place data ©", { exact: true })).toBeVisible();
+    await expect(page.getByText(/NOAA\/Meeus approximation/)).toBeVisible();
 
     expect(
       await page.evaluate(() =>
@@ -368,40 +372,6 @@ test.describe("public-app-shell/v1", () => {
     await context.setOffline(false);
   });
 
-  test("leitet Production-Konfiguration nur auf absolute Production-Links und blendet DEV aus", async ({
-    page,
-  }) => {
-    await page.route("**/runtime-config.json", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          environment: "production",
-          geocodingEndpoint: "https://nominatim.openstreetmap.org/search",
-        }),
-      });
-    });
-    await page.goto("/");
-
-    await expect(page.locator("body")).toHaveAttribute(
-      "data-environment",
-      "production",
-    );
-    await expect(page.locator(".dev-badge")).toBeHidden();
-    await expect(page.getByRole("link", { name: "Alle Apps" })).toHaveAttribute(
-      "href",
-      "https://milos-apps.de/apps",
-    );
-    await expect(page.getByRole("link", { name: "Impressum" })).toHaveAttribute(
-      "href",
-      "https://milos-apps.de/impressum",
-    );
-    await expect(page.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
-      "href",
-      "https://milos-apps.de/datenschutz",
-    );
-  });
-
   test("hat logische Tastaturreihenfolge, sichtbaren Fokus und 44-Pixel-Ziele", async ({
     page,
   }, testInfo) => {
@@ -415,9 +385,9 @@ test.describe("public-app-shell/v1", () => {
     });
 
     await page.keyboard.press("Tab");
-    await expect(page.getByRole("link", { name: "Zum Inhalt springen" })).toBeFocused();
+    await expect(page.getByRole("link", { name: "Zum Inhalt" })).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(page.getByRole("link", { name: "MilosApps-Startseite" })).toBeFocused();
+    await expect(page.getByRole("link", { name: "MilosApps DEV", exact: true })).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(page.getByRole("button", { name: "DE", exact: true })).toBeFocused();
     await page.keyboard.press("Tab");
@@ -428,9 +398,7 @@ test.describe("public-app-shell/v1", () => {
     expect(outline).not.toBe("none");
 
     const sizes = await page
-      .locator(
-        ".brand, .language-button, .all-apps-link, .footer-inner nav a",
-      )
+      .locator(".brand, .control, .footer-nav a")
       .evaluateAll((targets) =>
         targets.map((target) => {
           const rect = target.getBoundingClientRect();
@@ -440,7 +408,7 @@ test.describe("public-app-shell/v1", () => {
     expect(sizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true);
   });
 
-  test("bleibt bei 1440 sowie 390 × 844 einschließlich Header und Footer überlauffrei", async ({
+  test("bleibt bei 1440 sowie 390 × 844 einschließlich Shell überlauffrei und ohne Footer-Leerraum", async ({
     page,
   }, testInfo) => {
     test.skip(testInfo.project.name !== "chromium", "Explizite Viewports werden einmal geprüft.");
@@ -457,7 +425,43 @@ test.describe("public-app-shell/v1", () => {
       expect(overflow).toBeLessThanOrEqual(1);
       await expect(page.getByRole("link", { name: "Alle Apps" })).toBeVisible();
       await expect(page.getByRole("link", { name: "Impressum" })).toBeVisible();
+      const footerGap = await page.locator("milos-app-shell").evaluate((shell) => {
+        const footer = shell.shadowRoot?.querySelector("footer");
+        if (!(footer instanceof HTMLElement)) return Number.POSITIVE_INFINITY;
+        return Math.abs(document.documentElement.scrollHeight - footer.getBoundingClientRect().bottom);
+      });
+      expect(footerGap).toBeLessThanOrEqual(1);
     }
+  });
+
+  test("fließt bei 360 × 800 und 200 Prozent Textzoom ohne Shell-Überlauf um", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Reflow-Geometrie wird einmal geprüft.");
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto("/");
+    await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
+    const metrics = await page.evaluate(() => ({
+      overflow:
+        document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      viewport: document.documentElement.clientWidth,
+    }));
+    expect(metrics.overflow).toBeLessThanOrEqual(1);
+    expect(metrics.viewport).toBe(360);
+    await expect(page.getByRole("button", { name: "EN", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Alle Apps" })).toBeVisible();
+  });
+
+  test("respektiert reduzierte Bewegung auch in den Shell-Steuerelementen", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Reduced Motion wird einmal geprüft.");
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    const duration = await page
+      .getByRole("button", { name: "EN", exact: true })
+      .evaluate((target) => getComputedStyle(target).transitionDuration);
+    expect(Number.parseFloat(duration)).toBeLessThanOrEqual(0.00001);
   });
 
   test("hat auch in EN keine automatisiert erkennbaren WCAG-Verstöße", async ({

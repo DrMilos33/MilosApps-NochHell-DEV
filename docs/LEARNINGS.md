@@ -109,13 +109,12 @@ App-Task nicht verändert.
 - **Evidenz:** Ein festes DEV-Badge neben separat hartcodierten Links könnte
   später zu einem widersprüchlichen Build führen, der sich als DEV ausgibt,
   aber Production verlinkt.
-- **Folge:** `public/runtime-config.json` setzt explizit `environment=dev`.
-  Badge, Body-Identität und alle absoluten Shell-Links werden daraus gemeinsam
-  gebildet. Die Production-Abbildung ist automatisiert geprüft, aber nicht
-  veröffentlicht.
-- **Regression:** Unit-Test beider Linkkarten und E2E-Test für DEV-Badge,
-  absolute Links sowie ausgeblendetes Badge in simulierter
-  Production-Konfiguration.
+- **Folge:** Seit `public-app-shell/v2` ist `milos-app.json` die kanonische
+  Shell-Quelle für `environment=dev`, Badge, absolute Links und
+  `productionApproved=false`. `public/runtime-config.json` bleibt nur für die
+  app-eigene Laufzeit-/Geocoding-Konfiguration bestehen.
+- **Regression:** Portabler Shell-Verifier, Lockprüfung und E2E-Test für
+  DEV-Badge, absolute Links und die gesperrte Production-Grenze.
 - **Gültigkeitsgrenze:** Die geprüfte Production-Abbildung ist keine fachliche
   Production-Freigabe.
 
@@ -136,3 +135,42 @@ App-Task nicht verändert.
 - **Gültigkeitsgrenze:** Die Meldung unterscheidet bewusst nicht zwischen
   fehlender Geräteverbindung, DNS-, CORS- oder Endpunktfehler. Ohne
   Serverantwort ist nur die fehlende Erreichbarkeit sicher bekannt.
+
+## 2026-08-01: Eine vendorte Shell braucht ein eindeutiges Locale-Eigentum
+
+- **Evidenz:** In v1 verwaltete Daylight Sprache, Speicherung und Shelltexte
+  selbst. Eine zusätzliche vendorte Persistenz hätte zwei konkurrierende
+  Zustände und doppelte Portal-Linklogik erzeugt.
+- **Folge:** Die v2-Shell besitzt nur ihre Texte, Persistenz und Links. Das
+  Daylight-Locale-Modul initialisiert aus `document.documentElement.lang`, hört
+  `milosapps:localechange` und übersetzt alle Fachzustände einschließlich
+  Fehler, Sonnenereignisse und zugängliche Namen.
+- **Regression:** Portabler Verifier sowie DE-/EN-E2E mit Live-Suche,
+  Fehlerzuständen und Reload-Persistenz.
+- **Gültigkeitsgrenze:** Gespeicherte Ortsnamen werden offline nicht nachträglich
+  übersetzt; neue Geocoding-Antworten verwenden die aktuelle Sprache.
+
+## 2026-08-01: Reflowgrenzen gehören zentral und app-eigen geprüft
+
+- **Evidenz:** Der gemeinsame v2.0.1-Body-Floor und die Markenreihe konnten bei
+  360 × 800 und 200 Prozent überlaufen. Zusätzlich hätte Daylights historischer
+  eigener `min-width: 280px` denselben Fehler nach einem Shared-Patch wieder
+  einführen können.
+- **Folge:** Shared v2.0.2 behebt Shell-Body, Brand und Navigation zentral;
+  Daylight entfernt nur seine eigene unnötige Mindestbreite und veröffentlicht
+  keinen Shell-Workaround.
+- **Regression:** Shared-Hash/Lock plus app-eigener 360 × 800/200-Prozent-Fall,
+  390 × 844 und Desktopmessung einschließlich bündigem Footer.
+- **Gültigkeitsgrenze:** Der Shared-Patch garantiert nur die Shell; jede App
+  bleibt für Reflow ihres Fachinhalts verantwortlich.
+
+## 2026-08-01: App-Themetokens müssen im Verbraucher auf Kontrast geprüft werden
+
+- **Evidenz:** Der normale Daylight-Akzent war für große Buttons ausreichend,
+  erreichte am kleinen DEV-Badge der Shell aber nur 3,57:1.
+- **Folge:** Die Shell nutzt den vorhandenen dunkleren Akzent, während der
+  Fachinhalt sein bewährtes Farbsystem behält.
+- **Regression:** axe-core in DE und EN sowie sichtbare Fokus- und
+  44-Pixel-Zielprüfung.
+- **Gültigkeitsgrenze:** Ein zentral getestetes Shell-Defaulttheme beweist nicht
+  den Kontrast beliebiger app-eigener Theme-Tokens.

@@ -1,12 +1,12 @@
 # QA-Bericht: Noch hell?
 
-Stand: 30. Juli 2026  
+Stand: 1. August 2026
 Branch: `codex/daylight-dev`  
 Implementierungsmeilenstein: `2b5ffe7`  
 Erweiterte QA-Matrix: `a259a5f`
 DEV-Vertrag und Übergabe: `8071fe2`
-Shared-Vertrag: `public-app-shell/v1` aus Shared-Commit
-`f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4`
+Shared-Vertrag: `public-app-shell/v2.0.2` aus Shared-Commit
+`97f695be3bdfcfdc51ad286c6ed231c4b9585295`
 
 ## Ergebnis
 
@@ -19,24 +19,26 @@ abgesichert. Production und fremde Repositories blieben unverändert.
 
 | Prüfung | Ergebnis | Abdeckung |
 | --- | --- | --- |
-| `pnpm test` | 24 bestanden | Astronomie, Tageslichtlogik, Zeitzonen, Geocoding, Speicherung, DE/EN und Umgebungslinks |
+| `pnpm verify:shell` | bestanden | Manifest, v2.0.2-Pin, vendorte Hashes, Lock, HTML-Slots und Locale-Modul |
+| `pnpm test` | 22 bestanden | Astronomie, Tageslichtlogik, Zeitzonen, Geocoding, Speicherung und DE/EN-Fachtexte |
 | `pnpm build` | bestanden | TypeScript und Produktionsbundle |
-| `pnpm test:e2e` | 84 bestanden, 15 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil |
+| `pnpm test:e2e` | 83 bestanden, 19 übersprungen | Chromium Desktop, Firefox Desktop, Pixel-7-Profil; 102 Fälle gesamt |
 | `pnpm verify:dev` | bestanden | App-Key-Readiness und strikter Portkollisionsabbruch |
 | axe-core | keine automatisiert erkennbaren Verstöße | Start- und Ergebnisfluss |
 | Ressourcenbudget | bestanden | unter 180 DOM-Elementen und 300 kB Transfer im geprüften Startzustand |
 
-Das Bundle nach der Shell-Integration umfasst ungefähr 113,9 kB JavaScript
-(43,9 kB gzip) und 14,0 kB CSS (4,0 kB gzip).
+Das Bundle nach der v2-Integration umfasst 123,95 kB JavaScript
+(47,55 kB gzip) und 10,96 kB CSS (3,36 kB gzip).
 
-Die fünfzehn übersprungenen Fälle sind bewusst auf passende Projekte begrenzte
+Die neunzehn übersprungenen Fälle sind bewusst auf passende Projekte begrenzte
 Browser-Simulationen: Geolocation-Berechtigungen, lokales Löschen/Suchcache,
 langsamer Request-Abbruch, Service-Worker-Offlinebetrieb und künstliche
 Uhr-/Resume-Wechsel sowie die einmalige explizite
 Desktop-Fokus-/Viewportgeometrie. Die fachlichen Chromium-Fälle liefen jeweils
 in Desktop- und Mobil-Chromium. Kernfluss, astronomische Oberfläche, Tastatur, Reflow,
 Farbschemata, Konsolenfreiheit, Ressourcenbudget und axe liefen zusätzlich in
-Firefox.
+  Firefox. Vier zusätzliche Shell-Geometrie-/Reduced-Motion-Fälle laufen
+  absichtlich nur einmal in Desktop-Chromium.
 
 ## Runde 1: Funktion, Zustände und Datenschutz
 
@@ -125,6 +127,30 @@ Ortssuche eine erreichbare Netzwerkverbindung braucht, während der
 gespeicherte Ort weiter funktioniert. Ein automatisierter externer
 Desktop-/390-Pixel-Smoke reproduziert diese Grenze künftig gegen die echte
 HTTPS-DEV-URL.
+
+## Runde 6: vendorte `public-app-shell/v2.0.2`
+
+Die v1-Doppelimplementierung von Header, Footer, Sprachspeicher und
+Umgebungslinks wurde durch den exakt gepinnten, app-eigen vendorten v2-Block
+ersetzt. `milos-app.json`, generierter Bootstrap, Web Component, portabler
+Verifier und `shell-lock.json` bilden eine reproduzierbare Einheit ohne
+Shared-Runtimeimport.
+
+Der erste fokussierte Chromium-Lauf fand zwei Abweichungen:
+
+1. Der normale Daylight-Akzent erreichte am kleinen DEV-Badge auf dem hellen
+   Shell-Hintergrund nur 3,57:1. Die Shell verwendet nun den bereits
+   vorhandenen dunkleren App-Akzent; beide DE-/EN-Axe-Läufe sind grün.
+2. Chromium serialisierte die verlangten `0.01ms` für Reduced Motion als
+   `1e-05s`. Der Test prüft jetzt den numerischen Grenzwert statt ein einzelnes
+   Darstellungsformat.
+
+Anschließend bestanden der portable Verifier, 22/22 Units, Build sowie 83
+ausgeführte E2E-Fälle in der vollständigen Drei-Browser-Matrix. Die zusätzliche
+visuelle Browserprüfung bestätigte Desktop und 390 × 844 ohne Überlauf,
+mindestens 44 Pixel große Shellziele, bündigen Footer, leere Warn-/Fehlerkonsole
+und DE/EN-Persistenz. Der separate Chromium-Regressionsfall bestätigte
+360 × 800 bei 200 Prozent Textskalierung ohne horizontalen Überlauf.
 
 ## Nutzungsmatrix
 

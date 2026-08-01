@@ -21,7 +21,7 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
 - App-spezifische Readiness auf dem strikt reservierten Port 4319.
 - vollständige DE-/EN-Umschaltung von Shell, Suche, Ergebnisansicht,
   Sonnenzeiten und Fehlerzuständen mit Persistenz nach Reload;
-- DEV-/Production-Linkabbildung, DEV-Badge, semantische
+- DEV-Linkabbildung, `productionApproved=false`, DEV-Badge, semantische
   Header-/Nav-/Main-/Footer-Struktur und genau ein Haupt-H1;
 - 44-Pixel-Shellziele, Fokusreihenfolge, Reduced Motion sowie Header und Footer
   bei Desktop, 390 × 844 und 200-Prozent-Reflow.
@@ -29,6 +29,7 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
 ## Wiederholung vor einer DEV-Veröffentlichung
 
 ```powershell
+pnpm verify:shell
 pnpm test:all
 pnpm verify:dev
 ```

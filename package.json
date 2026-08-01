@@ -1,6 +1,6 @@
 {
   "name": "@milosapps/daylight",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Öffentlicher lokaler Tageslichthelfer für Sonnenaufgang, Sonnenuntergang und bürgerliche Dämmerung.",
@@ -18,11 +18,12 @@
     "readiness": "node scripts/check-readiness.mjs",
     "verify:dev": "pnpm build && node scripts/verify-dev-contract.mjs",
     "verify:external-dev": "node scripts/verify-external-dev.mjs",
+    "verify:shell": "node vendor/milosapps-shell/v2/verify.mjs --app-root . --manifest milos-app.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:chromium": "playwright test --project=chromium",
-    "test:all": "pnpm test && pnpm build && pnpm test:e2e"
+    "test:all": "pnpm verify:shell && pnpm test && pnpm build && pnpm test:e2e"
   },
   "dependencies": {
     "tz-lookup": "6.1.25"
