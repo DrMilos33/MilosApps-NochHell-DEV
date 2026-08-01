@@ -1,6 +1,6 @@
 # DEV- und Portalübergabe
 
-Stand: 30. Juli 2026.
+Stand: 1. August 2026.
 
 ## Metadaten
 
@@ -18,9 +18,9 @@ Stand: 30. Juli 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `e31603a9f0fb532bf0accaa2a97b62f398785a2f` |
-| Pages-Artefaktrevision | `269faf8611fc17777af997eea846fc20cbaf4238` |
-| Gepinnter Shell-Vertrag | `public-app-shell-v1.0.0` aus Shared `f49b2c2b5bf1071f2f1ffb3e24b877251fffd2b4` |
+| Deployte Quellrevision | `97efdc563e70c01ea4ae31f0d097df111e99e645` |
+| Pages-Artefaktrevision | `53acdf37d08fdb0a21881119d35b6d7bfe390394` |
+| Gepinnter Shell-Vertrag | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627` |
 
 ## Readiness
 
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "environment": "dev",
   "database": false
 }
@@ -79,19 +79,18 @@ Login, Browserfehler oder horizontalen Überlauf. Production zeigt die Karte
 nicht und blieb unverändert. Der App-Direktaufruf und die App-Readiness bleiben
 auch bei einem Portal-Ausfall unabhängig verfügbar.
 
-Nach dem Shell-Update wurde die unveränderte Portal-DEV-Route erneut
+Nach dem v2.0.3-Shell-Update wurde die unveränderte Portal-DEV-Route erneut
 read-only aufgerufen. `https://dev.milos-apps.de/apps/daylight` leitete auf die
 exakte unabhängige App-URL weiter. Der Zielstand wies
 `appKey=daylight`, `environment=dev`, das DEV-Badge, die vollständige
 Sprachumschaltung und den absoluten DEV-Link zu „Alle Apps“ aus. Bei
-390 × 844 und 1440 × 900 trat kein horizontaler Überlauf auf. Der separate
-Portal-Task konnte diese Wiederholung wegen seines noch alten
-Berechtigungskontexts nicht selbst ausführen; das ist kein App-, Route- oder
-Hostingblocker.
+390 × 844 und 1440 × 900 trat kein horizontaler Überlauf auf. Die frische
+App-QA erfolgte ohne Portal-Cookie oder Loginzustand; Portal & Identity erhält
+den finalen Stand anschließend zur separaten read-only Revalidierung.
 
-Aktuell gesund ist `269faf8611fc17777af997eea846fc20cbaf4238`. Der
+Aktuell gesund ist `53acdf37d08fdb0a21881119d35b6d7bfe390394`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `2735413d04d1a300fc67424f3e2e50f3ea0d93e0` als neuen
+Artefaktrevision `269faf8611fc17777af997eea846fc20cbaf4238` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 

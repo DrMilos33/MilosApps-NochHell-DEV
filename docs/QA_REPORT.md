@@ -31,15 +31,15 @@ Das Bundle nach der v2.0.3-Integration umfasst 117,99 kB JavaScript
 (45,94 kB gzip), 10,96 kB App-CSS (3,36 kB gzip), 5,47 kB externe
 Shell-CSS (1,55 kB gzip) und 0,40 kB externe Theme-CSS (0,20 kB gzip).
 
-Die einundzwanzig übersprungenen Fälle sind bewusst auf passende Projekte begrenzte
-Browser-Simulationen: Geolocation-Berechtigungen, lokales Löschen/Suchcache,
+Die einundzwanzig übersprungenen Fälle sind bewusst auf passende Projekte
+begrenzte Browser-Simulationen: Geolocation-Berechtigungen, lokales Löschen/Suchcache,
 langsamer Request-Abbruch, Service-Worker-Offlinebetrieb und künstliche
 Uhr-/Resume-Wechsel sowie die einmalige explizite
 Desktop-Fokus-/Viewportgeometrie. Die fachlichen Chromium-Fälle liefen jeweils
 in Desktop- und Mobil-Chromium. Kernfluss, astronomische Oberfläche, Tastatur, Reflow,
 Farbschemata, Konsolenfreiheit, Ressourcenbudget und axe liefen zusätzlich in
-  Firefox. Fünf zusätzliche Shell-Geometrie-/Reduced-Motion-/CSP-Fälle laufen
-  absichtlich nur einmal in Desktop-Chromium.
+Firefox. Fünf zusätzliche Shell-Geometrie-/Reduced-Motion-/CSP-Fälle laufen
+absichtlich nur einmal in Desktop-Chromium.
 
 ## Runde 1: Funktion, Zustände und Datenschutz
 
@@ -169,7 +169,8 @@ Daylight-Themefarbe, 44-Pixel-Steuerung und eine leere CSP-Fehlerkonsole. Die
 abschließende Vollmatrix bestätigte 22/22 Unit-Tests, den Build sowie 84
 ausgeführte E2E-Fälle bei 21 dokumentierten Projektskips. `pnpm verify:dev`
 bestätigte zusätzlich App-Key-Readiness und den strikten Portabbruch. Der
-externe DEV-Nachweis folgt erst nach dem koordinierten App-Publish.
+anschließende externe DEV-Nachweis bestätigte denselben CSP-Vertrag mit den
+wirklich veröffentlichten, app-eigenen CSS-URLs und leerer Fehlerkonsole.
 
 ## Nutzungsmatrix
 
@@ -207,17 +208,19 @@ Production bleibt gesperrt.
 
 ## Externe DEV-Verifikation
 
-Am 30. Juli 2026 wurde die aus
-`e31603a9f0fb532bf0accaa2a97b62f398785a2f` erzeugte Pages-Revision
-`269faf8611fc17777af997eea846fc20cbaf4238` direkt unter
+Am 1. August 2026 wurde die aus
+`97efdc563e70c01ea4ae31f0d097df111e99e645` erzeugte Pages-Revision
+`53acdf37d08fdb0a21881119d35b6d7bfe390394` direkt unter
 `https://drmilos33.github.io/MilosApps-NochHell-DEV/` geprüft.
 
 | Prüfung | Ergebnis |
 | --- | --- |
 | Startseite und `/health.json` | HTTP 200 über HTTPS |
-| Health-Inhalt | exakt `status=ready`, `appKey=daylight`, `version=0.2.0`, `environment=dev`, `database=false` |
+| Health-Inhalt | exakt `status=ready`, `appKey=daylight`, `version=0.3.0`, `environment=dev`, `database=false` |
 | Frischer Desktop-Chromium-Kontext | 1440 × 900, echte Live-Suche „Berlin“, Auswahl und vier Ereigniskarten bestanden |
 | Frischer Smartphone-Kontext | 390 × 844, kein horizontaler Überlauf |
+| Strikte CSP-Runtime | `default-src 'self'; script-src 'self'; style-src 'self'`; beide CSS-URLs Same-Origin, Host-Grid, 44 px, Themefarbe, null Fehler |
+| 200-Prozent-Reflow | 360 × 800, externe Shell vollständig gestaltet, kein horizontaler Überlauf |
 | Sprache | vollständige Umschaltung DE/EN und Persistenz nach Reload bestanden |
 | Offline-Grenze | gespeicherter Ort öffnet offline; neue Suche erklärt die fehlende Netz-Erreichbarkeit |
 | Authentifizierung | Kontext ohne `storageState`, kein Redirect und keine Login- oder Kontooberfläche |
@@ -238,7 +241,7 @@ Portal & Identity bestätigte am 30. Juli 2026:
 | Route `/apps/daylight` | Redirect auf die unabhängige HTTPS-DEV-URL korrekt |
 | Portal-DEV-Revision | Integrationscommit `eab551a`, direkter Vorgänger des aktiven Railway-Stands `e74bc712` |
 | Portal-Smoke | Direktaufruf, Desktop und 390 Pixel ohne Login, Browserfehler oder Überlauf |
-| Shell-Revalidierung | unveränderte Route nach 0.2-Deploy erneut read-only bei 1440 × 900 und 390 × 844 ohne Überlauf geprüft |
+| Shell-Revalidierung | unveränderte Route nach 0.3-Deploy vom App-Eigentümer read-only bei 1440 × 900 und 390 × 844 ohne Überlauf geprüft; separates Portal-Handoff folgt |
 | Production-Grenze | Karte nicht sichtbar; Production unverändert |
 | Repository-Grenze | Portal-Task änderte das App-Repository nicht |
 

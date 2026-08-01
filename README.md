@@ -54,7 +54,7 @@ pnpm preview:capture
   Portkollision.
 - `verify:external-dev` prüft die echte HTTPS-DEV-URL in frischen
   Desktop- und Smartphone-Kontexten einschließlich Sprache, Ortssuche und
-  Offline-Netzgrenze.
+  Offline-Netzgrenze sowie die CSP-sicheren externen Shell-Styles.
 - `preview:capture` erzeugt das reproduzierbare Portal-Vorschaubild aus der
   eigenen App-Oberfläche.
 
@@ -90,7 +90,7 @@ sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 
 ## DEV- und Portalstatus
 
-Der verifizierte App-Stand `e31603a9f0fb532bf0accaa2a97b62f398785a2f`
+Der verifizierte App-Stand `97efdc563e70c01ea4ae31f0d097df111e99e645`
 läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 
 - DEV: <https://drmilos33.github.io/MilosApps-NochHell-DEV/>

@@ -108,6 +108,7 @@ async function verifyViewport({
 
     await page.getByRole("button", { name: "EN", exact: true }).click();
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
+    await page.waitForFunction(() => document.title === "Still light? – MilosApps");
     assert.equal(await page.title(), "Still light? – MilosApps");
     await page.getByRole("link", { name: "All apps" }).waitFor();
     await page.getByRole("button", { name: "Use location" }).waitFor();
@@ -183,6 +184,100 @@ async function verifyViewport({
   }
 }
 
+async function verifyStrictCspRuntime() {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    locale: "de-DE",
+    colorScheme: "light",
+    serviceWorkers: "block",
+  });
+  const page = await context.newPage();
+  const browserErrors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") browserErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => browserErrors.push(error.message));
+
+  try {
+    await page.route(appUrl.href, async (route) => {
+      const response = await route.fetch();
+      await route.fulfill({
+        response,
+        headers: {
+          ...response.headers(),
+          "content-security-policy": [
+            "default-src 'self'",
+            "script-src 'self'",
+            "style-src 'self'",
+            "img-src 'self' data:",
+            "connect-src 'self' https://nominatim.openstreetmap.org",
+            "manifest-src 'self'",
+            "worker-src 'self'",
+            "base-uri 'none'",
+          ].join("; "),
+        },
+      });
+    });
+
+    const response = await page.goto(appUrl.href, {
+      waitUntil: "networkidle",
+      timeout: 30_000,
+    });
+    assert.equal(response?.status(), 200, "strict-csp: app must return HTTP 200.");
+    await page.evaluate(() => customElements.whenDefined("milos-app-shell"));
+    await page.getByRole("link", { name: "Alle Apps" }).waitFor();
+    const runtime = await page.locator("milos-app-shell").evaluate((shell) => {
+      const root = shell.shadowRoot;
+      const brand = root?.querySelector(".brand");
+      const appIcon = root?.querySelector(".app-icon");
+      const control = root?.querySelector(".control");
+      const componentStyles = root?.querySelector(
+        'link[data-milos-app-shell-component]',
+      );
+      const themeStyles = document.querySelector(
+        'link[data-milos-app-shell-theme="daylight"]',
+      );
+      return {
+        hostDisplay: getComputedStyle(shell).display,
+        brandDisplay: brand ? getComputedStyle(brand).display : "missing",
+        appIconColor: appIcon ? getComputedStyle(appIcon).color : "missing",
+        controlHeight: control?.getBoundingClientRect().height ?? 0,
+        componentStylesheet: componentStyles?.href ?? "missing",
+        themeStylesheet: themeStyles?.href ?? "missing",
+        overflow:
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      };
+    });
+    assert.equal(runtime.hostDisplay, "grid");
+    assert.equal(runtime.brandDisplay, "flex");
+    assert.equal(runtime.appIconColor, "rgb(151, 54, 31)");
+    assert.ok(runtime.controlHeight >= 44);
+    assert.equal(runtime.overflow, 0);
+    for (const url of [runtime.componentStylesheet, runtime.themeStylesheet]) {
+      assert.ok(
+        url.startsWith(`${appUrl.href}assets/`),
+        "strict-csp: stylesheets must remain external same-origin assets.",
+      );
+    }
+    assert.deepEqual(
+      browserErrors,
+      [],
+      "strict-csp: browser console and page errors must remain empty.",
+    );
+    return {
+      name: "strict-csp-runtime",
+      viewport: { width: 390, height: 844 },
+      directWithoutAuthState: true,
+      policy: "default-src self; script-src self; style-src self",
+      ...runtime,
+      consoleErrors: browserErrors,
+    };
+  } finally {
+    await context.close();
+  }
+}
+
 try {
   const results = [];
   results.push(
@@ -192,6 +287,7 @@ try {
       runNetworkBoundary: true,
     }),
   );
+  results.push(await verifyStrictCspRuntime());
   results.push(
     await verifyViewport({
       name: "smartphone",
