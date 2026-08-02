@@ -391,3 +391,16 @@ die semantische Option `Berlin Germany` und klickt erst danach; die App wurde
 nicht mit einer künstlichen Verzögerung verändert.
 
 Production blieb während Implementierung, QA und Veröffentlichung gesperrt.
+
+### Portal-DEV-Revalidierung für 0.4.0
+
+Portal & Identity bestätigte auf Portalrevision
+`be0e17591bcc58df4317875c36f3a0e1e47f90d0`, CI-Lauf `30746592136` und
+aktivem Railway-Staging-Deployment
+`7181c8f8-a30a-450f-a42c-556b74e8859c`: Cookie-lose GET- und HEAD-Aufrufe
+von `/apps/daylight` liefern jeweils HTTP 302 exakt auf die unabhängige
+Daylight-DEV-URL. App und Health liefern HTTP 200; Health stimmt vollständig
+mit `ready/daylight/0.4.0/dev` und `database=false` überein. Die
+Productionroute bleibt HTTP 404. Runtime-Source `105d80c…`, Pages-Artefakt
+`b7c9a55…` und Evidenz-/LF-Tipp `35769e1…` blieben unverändert; der Portal-
+Task nahm keine Daylight-Repositorymutation vor.

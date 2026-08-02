@@ -106,9 +106,16 @@ meldete `b7c9a5511d52b64a6438393acc7d6a399df8129f` terminal als `built`.
 Frische Kontexte bestätigten Health `ready/daylight/0.4.0/dev`, Direktaufruf
 ohne Login, DE/EN-Persistenz, echte Berlin-Suche, Offline-Wiederöffnung,
 strikte Same-Origin-CSP, externe Essentials-Styles sowie Desktop, 390 × 844
-und 360 × 800 bei 200 Prozent ohne horizontalen Überlauf. Die bestehende
-Portalroute wird nach dieser app-eigenen Übergabe separat read-only
-revalidiert; weder Portalcode noch Portal-Deployment wurden hier verändert.
+und 360 × 800 bei 200 Prozent ohne horizontalen Überlauf.
+
+Portal & Identity revalidierte die bestehende Route anschließend auf dem
+aktiven Portalstand `be0e17591bcc58df4317875c36f3a0e1e47f90d0`, dem grünen
+CI-Lauf `30746592136` und dem aktiven Railway-Staging-Deployment
+`7181c8f8-a30a-450f-a42c-556b74e8859c`. Cookie-lose GET- und HEAD-Aufrufe
+liefern jeweils HTTP 302 exakt auf die unabhängige Daylight-DEV-URL; App und
+Health liefern HTTP 200 mit `ready/daylight/0.4.0/dev` und `database=false`.
+Die Productionroute bleibt HTTP 404. Weder App-Repository noch Daylight-
+Deployment wurden durch diese Portalprüfung verändert.
 
 ## Verbleibende Blocker und Grenzen
 
