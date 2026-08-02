@@ -125,12 +125,9 @@ async function verifyViewport({
         .getByRole("combobox", { name: "Place or region" })
         .fill("Berlin");
       await page.getByRole("button", { name: "Search" }).click();
-      const matchingResults = page.getByRole("option").filter({ hasText: "Berlin" });
-      assert.ok(
-        (await matchingResults.count()) > 0,
-        "Live geocoder must return at least one normalized Berlin option.",
-      );
-      await matchingResults.first().click();
+      const result = page.getByRole("option", { name: "Berlin Germany" });
+      await result.waitFor({ timeout: 30_000 });
+      await result.click();
       await page.getByText("Sunrise", { exact: true }).waitFor();
       assert.equal(
         await page.locator(".event-card").count(),

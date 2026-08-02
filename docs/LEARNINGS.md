@@ -256,3 +256,30 @@ App-Task nicht verändert.
 - **Gültigkeitsgrenze:** Einheitliches UI legitimiert weder einen gemeinsamen
   Geocoding-Account noch gemeinsame Datenhaltung oder das Weitergeben genauer
   Koordinaten in Teil-URLs.
+
+## 2026-08-02: Bytegenaue Vendor-Locks brauchen eine lokale Zeilenendenregel
+
+- **Evidenz:** SHA-256-Locks prüfen veröffentlichte Bytes. Ein Windows-
+  Recheckout kann Textdateien durch `core.autocrlf` verändern, obwohl Commit
+  und fachlicher Inhalt identisch erscheinen.
+- **Folge:** Das vendorte Essentials-Verzeichnis enthält eine enge
+  `.gitattributes` mit `* text eol=lf`. Ein frischer Windows-Checkout muss den
+  unveränderten Lock erneut bestehen.
+- **Regression:** Essentials-Verifier und Recheckout-Prüfung der fünf
+  gelockten Dateien.
+- **Gültigkeitsgrenze:** Die Regel gilt nur für diesen Vendorordner; sie
+  verändert weder globale Git-Einstellungen noch andere App-Dateien.
+
+## 2026-08-02: Externe UI-Prüfer warten auf Zustände, nicht auf Netz-Timing
+
+- **Evidenz:** Die echte Berlin-Suche war erfolgreich, aber ein Prüfer zählte
+  Optionen direkt nach dem Absenden, noch während „Orte werden gesucht …“
+  sichtbar war.
+- **Folge:** Der externe Verifier wartet auf die zugängliche Ergebnisoption
+  und interagiert erst danach. Es gibt keine feste Schlafzeit und keinen
+  app-eigenen künstlichen Delay.
+- **Regression:** `scripts/verify-external-dev.mjs` gegen die öffentliche
+  HTTPS-DEV-URL mit echter Nominatim-Antwort.
+- **Gültigkeitsgrenze:** Auch zustandsbasiertes Warten kann einen externen
+  Ausfall nicht heilen; der Test bleibt mit einem endlichen Timeout
+  fail-closed.

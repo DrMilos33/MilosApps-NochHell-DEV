@@ -1,6 +1,6 @@
 # DEV- und Portalübergabe
 
-Stand: 1. August 2026.
+Stand: 2. August 2026.
 
 ## Metadaten
 
@@ -18,8 +18,8 @@ Stand: 1. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` |
-| Pages-Artefaktrevision | `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` |
+| Deployte Quellrevision | `105d80c9028389b7e4029f18c48fb6e25f7af56c` |
+| Pages-Artefaktrevision | `b7c9a5511d52b64a6438393acc7d6a399df8129f` |
 | Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.0.0` aus Shared `b09e09008ff05fe87f05bc647a7c4964ff13e6f6` |
 
 ## Readiness
@@ -95,11 +95,20 @@ mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
 HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
 Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
-Aktuell gesund ist `2fb055e6b7f4a038142a82309d65a362b2e9ab6f`. Der
+Aktuell gesund ist `b7c9a5511d52b64a6438393acc7d6a399df8129f`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `53acdf37d08fdb0a21881119d35b6d7bfe390394` als neuen
+Artefaktrevision `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
+
+Der 0.4.0-Stand wurde am 2. August 2026 app-eigen veröffentlicht. GitHub Pages
+meldete `b7c9a5511d52b64a6438393acc7d6a399df8129f` terminal als `built`.
+Frische Kontexte bestätigten Health `ready/daylight/0.4.0/dev`, Direktaufruf
+ohne Login, DE/EN-Persistenz, echte Berlin-Suche, Offline-Wiederöffnung,
+strikte Same-Origin-CSP, externe Essentials-Styles sowie Desktop, 390 × 844
+und 360 × 800 bei 200 Prozent ohne horizontalen Überlauf. Die bestehende
+Portalroute wird nach dieser app-eigenen Übergabe separat read-only
+revalidiert; weder Portalcode noch Portal-Deployment wurden hier verändert.
 
 ## Verbleibende Blocker und Grenzen
 

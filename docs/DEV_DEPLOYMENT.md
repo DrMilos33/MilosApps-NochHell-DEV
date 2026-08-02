@@ -1,6 +1,6 @@
 # Unabhängiges DEV-Deployment
 
-Stand: 1. August 2026.
+Stand: 2. August 2026.
 
 ## Öffentlicher Vertrag
 
@@ -24,20 +24,23 @@ App-Datenbank, Portal-Session oder Production-Domain.
 
 | Rolle | Vollständiger SHA |
 | --- | --- |
-| Verifizierter App-Quellstand | `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` |
-| Gebautes und extern verifiziertes Pages-Artefakt | `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` |
-| Vorherige gesunde Quellrevision | `97efdc563e70c01ea4ae31f0d097df111e99e645` |
-| Vorherige gesunde Pages-Revision | `53acdf37d08fdb0a21881119d35b6d7bfe390394` |
+| Verifizierter App-Quellstand | `105d80c9028389b7e4029f18c48fb6e25f7af56c` |
+| Gebautes und extern verifiziertes Pages-Artefakt | `b7c9a5511d52b64a6438393acc7d6a399df8129f` |
+| Vorherige gesunde Quellrevision | `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` |
+| Vorherige gesunde Pages-Revision | `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` |
 
 Das Pages-Artefakt wurde ausschließlich mit `pnpm build` aus der
-Quellrevision `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` erzeugt. Der
+Quellrevision `105d80c9028389b7e4029f18c48fb6e25f7af56c` erzeugt. Der
 anschließende Dokumentationscommit wird nicht als anderer App-Build
 veröffentlicht.
 
-GitHub Pages meldete die Artefaktrevision am 1. August 2026 um 15:24:23Z
-terminal als `built`. Die externe Prüfung umfasste zusätzlich die beiden
-app-eigenen CSS-Assets unter einer echten Response-CSP mit
-`style-src 'self'`; es gab weder Inline-Ausnahmen noch CSP-Fehler.
+GitHub Pages meldete die Artefaktrevision am 2. August 2026 um 11:34:57Z
+terminal als `built` (erstellt um 11:34:30Z, Fehler `null`). Die externe
+Prüfung umfasste direkten Desktop- und Smartphone-Aufruf ohne Login, die
+echte Berlin-Suche, Offline-Wiederöffnung, DE/EN-Persistenz und 360 × 800 bei
+200 Prozent. Unter einer echten Response-CSP mit `style-src 'self'` blieben
+Shell- und Essentials-CSS extern; es gab weder Inline-Ausnahmen noch
+CSP-Fehler.
 
 Das Zwischenartefakt `e49c6b2242aa4ca73007493fff9f06d149f1360c`
 wurde durch die externe Netzgrenzen-QA verworfen und nie als gesunde Revision
@@ -79,10 +82,10 @@ DEV-Hostingdienst; das Portal ist weder Build- noch Laufzeitvoraussetzung.
 ## Rollback
 
 Die aktuelle gesunde DEV-Artefaktrevision ist
-`2fb055e6b7f4a038142a82309d65a362b2e9ab6f`. Der unmittelbare Rückfallstand ist
+`b7c9a5511d52b64a6438393acc7d6a399df8129f`. Der unmittelbare Rückfallstand ist
 die vorherige gesunde Revision
-`53acdf37d08fdb0a21881119d35b6d7bfe390394`, gebaut aus
-`97efdc563e70c01ea4ae31f0d097df111e99e645`.
+`2fb055e6b7f4a038142a82309d65a362b2e9ab6f`, gebaut aus
+`6d48e47ad6189cc98a22ca0424da1360c92bf1d6`.
 
 Ein Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision erneut als neuen, vorwärts gerichteten `gh-pages`-Commit und

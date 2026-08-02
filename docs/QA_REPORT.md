@@ -369,5 +369,25 @@ lag bei 0,3 Pixel Rundungsdifferenz. Der bestehende 360 × 800-Fall bei
 200 Prozent blieb ohne horizontalen Überlauf. Beide gebauten Essentials-CSS-
 Links waren im finalen DOM als externe relative Vendor-URLs vorhanden.
 
-Production blieb während aller Runden gesperrt. Externe HTTPS-/No-Login-
-Evidenz wird nach dem koordinierten app-eigenen Pages-DEV-Publish ergänzt.
+### Externe DEV-Verifikation
+
+Der koordinierte Publish baute ausschließlich Source
+`105d80c9028389b7e4029f18c48fb6e25f7af56c` und veröffentlichte das
+app-eigene Pages-Artefakt
+`b7c9a5511d52b64a6438393acc7d6a399df8129f`. GitHub Pages meldete den Build
+terminal als `built`; Health antwortete HTTP 200 und exakt mit
+`ready/daylight/0.4.0/dev` sowie `database=false`.
+
+Der frische externe Playwright-Lauf bestätigte Desktop 1440 × 900,
+Smartphone 390 × 844 und 360 × 800 bei 200 Prozent, Direktaufruf ohne
+Authentifizierungszustand, DE/EN samt Reload-Persistenz, echte Berlin-Suche,
+Offline-Wiederöffnung und die ehrliche Netzgrenze. Der strikte CSP-Lauf
+bestätigte Shell-Host `grid`, Brand `flex`, 44-Pixel-Essentials-Ziele, beide
+externen Essentials-Stylesheets, 0 Pixel Überlauf und keine Konsolenfehler.
+
+Ein erster externer Prüflauf zählte Suchoptionen unmittelbar nach dem Klick,
+während die echte Netzsuche noch sichtbar lief. Der Verifier wartet nun auf
+die semantische Option `Berlin Germany` und klickt erst danach; die App wurde
+nicht mit einer künstlichen Verzögerung verändert.
+
+Production blieb während Implementierung, QA und Veröffentlichung gesperrt.

@@ -106,7 +106,7 @@ kanonische App-URL ohne Suchparameter, Fragment, Ortsname oder Koordinaten.
 
 ## DEV- und Portalstatus
 
-Der verifizierte App-Stand `6d48e47ad6189cc98a22ca0424da1360c92bf1d6`
+Der verifizierte App-Stand `105d80c9028389b7e4029f18c48fb6e25f7af56c`
 läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 
 - DEV: <https://drmilos33.github.io/MilosApps-NochHell-DEV/>

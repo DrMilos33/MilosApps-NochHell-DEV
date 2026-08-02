@@ -1,6 +1,6 @@
 # Gepinnte Shared-Verträge
 
-Stand: 1. August 2026.
+Stand: 2. August 2026.
 
 ## `public-app-shell/v2`
 
@@ -72,6 +72,10 @@ im gebauten App-Artefakt als externe Same-Origin-Dateien unter dem Vendorpfad
 erhalten; `scripts/verify-built-essentials.mjs` vergleicht die gebauten Bytes
 fail-closed mit dem SHA-256-Lock. Weder CDN noch Shared-Laufzeitimport,
 `data:`-Inlining oder Portal-CSP-Ausnahme werden verwendet.
+
+Eine enge `.gitattributes` im Essentials-Vendorverzeichnis erzwingt LF für
+genau diesen bytegelockten Bestand. Damit bleiben die SHA-256-Nachweise auch
+nach einem Windows-Recheckout mit aktivem `core.autocrlf` reproduzierbar.
 
 ## Rollback
 
