@@ -10,11 +10,29 @@
     <meta name="theme-color" content="#f7efe1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="./app.webmanifest" />
+    <link  rel="stylesheet" href="./vendor/milosapps-essentials/v1/milos-app-essentials.css" />
+    <link  rel="stylesheet" href="./vendor/milosapps-essentials/v1/milos-app-essentials-theme.css" />
     <title>Noch hell?</title>
-    <script type="module" crossorigin src="./assets/index-_bdfilme.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BqMQ8_8H.css">
+    <script type="module" crossorigin src="./assets/index-BUhENjvG.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-C6CK_Kym.css">
   </head>
   <body data-app-key="daylight" data-environment="dev">
+    <section data-milos-app-loading role="status" aria-live="polite">
+      <div data-milos-loading-card>
+        <img
+          data-milos-loading-icon
+          src="./daylight-icon.svg"
+          width="48"
+          height="48"
+          alt=""
+        />
+        <span data-milos-loading-brand>MilosApps</span>
+        <p data-milos-loading-title>Noch hell?</p>
+        <p data-milos-loading-message>App wird geöffnet …</p>
+        <span data-milos-loading-progress aria-hidden="true"></span>
+      </div>
+    </section>
+    <script  type="module" src="./vendor/milosapps-essentials/v1/bootstrap.js"></script>
     <milos-app-shell>
       <svg
         slot="app-icon"
