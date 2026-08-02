@@ -1,0 +1,48 @@
+{
+  "$schema": "../MilosApps-Shared/contracts/public-app-essentials/v1/essentials-manifest.schema.json",
+  "appKey": "daylight",
+  "ownerTask": "MilosApps – Noch hell?",
+  "public": true,
+  "loginRequired": false,
+  "environment": "dev",
+  "productionApproved": false,
+  "entryHtml": "index.html",
+  "integrationFiles": ["index.html", "src/main.ts"],
+  "loading": {
+    "appName": "Noch hell?",
+    "iconPath": "daylight-icon.svg",
+    "message": {
+      "de": "App wird geöffnet …",
+      "en": "Opening app …"
+    }
+  },
+  "privacy": {
+    "mode": "no-cookies",
+    "usesLocalStorage": true,
+    "optionalTracking": false,
+    "privacyUrl": "https://dev.milos-apps.de/datenschutz"
+  },
+  "features": {
+    "startup": true,
+    "privacyNotice": true,
+    "share": true,
+    "datePicker": false,
+    "placeSearch": true
+  },
+  "theme": {
+    "accent": "#c84f31",
+    "accentContrast": "#ffffff",
+    "surface": "#fffaf1",
+    "surfaceSoft": "#f7efe1",
+    "text": "#2a211c",
+    "muted": "#72645b",
+    "border": "#d8c9bb",
+    "focus": "#9a3a21"
+  },
+  "essentialsContract": {
+    "id": "public-app-essentials/v1",
+    "version": "1.0.0",
+    "sharedCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
+    "vendorDirectory": "vendor/milosapps-essentials/v1"
+  }
+}

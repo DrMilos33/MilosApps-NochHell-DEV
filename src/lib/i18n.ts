@@ -10,6 +10,8 @@ const deMessages = {
   introTitle: "Passt der Spaziergang noch ins Helle?",
   introCopy:
     "Ein Ort genügt. Du siehst Sonnenuntergang, Dämmerungsende und den nächsten Sonnenaufgang – ohne Wetter, Konto oder Standorttracking.",
+  shareText:
+    "Noch hell? zeigt Sonnenuntergang, Dämmerungsende und den nächsten Sonnenaufgang – ohne private Ortsdaten im Link.",
   locationKicker: "Dein Ort",
   locationTitle: "Suchen oder Gerät fragen",
   locationNote: "Beide Wege liefern dieselbe vollständige Ansicht.",
@@ -134,6 +136,8 @@ const enMessages: Record<MessageKey, string> = {
   introTitle: "Is there enough daylight left for a walk?",
   introCopy:
     "One place is enough. See sunset, the end of twilight and the next sunrise – without weather, an account or location tracking.",
+  shareText:
+    "Still light? shows sunset, the end of twilight and the next sunrise – without private location data in the link.",
   locationKicker: "Your place",
   locationTitle: "Search or ask your device",
   locationNote: "Both options lead to the same complete view.",

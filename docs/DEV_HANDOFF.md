@@ -20,7 +20,7 @@ Stand: 1. August 2026.
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
 | Deployte Quellrevision | `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` |
 | Pages-Artefaktrevision | `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` |
-| Gepinnter Shell-Vertrag | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627` |
+| Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.0.0` aus Shared `b09e09008ff05fe87f05bc647a7c4964ff13e6f6` |
 
 ## Readiness
 
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "environment": "dev",
   "database": false
 }

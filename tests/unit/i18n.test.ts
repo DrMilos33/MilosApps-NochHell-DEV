@@ -62,6 +62,8 @@ describe("public-app-shell/v2 Fachlokalisierung", () => {
     expect(translate("en", "searchNetworkUnavailable")).toContain(
       "network connection",
     );
+    expect(translate("de", "shareText")).not.toMatch(/52\.|Koordinat/);
+    expect(translate("en", "shareText")).toContain("without private location data");
     expect(formatPlaceType("city", "de")).toBe("Stadt");
     expect(formatPlaceType("city", "en")).toBe("city");
   });

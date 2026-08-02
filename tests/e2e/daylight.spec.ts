@@ -13,6 +13,7 @@ const berlinResult = {
   address: {
     city: "Berlin",
     country: "Deutschland",
+    country_code: "de",
   },
 };
 
@@ -44,10 +45,10 @@ async function mockGeocoder(
 }
 
 async function selectBerlin(page: Page): Promise<void> {
-  await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Berlin");
+  await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Berlin");
   await page.getByRole("button", { name: "Suchen" }).click();
   await page
-    .getByRole("button", { name: "Berlin Deutschland Stadt" })
+    .getByRole("option", { name: "Berlin Deutschland" })
     .click();
 }
 
@@ -76,7 +77,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.3.1",
+      version: "0.4.0",
       environment: "dev",
     });
   });
@@ -84,8 +85,8 @@ test.describe("öffentlicher Kernfluss", () => {
   test("bietet manuelle Suche und Geräteortung gleichwertig ohne Login an", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Passt der Spaziergang noch ins Helle?" })).toBeVisible();
-    await expect(page.getByRole("searchbox", { name: "Ort oder Region" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Standort verwenden" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Ort oder Region" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Meinen Ort verwenden" })).toBeVisible();
     await expect(page.getByText("Beide Wege liefern dieselbe vollständige Ansicht.")).toBeVisible();
     await expect(page.getByText(/Anmelden|Login|Konto erstellen/)).toHaveCount(0);
   });
@@ -137,14 +138,14 @@ test.describe("öffentlicher Kernfluss", () => {
       },
     ]);
     await page.goto("/");
-    await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Neustadt");
+    await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Neustadt");
     await page.getByRole("button", { name: "Suchen" }).click();
 
     await expect(
-      page.getByRole("button", { name: "Neustadt Rheinland-Pfalz, Deutschland Stadt" }),
+      page.getByRole("option", { name: "Neustadt Rheinland-Pfalz · Deutschland" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Neustadt Hamburg, Deutschland Stadt" }),
+      page.getByRole("option", { name: "Neustadt Hamburg · Deutschland" }),
     ).toBeVisible();
   });
 
@@ -152,22 +153,23 @@ test.describe("öffentlicher Kernfluss", () => {
     await page.unroute("https://nominatim.openstreetmap.org/search**");
     await mockGeocoder(page, []);
     await page.goto("/");
-    await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Unbekanntshausen");
+    await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Unbekanntshausen");
     await page.getByRole("button", { name: "Suchen" }).click();
-    await expect(page.getByRole("alert")).toContainText("Kein Ort gefunden");
-    await expect(page.getByText("Ergänze Land oder Region")).toBeVisible();
-    await expect(page.getByRole("searchbox", { name: "Ort oder Region" })).toBeEnabled();
+    await expect(page.locator("[data-milos-place-status]")).toContainText(
+      "Kein passender Ort gefunden",
+    );
+    await expect(page.getByRole("combobox", { name: "Ort oder Region" })).toBeEnabled();
   });
 
   test("ist vollständig mit Tastatur bedienbar", async ({ page }) => {
     await page.goto("/");
-    const search = page.getByRole("searchbox", { name: "Ort oder Region" });
+    const search = page.getByRole("combobox", { name: "Ort oder Region" });
     await search.focus();
     await search.fill("Berlin");
     await search.press("Enter");
-    const result = page.getByRole("button", { name: "Berlin Deutschland Stadt" });
-    await result.focus();
-    await result.press("Enter");
+    await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
+    await search.press("ArrowDown");
+    await search.press("Enter");
     await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Ort ändern" })).toBeVisible();
   });
@@ -214,7 +216,7 @@ test.describe("öffentlicher Kernfluss", () => {
         .getEntriesByType("resource")
         .reduce((sum, entry) => sum + (entry as PerformanceResourceTiming).transferSize, 0),
     }));
-    expect(metrics.domElements).toBeLessThan(180);
+    expect(metrics.domElements).toBeLessThan(230);
     expect(metrics.transferredBytes).toBeLessThan(300_000);
   });
 
@@ -224,8 +226,8 @@ test.describe("öffentlicher Kernfluss", () => {
     test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
 
     for (const viewport of [
-      { width: 1440, height: 900, introMax: 280, locationTopMax: 390 },
-      { width: 390, height: 844, introMax: 260, locationTopMax: 360 },
+      { width: 1440, height: 900, introMax: 225, locationTopMax: 300 },
+      { width: 390, height: 844, introMax: 275, locationTopMax: 390 },
     ]) {
       await page.setViewportSize(viewport);
       await page.goto("/");
@@ -276,6 +278,151 @@ test.describe("öffentlicher Kernfluss", () => {
   });
 });
 
+test.describe("public-app-essentials/v1", () => {
+  test("zeigt bei langsamem Start nur einen kleinen CSS-first Loader und genau eine Dokumentüberschrift", async ({
+    page,
+  }) => {
+    let releaseRuntime!: () => void;
+    const runtimeGate = new Promise<void>((resolve) => {
+      releaseRuntime = resolve;
+    });
+    await page.route("**/runtime-config.json", async (route) => {
+      await runtimeGate;
+      await route.continue();
+    });
+
+    const navigation = page.goto("/", { waitUntil: "load" });
+    const loader = page.locator("[data-milos-app-loading]");
+    await expect(loader).toBeVisible();
+    const loaderMetrics = await loader.evaluate((target) => {
+      const title = target.querySelector("[data-milos-loading-title]");
+      const icon = target.querySelector("[data-milos-loading-icon]");
+      return {
+        titleTag: title?.tagName,
+        iconWidth: icon?.getBoundingClientRect().width ?? 0,
+      };
+    });
+    releaseRuntime();
+    await navigation;
+    expect(loaderMetrics.titleTag).toBe("P");
+    expect(loaderMetrics.iconWidth).toBeLessThanOrEqual(56);
+    await expect(loader).toBeHidden();
+    await expect(page.locator("h1")).toHaveCount(1);
+  });
+
+  test("erklärt Datenschutz wahrheitsgemäß in DE und EN und merkt nur das Schließen lokal", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const notice = page.locator("[data-milos-privacy-notice]");
+    await expect(notice).toContainText("Keine Werbe- oder Tracking-Cookies");
+    await page.getByRole("button", { name: "EN", exact: true }).click();
+    await expect(notice).toContainText("No advertising or tracking cookies");
+    await notice.getByRole("button", { name: "Got it" }).click();
+    await expect(notice).toHaveCount(0);
+    await page.reload();
+    await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  });
+
+  test("teilt nur eine ortsneutrale kanonische App-URL und behandelt Abbruch still", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        value: async (payload: ShareData) => {
+          (window as Window & { __SHARED__?: ShareData }).__SHARED__ = payload;
+        },
+      });
+    });
+    await page.goto("/?latitude=52.5#private-location");
+    await page.getByRole("button", { name: "Teilen" }).click();
+    const payload = await page.evaluate(
+      () => (window as Window & { __SHARED__?: ShareData }).__SHARED__,
+    );
+    expect(payload?.url).toBe("http://127.0.0.1:4319/");
+    expect(JSON.stringify(payload)).not.toMatch(/52\.5|Berlin|latitude/);
+    await expect(page.locator("[data-milos-share-status]")).toHaveText("Geteilt");
+
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        value: async () => {
+          throw new DOMException("cancelled", "AbortError");
+        },
+      });
+    });
+    await page.getByRole("button", { name: "Teilen" }).click();
+    await expect(page.locator("[data-milos-share-status]")).toHaveText("");
+  });
+
+  test("kopiert beim Share-Fallback Text und kanonische URL", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "share", {
+        configurable: true,
+        value: undefined,
+      });
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async (value: string) => {
+            (window as Window & { __COPIED__?: string }).__COPIED__ = value;
+          },
+        },
+      });
+    });
+    await page.goto("/");
+    await page.getByRole("button", { name: "Teilen" }).click();
+    const copied = await page.evaluate(
+      () => (window as Window & { __COPIED__?: string }).__COPIED__,
+    );
+    expect(copied).toContain("http://127.0.0.1:4319/");
+    expect(copied).not.toMatch(/Koordinat|latitude|longitude/);
+    await expect(page.locator("[data-milos-share-status]")).toHaveText("Link kopiert");
+  });
+
+  test("startet die providerneutrale Ortssuche nur mit Enter oder Suchen", async ({
+    page,
+  }) => {
+    let requests = 0;
+    await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
+      requests += 1;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([berlinResult]),
+      });
+    });
+    await page.goto("/");
+    const searchbox = page.getByRole("combobox", { name: "Ort oder Region" });
+    await searchbox.fill("Berlin");
+    expect(requests).toBe(0);
+    await searchbox.press("Enter");
+    await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
+    expect(requests).toBe(1);
+    await expect(page.locator("milos-date-picker")).toHaveCount(0);
+  });
+
+  test("liefert gesperrte Browserartefakte mit passenden MIME-Typen aus", async ({
+    request,
+  }) => {
+    for (const file of [
+      "milos-app-essentials.css",
+      "milos-app-essentials-theme.css",
+    ]) {
+      const response = await request.get(`/vendor/milosapps-essentials/v1/${file}`);
+      expect(response.status()).toBe(200);
+      expect(response.headers()["content-type"]).toContain("text/css");
+    }
+    for (const file of ["bootstrap.js", "milos-app-essentials.js"]) {
+      const response = await request.get(`/vendor/milosapps-essentials/v1/${file}`);
+      expect(response.status()).toBe(200);
+      expect(response.headers()["content-type"]).toContain("text/javascript");
+    }
+  });
+});
+
 test.describe("public-app-shell/v2", () => {
   test("setzt semantische Shell, DEV-Identität und absolute DEV-Links", async ({
     page,
@@ -302,10 +449,9 @@ test.describe("public-app-shell/v2", () => {
       "href",
       "https://dev.milos-apps.de/impressum",
     );
-    await expect(page.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
-      "href",
-      "https://dev.milos-apps.de/datenschutz",
-    );
+    await expect(
+      page.locator("milos-app-shell").getByRole("link", { name: "Datenschutz" }),
+    ).toHaveAttribute("href", "https://dev.milos-apps.de/datenschutz");
     await expect(page.getByText("Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.")).toBeVisible();
   });
 
@@ -322,16 +468,18 @@ test.describe("public-app-shell/v2", () => {
     await expect(
       page.getByRole("heading", { name: "Is there enough daylight left for a walk?" }),
     ).toBeVisible();
-    await expect(page.getByRole("searchbox", { name: "Place or region" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Use location" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Place or region" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Use my location" })).toBeVisible();
     await expect(page.getByRole("link", { name: "All apps" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Legal notice" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Privacy" })).toBeVisible();
+    await expect(
+      page.locator("milos-app-shell").getByRole("link", { name: "Privacy" }),
+    ).toBeVisible();
 
-    await page.getByRole("searchbox", { name: "Place or region" }).fill("Berlin");
+    await page.getByRole("combobox", { name: "Place or region" }).fill("Berlin");
     await page.getByRole("button", { name: "Search" }).click();
     await page
-      .getByRole("button", { name: "Berlin Deutschland city" })
+      .getByRole("option", { name: "Berlin Deutschland" })
       .click();
 
     await expect(page.getByText("Sunrise", { exact: true })).toBeVisible();
@@ -386,20 +534,21 @@ test.describe("public-app-shell/v2", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "EN", exact: true }).click();
 
-    await page.getByRole("searchbox", { name: "Place or region" }).fill("Unknownville");
+    await page.getByRole("combobox", { name: "Place or region" }).fill("Unknownville");
     await page.getByRole("button", { name: "Search" }).click();
-    await expect(page.getByRole("alert")).toContainText("No place found");
-    await expect(page.getByText(/Add a country or region/)).toBeVisible();
+    await expect(page.locator("[data-milos-place-status]")).toContainText(
+      "No matching place found",
+    );
 
-    await page.getByRole("button", { name: "Use location" }).click();
+    await page.getByRole("button", { name: "Use my location" }).click();
     await expect(page.getByRole("alert")).toContainText("Location was not allowed");
-    await expect(page.getByRole("searchbox", { name: "Place or region" })).toBeFocused();
+    await expect(page.getByRole("combobox", { name: "Place or region" })).toBeFocused();
 
     await page.unroute("https://nominatim.openstreetmap.org/search**");
     await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
       await route.abort("internetdisconnected");
     });
-    await page.getByRole("searchbox", { name: "Place or region" }).fill("Hamburg");
+    await page.getByRole("combobox", { name: "Place or region" }).fill("Hamburg");
     await page.getByRole("button", { name: "Search" }).click();
     await expect(page.getByRole("alert")).toContainText(
       "A new place search needs an available network connection.",
@@ -407,7 +556,7 @@ test.describe("public-app-shell/v2", () => {
 
     await page.unroute("https://nominatim.openstreetmap.org/search**");
     await context.setOffline(true);
-    await page.getByRole("searchbox", { name: "Place or region" }).fill("Bremen");
+    await page.getByRole("combobox", { name: "Place or region" }).fill("Bremen");
     await page.getByRole("button", { name: "Search" }).click();
     await expect(page.getByRole("alert")).toContainText(
       "You are offline. A saved place will continue to work.",
@@ -570,6 +719,31 @@ test.describe("public-app-shell/v2", () => {
         url.startsWith("http://127.0.0.1:4319/assets/"),
       ),
     ).toBe(true);
+    const essentialsMetrics = await page.evaluate(() => {
+      const placeInput = document.querySelector<HTMLElement>(
+        "milos-place-search input",
+      );
+      const share = document.querySelector<HTMLElement>(
+        "milos-share-button button",
+      );
+      return {
+        stylesheets: [...document.querySelectorAll<HTMLLinkElement>(
+          'link[href*="milosapps-essentials/v1"]',
+        )].map((link) => link.href),
+        inputHeight: placeInput?.getBoundingClientRect().height ?? 0,
+        inputBackground: placeInput
+          ? getComputedStyle(placeInput).backgroundColor
+          : "missing",
+        shareHeight: share?.getBoundingClientRect().height ?? 0,
+      };
+    });
+    expect(essentialsMetrics.stylesheets).toEqual([
+      "http://127.0.0.1:4319/vendor/milosapps-essentials/v1/milos-app-essentials.css",
+      "http://127.0.0.1:4319/vendor/milosapps-essentials/v1/milos-app-essentials-theme.css",
+    ]);
+    expect(essentialsMetrics.inputHeight).toBeGreaterThanOrEqual(44);
+    expect(essentialsMetrics.shareHeight).toBeGreaterThanOrEqual(44);
+    expect(essentialsMetrics.inputBackground).toBe("rgb(255, 250, 241)");
     expect(cspErrors).toEqual([]);
   });
 
@@ -579,10 +753,10 @@ test.describe("public-app-shell/v2", () => {
     await mockGeocoder(page);
     await page.goto("/");
     await page.getByRole("button", { name: "EN", exact: true }).click();
-    await page.getByRole("searchbox", { name: "Place or region" }).fill("Berlin");
+    await page.getByRole("combobox", { name: "Place or region" }).fill("Berlin");
     await page.getByRole("button", { name: "Search" }).click();
     await page
-      .getByRole("button", { name: "Berlin Deutschland city" })
+      .getByRole("option", { name: "Berlin Deutschland" })
       .click();
     const results = await new AxeBuilder({ page })
       .exclude(".answer-sun")
@@ -688,7 +862,7 @@ test.describe("Standortzustände und Datenschutz", () => {
     });
     const page = await context.newPage();
     await page.goto("/");
-    await page.getByRole("button", { name: "Standort verwenden" }).click();
+    await page.getByRole("button", { name: "Meinen Ort verwenden" }).click();
     await expect(page.getByRole("heading", { name: "In deiner Nähe" })).toBeVisible();
     const stored = await page.evaluate(() => localStorage.getItem("daylight.location.v1"));
     expect(stored).toContain('"latitude":52.52');
@@ -738,9 +912,9 @@ test.describe("Standortzustände und Datenschutz", () => {
         });
       }, state.code);
       await page.goto("/");
-      await page.getByRole("button", { name: "Standort verwenden" }).click();
+      await page.getByRole("button", { name: "Meinen Ort verwenden" }).click();
       await expect(page.getByRole("alert")).toContainText(state.expected);
-      await expect(page.getByRole("searchbox", { name: "Ort oder Region" })).toBeFocused();
+      await expect(page.getByRole("combobox", { name: "Ort oder Region" })).toBeFocused();
     });
   }
 
@@ -770,13 +944,13 @@ test.describe("Standortzustände und Datenschutz", () => {
       });
     });
     await page.goto("/");
-    const searchbox = page.getByRole("searchbox", { name: "Ort oder Region" });
+    const searchbox = page.getByRole("combobox", { name: "Ort oder Region" });
     await searchbox.fill("Berlin");
     await page.getByRole("button", { name: "Suchen" }).click();
-    await expect(page.getByRole("button", { name: "Berlin Deutschland Stadt" })).toBeVisible();
+    await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
     await searchbox.fill("  Berlin  ");
     await page.getByRole("button", { name: "Suchen" }).click();
-    await expect(page.getByRole("button", { name: "Berlin Deutschland Stadt" })).toBeVisible();
+    await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
     expect(requests).toBe(1);
   });
 });
@@ -786,12 +960,16 @@ test.describe("langsames Netz, Offline und App-Resume", () => {
     test.skip(browserName !== "chromium", "Zeitsteuerung wird einmal in Chromium geprüft.");
     await mockGeocoder(page, [berlinResult], 2_500);
     await page.goto("/");
-    await page.getByRole("searchbox", { name: "Ort oder Region" }).fill("Berlin");
+    await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Berlin");
     await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("button", { name: "Abbrechen" })).toBeVisible();
-    await expect(page.getByRole("status")).toContainText("Suche nach");
+    await expect(page.locator("[data-milos-place-status]")).toContainText(
+      "Orte werden gesucht",
+    );
     await page.getByRole("button", { name: "Abbrechen" }).click();
-    await expect(page.getByRole("status")).toContainText("abgebrochen");
+    await expect(page.locator("[data-milos-place-status]")).toContainText(
+      "abgebrochen",
+    );
     await expect(page.getByRole("button", { name: "Suchen" })).toBeEnabled();
   });
 

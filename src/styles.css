@@ -63,7 +63,7 @@ code {
 
 .intro {
   max-width: 60rem;
-  padding: clamp(1.5rem, 3vw, 2.6rem) 0 clamp(1.2rem, 2.5vw, 1.8rem);
+  padding: clamp(1rem, 2vw, 1.45rem) 0 clamp(0.9rem, 1.8vw, 1.2rem);
 }
 
 .eyebrow,
@@ -92,11 +92,11 @@ h3 {
 
 h1 {
   max-width: 23ch;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.5rem;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(2.1rem, 3.8vw, 3.15rem);
-  line-height: 1.01;
-  letter-spacing: -0.045em;
+  font-size: clamp(1.9rem, 3vw, 2.45rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
 }
 
 .intro-copy {
@@ -107,11 +107,22 @@ h1 {
   line-height: 1.5;
 }
 
+.intro-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.8rem 1rem;
+}
+
+.intro-row milos-share-button {
+  flex: 0 0 auto;
+}
+
 .location-card,
 .privacy-section {
-  padding: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(0.9rem, 1.5vw, 1.15rem);
   border: 1px solid var(--line);
-  border-radius: 1.15rem;
+  border-radius: 1rem;
   background: var(--paper-raised);
   box-shadow: 0 8px 28px rgba(74, 47, 28, 0.045);
   backdrop-filter: blur(12px);
@@ -143,46 +154,21 @@ h1 {
 
 .location-options {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(15rem, 0.75fr);
-  gap: 1.2rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.45rem;
 }
 
-.search-form,
-.device-option {
+.location-options milos-place-search {
   min-width: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
 }
 
-.search-form label,
-.device-option strong {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-size: 0.86rem;
-  font-weight: 800;
+.place-cancel {
+  align-self: end;
 }
 
-.input-row {
-  display: flex;
-  align-items: stretch;
-  gap: 0.55rem;
-}
-
-input[type="search"] {
-  width: 100%;
-  min-height: 3rem;
-  padding: 0.72rem 0.9rem;
-  border: 1px solid rgba(66, 48, 38, 0.35);
-  border-radius: 0.75rem;
-  background: var(--paper-solid);
-  color: var(--ink);
-  outline: none;
-}
-
-input[type="search"]:focus-visible {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(200, 79, 49, 0.22);
+.location-options .field-hint {
+  grid-column: 1 / -1;
 }
 
 .button {
@@ -208,7 +194,6 @@ input[type="search"]:focus-visible {
 }
 
 .button:focus-visible,
-.result-button:focus-visible,
 a:focus-visible {
   outline: 3px solid var(--amber);
   outline-offset: 3px;
@@ -217,23 +202,6 @@ a:focus-visible {
 .button:disabled {
   cursor: wait;
   opacity: 0.62;
-}
-
-.button-primary {
-  flex: 0 0 auto;
-  background: var(--accent);
-  color: white;
-}
-
-.button-primary:hover:not(:disabled) {
-  background: var(--accent-deep);
-}
-
-.button-secondary {
-  width: 100%;
-  border-color: rgba(35, 78, 103, 0.28);
-  background: rgba(35, 78, 103, 0.09);
-  color: var(--blue-deep);
 }
 
 .button-quiet {
@@ -259,101 +227,12 @@ a:focus-visible {
   line-height: 1.4;
 }
 
-.device-option {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.65rem;
-  padding-left: 1.2rem;
-  border-left: 1px solid var(--line);
-}
-
-.device-option span {
-  display: block;
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
-.search-state {
-  min-height: 1.4rem;
-  margin-top: 0.65rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 650;
-}
-
-.search-state:empty {
-  margin-top: 0;
-  min-height: 0;
-}
-
-.search-state[data-kind="error"] {
+milos-place-search [data-milos-place-status][data-kind="error"] {
   color: var(--danger);
 }
 
-.search-state[data-kind="success"] {
+milos-place-search [data-milos-place-status][data-kind="success"] {
   color: #3c674f;
-}
-
-.search-results {
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--line);
-}
-
-.search-results h3 {
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
-}
-
-.results-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  gap: 0.65rem;
-}
-
-.result-button {
-  width: 100%;
-  min-height: 4.5rem;
-  padding: 0.9rem;
-  border: 1px solid var(--line);
-  border-radius: 0.85rem;
-  background: rgba(255, 255, 255, 0.42);
-  color: var(--ink);
-  text-align: left;
-  cursor: pointer;
-}
-
-.result-button:hover {
-  border-color: rgba(200, 79, 49, 0.45);
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.result-button strong,
-.result-button span,
-.result-button small {
-  display: block;
-}
-
-.result-button span {
-  margin-top: 0.18rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.35;
-}
-
-.result-button small {
-  margin-top: 0.35rem;
-  color: var(--accent-deep);
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: capitalize;
-}
-
-.empty-result {
-  margin: 0;
-  color: var(--muted);
 }
 
 .dashboard {
@@ -666,13 +545,8 @@ a:focus-visible {
 }
 
 @media (max-width: 52rem) {
-  .location-options,
   .privacy-section {
     grid-template-columns: 1fr;
-  }
-
-  .location-options {
-    gap: 0.75rem;
   }
 
   .event-grid {
@@ -683,11 +557,6 @@ a:focus-visible {
     grid-column: auto;
   }
 
-  .device-option {
-    padding: 0.75rem 0 0;
-    border-top: 1px solid var(--line);
-    border-left: 0;
-  }
 }
 
 @media (max-width: 38rem) {
@@ -705,6 +574,10 @@ a:focus-visible {
     font-size: 0.92rem;
   }
 
+  .intro-row {
+    align-items: end;
+  }
+
   .section-heading {
     align-items: flex-start;
     flex-direction: column;
@@ -717,7 +590,6 @@ a:focus-visible {
     flex-direction: column;
   }
 
-  .button-primary,
   .button-quiet {
     flex: 0 0 auto;
   }
@@ -741,17 +613,13 @@ a:focus-visible {
 }
 
 @media (max-width: 23rem) {
-  .input-row {
-    flex-wrap: wrap;
+  .location-options {
+    grid-template-columns: 1fr;
   }
 
-  input[type="search"] {
-    flex-basis: 100%;
-  }
-
-  .button-primary,
-  .button-quiet {
-    flex: 1 1 8rem;
+  .place-cancel,
+  .location-options .field-hint {
+    grid-column: 1;
   }
 }
 
@@ -777,15 +645,11 @@ a:focus-visible {
       linear-gradient(180deg, #151e2b 0%, var(--paper) 70%);
   }
 
-  .result-button {
-    background: rgba(255, 255, 255, 0.035);
-  }
-
   .event-card {
     background: rgba(28, 38, 53, 0.78);
   }
 
-  .search-state[data-kind="success"] {
+  milos-place-search [data-milos-place-status][data-kind="success"] {
     color: #9bd1af;
   }
 }
@@ -796,7 +660,6 @@ a:focus-visible {
   }
 
   .button,
-  input[type="search"],
   .event-card,
   .location-card,
   .privacy-section {

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">Noch hell?</title>
+  <circle cx="24" cy="24" r="22" fill="#f7efe1"/>
+  <path d="M15 29a9 9 0 0 1 18 0Z" fill="#c84f31"/>
+  <g fill="none" stroke="#234e67" stroke-linecap="round" stroke-width="2.5">
+    <path d="M10 32h28M24 9v6M11.5 18l5.2 2.7M36.5 18l-5.2 2.7M14 37h20"/>
+  </g>
+</svg>

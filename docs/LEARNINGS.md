@@ -211,3 +211,48 @@ App-Task nicht verändert.
   Tageslichthelfer. Datenreiche Werkzeuge dürfen andere Dichteziele benötigen;
   entscheidend bleibt, dass die Hauptaufgabe früh sichtbar wird und Reflow
   sowie Bedienbarkeit erhalten bleiben.
+
+## 2026-08-02: Ein CSS-first Loader darf die Dokumentgliederung nicht duplizieren
+
+- **Evidenz:** Der frühe Loader ist schon vor der Fach-App sichtbar. Ein
+  zusätzliches `h1` im Loader blieb nach dem Ausblenden im Dokumentbaum und
+  erzeugte damit zwei Hauptüberschriften.
+- **Folge:** `data-milos-loading-title` verwendet ein tag-agnostisches
+  Paragraph-Element. Der sichtbare App-Inhalt besitzt weiterhin genau ein H1.
+- **Regression:** Langsamer Start prüft Sichtbarkeit, maximal 56 Pixel
+  Iconbreite, Tag `P`, explizites Ready-Signal und anschließend exakt ein H1.
+- **Gültigkeitsgrenze:** Visuelles Ausblenden allein repariert keine
+  semantische Gliederung; jedes Start-Overlay muss im endgültigen DOM geprüft
+  werden.
+
+## 2026-08-02: Vendoring und Browserartefakt sind zwei getrennte Beweise
+
+- **Evidenz:** Der Quell-Validator bestätigte fünf korrekt gelockte
+  Essentials-Dateien, während Vite die beiden CSS-Links zunächst in das
+  allgemeine App-CSS einzog. Damit fehlte die vertraglich geforderte externe
+  Vendorgrenze im gebauten HTML trotz korrekter Quelldateien.
+- **Folge:** Die Links sind explizit vom HTML-Bundling ausgenommen; ein
+  app-eigenes Build-Plugin emittiert vier Browserartefakte unter dem
+  Vendorpfad. Der Post-Build-Verifier hasht jedes gebaute Artefakt erneut und
+  verwirft Inlining oder fehlende Links.
+- **Regression:** Source-Verifier, Post-Build-SHA-Prüfung, MIME-Test und echte
+  strikte Response-CSP einschließlich Theme, 44-Pixel-Zielen und leerer
+  CSP-Konsole.
+- **Gültigkeitsgrenze:** Ein Shared-Lock beweist die Herkunft im Repository,
+  nicht automatisch die Form nach einem Verbraucher-Build.
+
+## 2026-08-02: Eine gemeinsame Ortssuche braucht ein gemeinsames Ergebnis, nicht einen gemeinsamen Provider
+
+- **Evidenz:** Daylight muss astronomische Zeitzonen, lokale Speicherung,
+  Nominatim-Takt und gerundete Gerätekoordinaten bewahren. Diese Fachgrenzen
+  unterscheiden sich von anderen Apps, obwohl Beschriftung, Ergebnisstruktur
+  und Tastaturführung gleich aussehen sollen.
+- **Folge:** Der Shared-Baustein besitzt nur explizite Combobox-/Listbox-UI und
+  normalisierte Felder. Daylight liefert Search- und Locate-Provider, löst die
+  IANA-Zeitzone app-eigen auf und speichert nur sein minimiertes Ortsschema.
+- **Regression:** Stadt, Region, gleichnamige Orte, kein Autocomplete,
+  Pfeiltaste/Enter, langsame Suche/Abbruch, Cache, Netzfehler sowie erlaubte
+  und verweigerte Geräteortung.
+- **Gültigkeitsgrenze:** Einheitliches UI legitimiert weder einen gemeinsamen
+  Geocoding-Account noch gemeinsame Datenhaltung oder das Weitergeben genauer
+  Koordinaten in Teil-URLs.

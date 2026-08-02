@@ -25,6 +25,16 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   Header-/Nav-/Main-/Footer-Struktur und genau ein Haupt-H1;
 - 44-Pixel-Shellziele, Fokusreihenfolge, Reduced Motion sowie Header und Footer
   bei Desktop, 390 × 844 und 200-Prozent-Reflow.
+- CSS-first Loader bei langsamem Start mit höchstens 56 Pixel Desktop und
+  48 Pixel mobil sowie genau einer Dokumentüberschrift;
+- wahrheitsgemäßer No-Cookies-/LocalStorage-Hinweis in DE/EN einschließlich
+  Tastatur, Datenschutzlink, Schließen und Reload-Persistenz;
+- Teilen nativ, Clipboard-Fallback und stiller Abbruch mit kanonischer,
+  ortsneutraler URL;
+- explizite gemeinsame Combobox-/Listbox-Ortssuche für Stadt und Region, ohne
+  Autocomplete, mit Abbruch, Cache, Netzfehlern und Locate-Provider;
+- fünfteiliger Essentials-Lock, externe Same-Origin-CSS-/JS-Dateien,
+  korrekte MIME-Typen und strikte `style-src 'self'`-/`script-src 'self'`-CSP.
 
 ## Wiederholung vor einer DEV-Veröffentlichung
 

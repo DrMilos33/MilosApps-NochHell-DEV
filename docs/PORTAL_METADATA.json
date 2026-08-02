@@ -7,7 +7,7 @@
     "de-DE",
     "en-GB"
   ],
-  "version": "0.3.1",
+  "version": "0.4.0",
   "status": "dev-online",
   "devUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
   "localDevUrl": "http://127.0.0.1:4319/",
@@ -30,6 +30,12 @@
       "version": "public-app-shell-v2.0.3",
       "sourceCommit": "ed898412306e22c6ae1b10ee8953df29f8acd627",
       "runtimeImport": false
+    },
+    {
+      "name": "public-app-essentials/v1",
+      "version": "public-app-essentials-v1.0.0",
+      "sourceCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
+      "runtimeImport": false
     }
   ],
   "portalDevIntegration": {
@@ -51,7 +57,7 @@
     "expected": {
       "status": "ready",
       "appKey": "daylight",
-      "version": "0.3.1",
+      "version": "0.4.0",
       "environment": "dev",
       "database": false
     }

@@ -51,7 +51,7 @@ Die absolute Health-URL antwortet aktuell mit:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "environment": "dev",
   "database": false
 }

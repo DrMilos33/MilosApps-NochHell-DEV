@@ -1,0 +1,15 @@
+{
+  "contract": "public-app-essentials/v1",
+  "version": "1.0.0",
+  "sharedCommit": "b09e09008ff05fe87f05bc647a7c4964ff13e6f6",
+  "appKey": "daylight",
+  "manifest": "milos-essentials.json",
+  "vendorDirectory": "vendor/milosapps-essentials/v1",
+  "artifacts": {
+    "milos-app-essentials.css": "sha256:a4288a19fb8d798b4d1c4e68bfdf04493bd73e4f445602eb3b54cbb594c732a6",
+    "milos-app-essentials-theme.css": "sha256:837d23e828aa80b7085925c1bd65b35dc7f640a259427dec302c21b2e3d7dce6",
+    "milos-app-essentials.js": "sha256:1657f7e44939953c7199e215dabb0cda48bd22172c4578df5298bfc1b688a985",
+    "bootstrap.js": "sha256:8172ef402b0a90fb1281eb5f81cf78e0e40732acaa9b15618399d185457b5ca3",
+    "verify.mjs": "sha256:3e52588cab3770b932b672e32f7865438876b4f8a842b52b99db97f2851d077c"
+  }
+}

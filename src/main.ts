@@ -1,5 +1,9 @@
 import "./styles.css";
-import type { DaylightLocation, PlaceSearchResult } from "./types";
+import type {
+  DaylightLocation,
+  NormalizedPlace,
+  PlaceSearchResult,
+} from "./types";
 import { createSnapshot, type DaylightSnapshot } from "./lib/daylight";
 import {
   GeocodingError,
@@ -8,7 +12,6 @@ import {
 } from "./lib/geocoding";
 import {
   formatLightSummary,
-  formatPlaceType,
   localeFor,
   translate,
   type Language,
@@ -55,10 +58,13 @@ app.innerHTML = `
   <section class="intro" aria-labelledby="intro-title">
       <p class="eyebrow" data-i18n="introEyebrow">Tageslicht, auf einen Blick</p>
       <h1 id="intro-title" data-i18n="introTitle">Passt der Spaziergang noch ins Helle?</h1>
-      <p class="intro-copy" data-i18n="introCopy">
-        Ein Ort genügt. Du siehst Sonnenuntergang, Dämmerungsende und den
-        nächsten Sonnenaufgang – ohne Wetter, Konto oder Standorttracking.
-      </p>
+      <div class="intro-row">
+        <p class="intro-copy" data-i18n="introCopy">
+          Ein Ort genügt. Du siehst Sonnenuntergang, Dämmerungsende und den
+          nächsten Sonnenaufgang – ohne Wetter, Konto oder Standorttracking.
+        </p>
+        <milos-share-button id="share-button"></milos-share-button>
+      </div>
     </section>
 
     <section class="location-card" aria-labelledby="location-title">
@@ -73,69 +79,25 @@ app.innerHTML = `
       </div>
 
       <div class="location-options">
-        <form id="place-form" class="search-form" novalidate>
-          <label for="place-query" data-i18n="placeLabel">Ort oder Region</label>
-          <div class="input-row">
-            <input
-              id="place-query"
-              name="place"
-              type="search"
-              inputmode="search"
-              autocomplete="off"
-              minlength="2"
-              placeholder="z. B. Freiburg oder Tromsø"
-              aria-describedby="search-hint"
-            />
-            <button
-              id="search-button"
-              class="button button-primary"
-              type="submit"
-              data-i18n="searchButton"
-            >
-              Suchen
-            </button>
-            <button
-              id="cancel-search"
-              class="button button-quiet"
-              type="button"
-              data-i18n="cancel"
-              hidden
-            >
-              Abbrechen
-            </button>
-          </div>
-          <p id="search-hint" class="field-hint" data-i18n="searchHint">
-            Suche erst nach dem Absenden. Der Suchtext geht dann an OpenStreetMap.
-          </p>
-        </form>
-
-        <div class="device-option">
-          <div>
-            <strong data-i18n="deviceTitle">Gerätestandort</strong>
-            <span data-i18n="deviceCopy">
-              Nur nach deinem Tipp, auf etwa 1 km gerundet gespeichert.
-            </span>
-          </div>
-          <button
-            id="locate-button"
-            class="button button-secondary"
-            type="button"
-            data-i18n="locateButton"
-          >
-            Standort verwenden
-          </button>
-        </div>
-      </div>
-
-      <div id="search-state" class="search-state" role="status" aria-live="polite"></div>
-      <div id="search-results" class="search-results" aria-live="off" hidden>
-        <h3 id="results-title" data-i18n="resultsHeading">Gefundene Orte</h3>
-        <div
-          id="results-list"
-          class="results-list"
-          role="list"
-          aria-labelledby="results-title"
-        ></div>
+        <milos-place-search
+          id="place-search"
+          label-de="Ort oder Region"
+          label-en="Place or region"
+          placeholder-de="z. B. Freiburg, Bayern oder Tromsø"
+          placeholder-en="e.g. Freiburg, Bavaria or Tromsø"
+        ></milos-place-search>
+        <button
+          id="cancel-search"
+          class="button button-quiet place-cancel"
+          type="button"
+          data-i18n="cancel"
+          hidden
+        >
+          Abbrechen
+        </button>
+        <p id="search-hint" class="field-hint" data-i18n="searchHint">
+          Suche erst nach dem Absenden. Der Suchtext geht dann an OpenStreetMap.
+        </p>
       </div>
     </section>
 
@@ -263,15 +225,39 @@ function element<T extends HTMLElement>(selector: string): T {
   return value;
 }
 
-const placeForm = element<HTMLFormElement>("#place-form");
-const placeQuery = element<HTMLInputElement>("#place-query");
-const searchButton = element<HTMLButtonElement>("#search-button");
+type PlaceProviderOptions = {
+  query: string;
+  locale: Language;
+  signal: AbortSignal;
+};
+
+interface MilosPlaceSearchElement extends HTMLElement {
+  controller?: AbortController;
+  input?: HTMLInputElement;
+  status?: HTMLParagraphElement;
+  setSearchProvider(
+    provider: (options: PlaceProviderOptions) => Promise<NormalizedPlace[]>,
+  ): void;
+  setLocateProvider(
+    provider: (options: { locale: Language }) => Promise<NormalizedPlace>,
+  ): void;
+}
+
+interface MilosShareButtonElement extends HTMLElement {
+  setPayloadProvider(
+    provider: () => { title: string; text: string; url: string },
+  ): void;
+}
+
+await customElements.whenDefined("milos-place-search");
+await customElements.whenDefined("milos-share-button");
+
+const placeSearch = element<MilosPlaceSearchElement>("#place-search");
 const cancelSearchButton = element<HTMLButtonElement>("#cancel-search");
-const locateButton = element<HTMLButtonElement>("#locate-button");
-const searchState = element<HTMLDivElement>("#search-state");
-const searchResults = element<HTMLDivElement>("#search-results");
-const resultsList = element<HTMLDivElement>("#results-list");
-const resultsTitle = element<HTMLHeadingElement>("#results-title");
+const shareButton = element<MilosShareButtonElement>("#share-button");
+const searchState = placeSearch.status ?? element<HTMLParagraphElement>(
+  "#place-search [data-milos-place-status]",
+);
 const dashboard = element<HTMLElement>("#dashboard");
 const answerCard = element<HTMLElement>("#answer-card");
 const answerTitle = element<HTMLHeadingElement>("#answer-title");
@@ -285,13 +271,10 @@ type Feedback = {
 };
 
 let currentLocation: DaylightLocation | null = loadLocation();
-let currentResults: PlaceSearchResult[] = [];
-let searchController: AbortController | null = null;
 let refreshTimer: number | null = null;
 let searchFeedback: Feedback | null = null;
 let storageFeedback: Feedback | null = null;
-let searching = false;
-let locating = false;
+let activeSearchSignal: AbortSignal | null = null;
 
 function renderFeedback(target: HTMLElement, feedback: Feedback | null): void {
   target.textContent = feedback
@@ -318,26 +301,6 @@ function setStorageMessage(
   renderFeedback(storageNote, storageFeedback);
 }
 
-function setSearching(active: boolean): void {
-  searching = active;
-  searchButton.disabled = active;
-  placeQuery.disabled = active;
-  cancelSearchButton.hidden = !active;
-  searchButton.textContent = translate(
-    language,
-    active ? "searchRunning" : "searchButton",
-  );
-}
-
-function setLocating(active: boolean): void {
-  locating = active;
-  locateButton.disabled = active;
-  locateButton.textContent = translate(
-    language,
-    active ? "locatingButton" : "locateButton",
-  );
-}
-
 function applyStaticLanguage(): void {
   document.documentElement.lang = language;
   document.title = translate(language, "documentTitle");
@@ -360,9 +323,6 @@ function applyStaticLanguage(): void {
         target.setAttribute("aria-label", translate(language, key));
       }
     });
-  placeQuery.placeholder = translate(language, "placePlaceholder");
-  setSearching(searching);
-  setLocating(locating);
   renderFeedback(searchState, searchFeedback);
   renderFeedback(storageNote, storageFeedback);
 }
@@ -519,9 +479,6 @@ function selectLocation(location: DaylightLocation): void {
   currentLocation = location;
   const stored = saveLocation(location);
   setStorageMessage(stored ? "storedLocation" : "storageUnavailable");
-  searchResults.hidden = true;
-  currentResults = [];
-  resultsList.replaceChildren();
   setSearchMessage("selectedMessage", "success", {
     name:
       location.source === "device"
@@ -531,41 +488,95 @@ function selectLocation(location: DaylightLocation): void {
   renderSnapshot(true);
 }
 
-function renderResults(results: PlaceSearchResult[]): void {
-  currentResults = results;
-  resultsList.replaceChildren();
-  searchResults.hidden = false;
-  resultsTitle.textContent = translate(
-    language,
-    results.length === 1 ? "resultCountOne" : "resultCountMany",
-    { count: results.length },
-  );
-
-  if (results.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "empty-result";
-    empty.textContent = translate(language, "emptyResult");
-    resultsList.append(empty);
-    return;
+function providerFailure(error: unknown): MessageKey {
+  if (!navigator.onLine) return "searchOffline";
+  if (error instanceof GeocodingError && error.code === "network") {
+    return "searchNetworkUnavailable";
   }
-
-  for (const result of results) {
-    const item = document.createElement("div");
-    item.setAttribute("role", "listitem");
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "result-button";
-    const name = document.createElement("strong");
-    name.textContent = result.name;
-    const context = document.createElement("span");
-    context.textContent = result.context;
-    const type = document.createElement("small");
-    type.textContent = formatPlaceType(result.osmType, language);
-    button.append(name, context, type);
-    button.addEventListener("click", () => selectLocation(toStoredLocation(result)));
-    item.append(button);
-    resultsList.append(item);
+  if (error instanceof GeocodingError && error.code === "http") {
+    return "searchHttpError";
   }
+  if (error instanceof GeocodingError && error.code === "invalid-response") {
+    return "searchInvalidResponse";
+  }
+  return "searchFailed";
+}
+
+function normalizedPlace(result: PlaceSearchResult): NormalizedPlace {
+  return {
+    id: result.id,
+    name: result.name,
+    region: result.region,
+    country: result.country,
+    countryCode: result.countryCode,
+    latitude: result.latitude,
+    longitude: result.longitude,
+    type: result.type,
+    timeZone: result.timeZone,
+  };
+}
+
+function locationFromPlace(place: NormalizedPlace): DaylightLocation {
+  const source = place.id.startsWith("device-") ? "device" : "manual";
+  return toStoredLocation({
+    ...place,
+    context: [place.region, place.country].filter(Boolean).join(", "),
+    timeZone:
+      place.timeZone ?? resolveTimeZone(place.latitude, place.longitude),
+    source,
+    osmType: place.type,
+  });
+}
+
+function abortProviderAfterMessage(key: MessageKey, values?: Record<string, string | number>): never {
+  setSearchMessage(key, "error", values);
+  throw new DOMException("Handled by Daylight", "AbortError");
+}
+
+function locateDevice(): Promise<NormalizedPlace> {
+  if (!navigator.geolocation) {
+    abortProviderAfterMessage("locationUnsupported");
+  }
+  setSearchMessage("locationPermissionPrompt");
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        try {
+          const latitude = coarsenDeviceCoordinate(position.coords.latitude);
+          const longitude = coarsenDeviceCoordinate(position.coords.longitude);
+          resolve({
+            id: `device-${latitude.toFixed(2)}-${longitude.toFixed(2)}`,
+            name: translate(language, "nearbyName"),
+            region: translate(language, "nearbyContext"),
+            country: "",
+            countryCode: "",
+            latitude,
+            longitude,
+            timeZone: resolveTimeZone(latitude, longitude),
+            type: "device",
+          });
+        } catch {
+          setSearchMessage("locationProcessFailed", "error");
+          reject(new DOMException("Handled by Daylight", "AbortError"));
+        }
+      },
+      (error) => {
+        const keys: Record<number, MessageKey> = {
+          [error.PERMISSION_DENIED]: "locationDenied",
+          [error.POSITION_UNAVAILABLE]: "locationUnavailable",
+          [error.TIMEOUT]: "locationTimeout",
+        };
+        setSearchMessage(keys[error.code] ?? "locationFailed", "error");
+        placeSearch.input?.focus();
+        reject(new DOMException("Handled by Daylight", "AbortError"));
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10_000,
+        maximumAge: 5 * 60 * 1000,
+      },
+    );
+  });
 }
 
 function changeLanguage(nextLanguage: unknown): void {
@@ -573,12 +584,9 @@ function changeLanguage(nextLanguage: unknown): void {
   if (selected === language) {
     return;
   }
-  searchController?.abort();
+  placeSearch.controller?.abort();
   language = selected;
   applyStaticLanguage();
-  if (!searchResults.hidden) {
-    renderResults(currentResults);
-  }
   renderSnapshot();
 }
 
@@ -587,121 +595,54 @@ window.addEventListener("milosapps:localechange", (event) => {
   changeLanguage(detail?.locale);
 });
 
-placeForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const query = placeQuery.value.trim();
-  if (query.length < 2) {
-    setSearchMessage("searchMinimum", "error");
-    placeQuery.focus();
-    return;
-  }
-
-  searchController?.abort();
-  const controller = new AbortController();
-  searchController = controller;
-  const requestedLanguage = language;
-  setSearching(true);
-  setSearchMessage("searchingFor", "info", { query });
-  searchResults.hidden = true;
-
+placeSearch.setSearchProvider(async ({ query, locale, signal }) => {
+  activeSearchSignal = signal;
+  cancelSearchButton.hidden = false;
   try {
-    const results = await searchPlaces(query, controller.signal, requestedLanguage);
-    if (requestedLanguage !== language) {
-      return;
-    }
-    renderResults(results);
-    setSearchMessage(
-      results.length === 0 ? "searchNotFound" : "chooseResult",
-      results.length === 0 ? "error" : "success",
-    );
+    const results = await searchPlaces(query, signal, locale);
+    return results.map(normalizedPlace);
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
       setSearchMessage("searchCancelled");
-    } else if (!navigator.onLine) {
-      setSearchMessage("searchOffline", "error");
-    } else if (
-      error instanceof GeocodingError &&
-      error.code === "network"
-    ) {
-      setSearchMessage("searchNetworkUnavailable", "error");
-    } else if (error instanceof GeocodingError && error.code === "http") {
-      setSearchMessage("searchHttpError", "error", {
-        status: error.status ?? "–",
-      });
-    } else if (
-      error instanceof GeocodingError &&
-      error.code === "invalid-response"
-    ) {
-      setSearchMessage("searchInvalidResponse", "error");
-    } else {
-      setSearchMessage("searchFailed", "error");
+      throw error;
     }
+    const key = providerFailure(error);
+    const values =
+      key === "searchHttpError" && error instanceof GeocodingError
+        ? { status: error.status ?? "–" }
+        : undefined;
+    abortProviderAfterMessage(key, values);
   } finally {
-    if (searchController === controller) {
-      setSearching(false);
-      searchController = null;
+    if (activeSearchSignal === signal) {
+      activeSearchSignal = null;
+      cancelSearchButton.hidden = true;
     }
   }
 });
 
 cancelSearchButton.addEventListener("click", () => {
-  searchController?.abort();
+  placeSearch.controller?.abort();
 });
 
-locateButton.addEventListener("click", () => {
-  if (!navigator.geolocation) {
-    setSearchMessage("locationUnsupported", "error");
-    placeQuery.focus();
-    return;
-  }
+placeSearch.setLocateProvider(async () => locateDevice());
 
-  setLocating(true);
-  setSearchMessage("locationPermissionPrompt");
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      try {
-        const latitude = coarsenDeviceCoordinate(position.coords.latitude);
-        const longitude = coarsenDeviceCoordinate(position.coords.longitude);
-        const location: DaylightLocation = {
-          id: `device-${latitude.toFixed(2)}-${longitude.toFixed(2)}`,
-          name: "Near you",
-          context: "Rounded to about 1 km",
-          latitude,
-          longitude,
-          timeZone: resolveTimeZone(latitude, longitude),
-          source: "device",
-        };
-        selectLocation(location);
-      } catch {
-        setSearchMessage("locationProcessFailed", "error");
-      } finally {
-        setLocating(false);
-      }
-    },
-    (error) => {
-      const keys: Record<number, MessageKey> = {
-        [error.PERMISSION_DENIED]: "locationDenied",
-        [error.POSITION_UNAVAILABLE]: "locationUnavailable",
-        [error.TIMEOUT]: "locationTimeout",
-      };
-      setSearchMessage(keys[error.code] ?? "locationFailed", "error");
-      setLocating(false);
-      placeQuery.focus();
-    },
-    {
-      enableHighAccuracy: false,
-      timeout: 10_000,
-      maximumAge: 5 * 60 * 1000,
-    },
-  );
+placeSearch.addEventListener("milosapps:placechange", (event) => {
+  const detail = (event as CustomEvent<NormalizedPlace>).detail;
+  selectLocation(locationFromPlace(detail));
 });
+
+shareButton.setPayloadProvider(() => ({
+  title: document.title,
+  text: translate(language, "shareText"),
+  url: new URL(".", window.location.href).href,
+}));
 
 element<HTMLButtonElement>("#change-location").addEventListener("click", () => {
   element<HTMLElement>(".location-card").scrollIntoView({
     behavior: "smooth",
     block: "start",
   });
-  placeQuery.focus({ preventScroll: true });
+  placeSearch.input?.focus({ preventScroll: true });
 });
 
 clearDataButton.addEventListener("click", () => {
@@ -710,8 +651,8 @@ clearDataButton.addEventListener("click", () => {
   renderSnapshot();
   setStorageMessage(cleared ? "dataCleared" : "noLocalData");
   setSearchMessage("dataClearedStatus", "success");
-  placeQuery.value = "";
-  placeQuery.focus();
+  if (placeSearch.input) placeSearch.input.value = "";
+  placeSearch.input?.focus();
 });
 
 function refreshForResume(): void {
@@ -745,6 +686,7 @@ if (!browserStorage()) {
 
 applyStaticLanguage();
 renderSnapshot();
+document.dispatchEvent(new CustomEvent("milosapps:ready"));
 refreshTimer = window.setInterval(() => renderSnapshot(), 60_000);
 window.addEventListener("beforeunload", () => {
   if (refreshTimer !== null) {

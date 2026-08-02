@@ -21,6 +21,7 @@ interface NominatimAddress {
   county?: string;
   state?: string;
   country?: string;
+  country_code?: string;
 }
 
 interface NominatimResult {
@@ -141,6 +142,14 @@ function placeContext(result: NominatimResult, name: string): string {
   return values.join(", ") || result.display_name;
 }
 
+function placeRegion(result: NominatimResult, name: string): string {
+  const address = result.address ?? {};
+  return [address.county, address.state]
+    .filter((value): value is string => Boolean(value))
+    .filter((value, index, all) => value !== name && all.indexOf(value) === index)
+    .join(", ");
+}
+
 function toPlace(result: NominatimResult, language: Language): PlaceSearchResult | null {
   const latitude = Number(result.lat);
   const longitude = Number(result.lon);
@@ -157,15 +166,22 @@ function toPlace(result: NominatimResult, language: Language): PlaceSearchResult
 
   try {
     const name = placeName(result, language);
+    const region = placeRegion(result, name);
+    const country = result.address?.country ?? "";
+    const type = result.addresstype ?? result.type ?? "place";
     return {
       id: `${result.osm_type}-${result.osm_id}`,
       name,
       context: placeContext(result, name),
+      region,
+      country,
+      countryCode: (result.address?.country_code ?? "").toUpperCase(),
       latitude,
       longitude,
       timeZone: resolveTimeZone(latitude, longitude),
       source: "manual",
-      osmType: result.addresstype ?? result.type ?? "Ort",
+      type,
+      osmType: type,
     };
   } catch {
     return null;
@@ -238,6 +254,13 @@ export async function searchPlaces(
 }
 
 export function toStoredLocation(result: PlaceSearchResult): DaylightLocation {
-  const { osmType: _osmType, ...location } = result;
-  return location;
+  return {
+    id: result.id,
+    name: result.name,
+    context: result.context,
+    latitude: result.latitude,
+    longitude: result.longitude,
+    timeZone: result.timeZone,
+    source: result.source,
+  };
 }

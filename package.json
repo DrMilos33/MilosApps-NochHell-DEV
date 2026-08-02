@@ -1,6 +1,6 @@
 {
   "name": "@milosapps/daylight",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "description": "Öffentlicher lokaler Tageslichthelfer für Sonnenaufgang, Sonnenuntergang und bürgerliche Dämmerung.",
@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 4319 --strictPort",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/verify-built-essentials.mjs",
     "preview": "vite preview --host 127.0.0.1 --port 4319 --strictPort",
     "preview:capture": "pnpm build && node scripts/capture-preview.mjs",
     "preview:e2e": "pnpm build && node scripts/e2e-server.mjs",
@@ -19,11 +19,12 @@
     "verify:dev": "pnpm build && node scripts/verify-dev-contract.mjs",
     "verify:external-dev": "node scripts/verify-external-dev.mjs",
     "verify:shell": "node vendor/milosapps-shell/v2/verify.mjs --app-root . --manifest milos-app.json",
+    "verify:essentials": "node vendor/milosapps-essentials/v1/verify.mjs --app-root . --manifest milos-essentials.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
-    "test:e2e:chromium": "playwright test --project=chromium",
-    "test:all": "pnpm verify:shell && pnpm test && pnpm build && pnpm test:e2e"
+    "test:e2e": "pnpm build && playwright test",
+    "test:e2e:chromium": "pnpm build && playwright test --project=chromium",
+    "test:all": "pnpm verify:shell && pnpm verify:essentials && pnpm test && pnpm build && playwright test"
   },
   "dependencies": {
     "tz-lookup": "6.1.25"

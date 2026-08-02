@@ -303,3 +303,71 @@ Portal & Identity wiederholte diese Prüfung unabhängig auf dem aktiven
 Portal-DEV-Stand `ca84446a263d4fc0d38c177da606ae5ae3cde34c` / Railway
 `59ebcbec-fedc-4cc0-8d17-e59e353278b6`: cookie-lose GET und HEAD jeweils
 exakt 302, App und Health 200 sowie die vollständige 0.3.1-Health-Identität.
+
+## QA-Runden für `public-app-essentials/v1.0.0` und Version 0.4.0
+
+Stand: 2. August 2026. Gepinnte Quelle:
+`b09e09008ff05fe87f05bc647a7c4964ff13e6f6`, Tag
+`public-app-essentials-v1.0.0`.
+
+### Runde 1: Integration und fokussierte Regression
+
+Die erste Runde überführte Daylight auf den gemeinsamen kleinen Loader,
+No-Cookies-Hinweis, Share-Control und das explizite Combobox-/Listbox-Muster.
+Gefundene und behobene Punkte:
+
+1. Der Loader-Titel war zunächst ein zweites H1. Er ist jetzt ein Paragraph;
+   nach Readiness enthält das Dokument exakt ein H1.
+2. Vite zog die Essentials-CSS-Dateien zunächst in das allgemeine Bundle ein.
+   `vite-ignore`, ein app-eigenes Emit-Plugin und der Post-Build-Hashprüfer
+   erhalten die beiden CSS- und zwei JS-Artefakte extern unter dem
+   Vendorpfad.
+3. Die alten E2E-Selektoren behandelten Suchergebnisse als Buttons. Der neue
+   zugängliche Vertrag nutzt Combobox, Listbox, Option, Pfeiltaste und Enter;
+   Regressionen prüfen jetzt diese Semantik direkt.
+4. Die mobile Share-Anordnung belegte unnötig eine eigene Zeile. Die kompakte
+   flexible Reihe bringt die Ortswahl bei 390 Pixel wieder deutlich früher in
+   den ersten Arbeitsweg, ohne 44-Pixel-Ziele zu verkleinern.
+
+Nach den Korrekturen waren in Chromium alle 42 Fälle grün: 12 Kernfluss,
+6 Essentials, 9 Shell/CSP/Reflow und 15 Astro-/Standort-/Offlinefälle.
+
+### Runde 2: vollständige Browser- und Reflowmatrix
+
+| Gate | Ergebnis |
+| --- | --- |
+| Shared Shell-Verifier | PASS, `public-app-shell/v2.0.3` |
+| Shared Essentials-Verifier | PASS, `public-app-essentials/v1.0.0` |
+| Post-Build Essentials-Verifier | PASS, externe CSS/JS und SHA-256-Lock |
+| Unit/Fachtests | 23/23 PASS in 6 Dateien |
+| Chromium | 42/42 PASS |
+| Firefox | 25 PASS, 17 gezielte Chromium-only-Fälle übersprungen |
+| Mobile Chromium | 36 PASS, 6 Desktop-/Chromium-only-Fälle übersprungen |
+| Gesamte Browsermatrix | 103 PASS, 23 bewusst projektgebundene Skips |
+| Build | TypeScript und Vite PASS; keine `data:`-Essentials-Artefakte |
+| JSON / Diff | Manifeste parsebar; `git diff --check` sauber |
+
+Die Matrix umfasst DE/EN samt Reload-Persistenz; frischen und verzögerten
+Start; Datenschutzhinweis, Link und Schließpersistenz; natives Teilen,
+Clipboard-Fallback und Abbruch; Stadt, Region, gleichnamige und unbekannte
+Orte; explizites Enter/Suchen ohne Autocomplete; Nominatim-Takt, Cache,
+langsames Netz, Abbruch und ehrliche Netzfehler; Geräteortung erlaubt,
+verweigert, abgebrochen, nicht verfügbar und Timeout; Offline-Wiederöffnung;
+Resume über Sonnenuntergang, Dämmerungsende und Mitternacht; Äquator, hohe
+Breiten, Polartag, Polarnacht, DST und Datumssprung; Tastatur, Fokus,
+Screenreaderbaum, axe-core, 44 Pixel, Reduced Motion und strikte CSP.
+
+Die finale sichtbare Browsermessung ergab:
+
+| Ansicht | Intro | H1 | Beginn Ortswahl | Überlauf |
+| --- | ---: | ---: | ---: | ---: |
+| Desktop 1440 × 900 | 214,6 px | 39,2 px | 283,6 px | 0 px |
+| Smartphone 390 × 844 | 246,1 px | 31,2 px | 357,4 px | 0 px |
+
+Mobil waren alle Essentials-Ziele mindestens 44 Pixel hoch; der Footerabstand
+lag bei 0,3 Pixel Rundungsdifferenz. Der bestehende 360 × 800-Fall bei
+200 Prozent blieb ohne horizontalen Überlauf. Beide gebauten Essentials-CSS-
+Links waren im finalen DOM als externe relative Vendor-URLs vorhanden.
+
+Production blieb während aller Runden gesperrt. Externe HTTPS-/No-Login-
+Evidenz wird nach dem koordinierten app-eigenen Pages-DEV-Publish ergänzt.

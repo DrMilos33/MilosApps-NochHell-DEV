@@ -11,7 +11,23 @@ export interface DaylightLocation {
 }
 
 export interface PlaceSearchResult extends DaylightLocation {
+  region: string;
+  country: string;
+  countryCode: string;
+  type: string;
   osmType: string;
+}
+
+export interface NormalizedPlace {
+  id: string;
+  name: string;
+  region: string;
+  country: string;
+  countryCode: string;
+  latitude: number;
+  longitude: number;
+  type: string;
+  timeZone?: string;
 }
 
 export interface RuntimeConfig {

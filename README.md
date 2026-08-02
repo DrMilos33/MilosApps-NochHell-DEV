@@ -74,6 +74,22 @@ gemeinsam aus `milos-app.json`. Die Shell besitzt Header, Footer,
 Sprachpersistenz und Locale-Event; Daylight übersetzt weiterhin die gesamte
 sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 
+## Public App Essentials
+
+Loader, Datenschutzhinweis, Teilen und Ortssuche stammen app-eigen vendort aus
+`public-app-essentials/v1.0.0` am festen Shared-Commit
+`b09e09008ff05fe87f05bc647a7c4964ff13e6f6`. Daylight aktiviert keinen
+Date-Picker. Die Ortssuche bleibt ein Daylight-Provider mit Nominatim-Takt,
+Cache, Attribution, austauschbarem Endpunkt und IANA-Zeitzonenauflösung; der
+gemeinsame Baustein vereinheitlicht nur explizites Absenden, Ergebnisformat
+und Tastaturführung.
+
+`pnpm verify:essentials` prüft Manifest und fünfteiligen Quell-Lock. Jeder
+Build prüft zusätzlich fail-closed, dass CSS, Bootstrap und Runtime als
+externe Same-Origin-Dateien unter dem Vendorpfad erhalten und bytegenau zum
+Lock geblieben sind. Der Share-Payload verwendet ausschließlich die
+kanonische App-URL ohne Suchparameter, Fragment, Ortsname oder Koordinaten.
+
 ## Datenschutz und Datenfluss
 
 - Standortzugriff erfolgt nur nach einem bewussten Klick.
@@ -90,7 +106,7 @@ sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 
 ## DEV- und Portalstatus
 
-Der verifizierte App-Stand `97efdc563e70c01ea4ae31f0d097df111e99e645`
+Der verifizierte App-Stand `6d48e47ad6189cc98a22ca0424da1360c92bf1d6`
 läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 
 - DEV: <https://drmilos33.github.io/MilosApps-NochHell-DEV/>

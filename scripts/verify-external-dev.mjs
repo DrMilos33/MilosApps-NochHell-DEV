@@ -26,7 +26,7 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "0.3.1",
+  version: "0.4.0",
   environment: "dev",
   database: false,
 });
@@ -78,6 +78,7 @@ async function verifyViewport({
     assert.equal(await page.locator("main").count(), 1);
     assert.equal(await page.locator("footer").count(), 1);
     assert.equal(await page.locator("h1").count(), 1);
+    assert.equal(await page.locator("[data-milos-loading-title]").evaluate((node) => node.tagName), "P");
     assert.equal(await page.locator("milos-app-shell").count(), 1);
     assert.equal(
       await page.getByRole("link", { name: "Alle Apps" }).getAttribute("href"),
@@ -111,7 +112,7 @@ async function verifyViewport({
     await page.waitForFunction(() => document.title === "Still light? – MilosApps");
     assert.equal(await page.title(), "Still light? – MilosApps");
     await page.getByRole("link", { name: "All apps" }).waitFor();
-    await page.getByRole("button", { name: "Use location" }).waitFor();
+    await page.getByRole("button", { name: "Use my location" }).waitFor();
     await page.reload({ waitUntil: "networkidle" });
     assert.equal(
       await page.locator("html").getAttribute("lang"),
@@ -121,12 +122,15 @@ async function verifyViewport({
 
     if (runNetworkBoundary) {
       await page
-        .getByRole("searchbox", { name: "Place or region" })
+        .getByRole("combobox", { name: "Place or region" })
         .fill("Berlin");
       await page.getByRole("button", { name: "Search" }).click();
-      const result = page.getByRole("button", { name: /Berlin.*city/i }).first();
-      await result.waitFor({ timeout: 30_000 });
-      await result.click();
+      const matchingResults = page.getByRole("option").filter({ hasText: "Berlin" });
+      assert.ok(
+        (await matchingResults.count()) > 0,
+        "Live geocoder must return at least one normalized Berlin option.",
+      );
+      await matchingResults.first().click();
       await page.getByText("Sunrise", { exact: true }).waitFor();
       assert.equal(
         await page.locator(".event-card").count(),
@@ -145,7 +149,7 @@ async function verifyViewport({
       await page.reload({ waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: "Berlin" }).waitFor();
       await page
-        .getByRole("searchbox", { name: "Place or region" })
+        .getByRole("combobox", { name: "Place or region" })
         .fill("Hamburg");
       await page.getByRole("button", { name: "Search" }).click();
       const offlineAlert = page.getByRole("alert");
@@ -244,6 +248,22 @@ async function verifyStrictCspRuntime() {
         controlHeight: control?.getBoundingClientRect().height ?? 0,
         componentStylesheet: componentStyles?.href ?? "missing",
         themeStylesheet: themeStyles?.href ?? "missing",
+        essentialsStylesheets: [
+          ...document.querySelectorAll(
+            'link[href*="milosapps-essentials/v1"]',
+          ),
+        ].map((link) => link.href),
+        essentialsInputHeight:
+          document
+            .querySelector("milos-place-search input")
+            ?.getBoundingClientRect().height ?? 0,
+        essentialsShareHeight:
+          document
+            .querySelector("milos-share-button button")
+            ?.getBoundingClientRect().height ?? 0,
+        essentialsInputBackground: getComputedStyle(
+          document.querySelector("milos-place-search input"),
+        ).backgroundColor,
         overflow:
           document.documentElement.scrollWidth -
           document.documentElement.clientWidth,
@@ -260,6 +280,13 @@ async function verifyStrictCspRuntime() {
         "strict-csp: stylesheets must remain external same-origin assets.",
       );
     }
+    assert.deepEqual(runtime.essentialsStylesheets, [
+      `${appUrl.href}vendor/milosapps-essentials/v1/milos-app-essentials.css`,
+      `${appUrl.href}vendor/milosapps-essentials/v1/milos-app-essentials-theme.css`,
+    ]);
+    assert.ok(runtime.essentialsInputHeight >= 44);
+    assert.ok(runtime.essentialsShareHeight >= 44);
+    assert.equal(runtime.essentialsInputBackground, "rgb(255, 250, 241)");
     assert.deepEqual(
       browserErrors,
       [],
