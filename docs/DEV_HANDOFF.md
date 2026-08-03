@@ -1,6 +1,6 @@
 # DEV- und Portalübergabe
 
-Stand: 3. August 2026.
+Stand: 4. August 2026.
 
 ## Metadaten
 
@@ -13,6 +13,7 @@ Stand: 3. August 2026.
 | Konto | keines; vollständig öffentlich |
 | Status | unabhängiges öffentliches HTTPS-DEV bereit |
 | Externe DEV-URL | `https://drmilos33.github.io/MilosApps-NochHell-DEV/` |
+| Reversible DEV-Weiterleitung | `https://sinddielampenan.de/` und `https://www.sinddielampenan.de/`; temporär 302 auf die externe DEV-URL |
 | Lokale DEV-URL | `http://127.0.0.1:4319/` |
 | Aktive Portal-DEV-Route | `/apps/daylight` |
 | App-Datenbank | keine |
@@ -50,6 +51,21 @@ Portal und E2E dürfen den Dienst nur akzeptieren, wenn mindestens
 `status=ready`, `appKey=daylight` und `environment=dev` übereinstimmen. Der
 Start bricht bei einer Portkollision ab und beendet keinen bestehenden
 Prozess.
+
+## Reversibler Domain-Alias
+
+Porkbun führt Apex und WWW per temporärem HTTP 302 auf die kanonische externe
+DEV-URL. Wildcard-Forwarding ist aktiv, Pfadübernahme ist deaktiviert. Die
+externe Matrix vom 4. August 2026 bestätigte für HTTP und HTTPS auf beiden
+Hosts dieselbe exakte `Location`; ein Testpfad wurde ebenfalls auf die
+App-Wurzel zurückgeführt. Der Direktaufruf öffnete „Noch hell?“ ohne Login,
+und der kanonische Healthcheck lieferte weiterhin
+`ready/daylight/0.8.1/dev`, `database=false`.
+
+Die Weiterleitung ist app-eigene DEV-Infrastruktur. Portalroute und -ziel,
+GitHub-Pages-Artefakt, Shared-Verträge und Production wurden nicht verändert.
+Rollback: URL-Forward im Porkbun-Domainmanagement löschen; kein App-, Pages-
+oder Portal-Rollback ist erforderlich.
 
 ## Vorschaubild
 

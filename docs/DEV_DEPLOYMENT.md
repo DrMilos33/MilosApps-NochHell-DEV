@@ -1,6 +1,6 @@
 # Unabhängiges DEV-Deployment
 
-Stand: 3. August 2026.
+Stand: 4. August 2026.
 
 ## Öffentlicher Vertrag
 
@@ -9,6 +9,8 @@ Stand: 3. August 2026.
 - Production-Freigabe: `false`
 - Login: keiner
 - URL: `https://drmilos33.github.io/MilosApps-NochHell-DEV/`
+- Reversibler DEV-Alias: `https://sinddielampenan.de/`
+- Reversibler WWW-Alias: `https://www.sinddielampenan.de/`
 - Health:
   `https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json`
 - Repository:
@@ -19,6 +21,23 @@ Stand: 3. August 2026.
 Die App läuft statisch über GitHub Pages. Pages erzwingt HTTPS und liest den
 Root des Branches `gh-pages`. Es gibt keine Shared-Runtime-Abhängigkeit,
 App-Datenbank, Portal-Session oder Production-Domain.
+
+## Porkbun-Weiterleitung
+
+Porkbun leitet den Apex `sinddielampenan.de` und durch aktiviertes Wildcard-
+Forwarding auch `www.sinddielampenan.de` temporär mit HTTP 302 auf die
+kanonische GitHub-Pages-DEV-URL weiter. `Include Path` ist deaktiviert: Auch
+ein Aufruf mit zusätzlichem Pfad landet bewusst an der App-Wurzel. HTTP und
+HTTPS liefern für Apex und WWW jeweils exakt diese `Location`:
+
+```text
+https://drmilos33.github.io/MilosApps-NochHell-DEV/
+```
+
+Die automatisch bereitgestellte TLS-Verbindung ist aktiv. Der Alias verändert
+weder App-Artefakt noch Portalroute, Shared-Verträge oder Production. Der
+Rollback besteht ausschließlich darin, den URL-Forward bei Porkbun zu
+entfernen; GitHub Pages und `/apps/daylight` bleiben dabei unverändert.
 
 ## Revisionen und Herkunft
 
@@ -121,6 +140,7 @@ getrennt.
 ## Nicht verändert
 
 - keine MilosApps-Production-Domain;
+- keine eigenständige Production-Bereitstellung unter `sinddielampenan.de`;
 - kein OpenAI-Sites-Deployment;
 - keine Portaldatei oder Portalroute;
 - keine Shared-Runtime-Abhängigkeit;

@@ -835,3 +835,23 @@ strikte-CSP-Prüfung meldete null Konsolenfehler. Runtime-Source ist
 `8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a`; Rollback ist
 `eb0af83ef0f9234819107ceab19a729895850021` mit Pages
 `d13eb3c842978a8e556b79a58e2ab82417e9cab1`.
+
+## Porkbun-DEV-Weiterleitung
+
+Am 4. August 2026 wurde `sinddielampenan.de` als reversibler DEV-Alias
+eingerichtet. Die read-only Nachprüfung ergab:
+
+| Aufruf | Ergebnis |
+| --- | --- |
+| `http://sinddielampenan.de/` | 302, exakte `Location` auf die kanonische Daylight-DEV-URL |
+| `http://www.sinddielampenan.de/` | 302, exakte `Location` auf die kanonische Daylight-DEV-URL |
+| `https://sinddielampenan.de/` | 302, gültige TLS-Verbindung, exakte `Location` |
+| `https://www.sinddielampenan.de/` | 302, gültige TLS-Verbindung, exakte `Location` |
+| `/testpfad?quelle=qa` | 302 auf die App-Wurzel; keine Pfadübernahme |
+| Ziel-App / Health | 200; `ready/daylight/0.8.1/dev`, `database=false` |
+| Productionroute | weiterhin 404 |
+
+Der Browser folgte Apex und WWW bis zur sichtbaren App „Noch hell?“ ohne
+Login. Die Änderung betrifft ausschließlich die Porkbun-Weiterleitung; App-
+Source, Pages-Artefakt, Portalroute, Shared-Verträge und Production blieben
+unverändert. Rollback ist das Entfernen des Porkbun-Forwards.

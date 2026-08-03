@@ -120,15 +120,18 @@ Das vollständige technische Inventar steht unter
 
 ## DEV- und Portalstatus
 
-Der verifizierte App-Stand `d5f2d72b66a094b5d96b6029a8e63ec58168037c`
+Der verifizierte App-Stand `8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a`
 läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 
 - DEV: <https://drmilos33.github.io/MilosApps-NochHell-DEV/>
+- Kurze DEV-Adresse: <https://sinddielampenan.de/> (temporäre HTTP-302-Weiterleitung)
 - Health: <https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json>
 - GitHub: <https://github.com/DrMilos33/MilosApps-NochHell-DEV>
 
 Das Hosting erfolgt app-eigen über den `gh-pages`-Branch. Production ist
-ausdrücklich nicht freigegeben. Portal & Identity hat die DEV-Integration am
+ausdrücklich nicht freigegeben. Die kurze Adresse einschließlich
+`https://www.sinddielampenan.de/` verweist reversibel auf dieselbe kanonische
+DEV-URL; sie ist keine eigene Production-Bereitstellung. Portal & Identity hat die DEV-Integration am
 30. Juli 2026 final abgenommen: Die Portalroute `/apps/daylight` leitet im
 aktiven Portal-DEV ohne Login auf die unabhängige App-URL weiter. Der
 Direktaufruf und der App-Lifecycle bleiben vom Portal unabhängig.

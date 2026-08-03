@@ -11,6 +11,18 @@
   "status": "dev-online",
   "devUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
   "localDevUrl": "http://127.0.0.1:4319/",
+  "devRedirects": [
+    {
+      "provider": "Porkbun",
+      "apexUrl": "https://sinddielampenan.de/",
+      "wwwUrl": "https://www.sinddielampenan.de/",
+      "target": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
+      "statusCode": 302,
+      "wildcard": true,
+      "includePath": false,
+      "production": false
+    }
+  ],
   "sourceCommit": "8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a",
   "deploymentRevision": "25a34d537feef2c5af544a4e87737aad071ea9fd",
   "lastHealthyDeploymentRevision": "25a34d537feef2c5af544a4e87737aad071ea9fd",
