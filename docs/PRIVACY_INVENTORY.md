@@ -40,20 +40,28 @@ vor weiterer Verwendung und Speicherung auf zwei Nachkommastellen gerundet
 (ungefähr ein Kilometer); eine Reverse-Geocoding-Anfrage findet dafür nicht
 statt.
 
-Eine manuelle Suche sendet erst nach Enter oder „Suchen“ den Suchtext an den
-konfigurierten Nominatim-Endpunkt. Es gibt kein Netzwerk-Autocomplete. Der
-öffentliche Standardendpunkt ist
-`https://nominatim.openstreetmap.org/search`; die Antwort wird auf Name,
-Region, Land, Ländercode, Typ, Koordinaten und die app-eigen ermittelte
-IANA-Zeitzone normalisiert. Der Client hält mindestens 1,1 Sekunden Abstand
-zwischen Anfragen, verwendet einen begrenzten Cache und zeigt die
+Ab drei eingegebenen Zeichen sendet die App den Suchtext nach einer kurzen
+Eingabepause an den austauschbaren Open-Meteo-Geocoding-Endpunkt. Die Antwort
+wird auf Name, Region, Land, Ländercode, Typ, Koordinaten und IANA-Zeitzone
+minimiert. Der flüchtige Vorschlagscache bleibt nur in der aktuellen
+Seitensitzung und enthält höchstens 20 Suchtexte für sechs Stunden. Er wird
+nicht in `localStorage` geschrieben. Nach den Open-Meteo-Nutzungsbedingungen
+können IP-Adresse und angefragte URL beim Dienst bis zu 90 Tage protokolliert
+werden. Die App zeigt Open-Meteo-/GeoNames-/CC-BY-4.0-Attribution dauerhaft an.
+
+Eine genauere manuelle Suche sendet weiterhin erst nach Enter oder „Suchen“
+den Suchtext an den konfigurierten Nominatim-Endpunkt. Der öffentliche
+Standardendpunkt ist `https://nominatim.openstreetmap.org/search`; die Antwort
+wird auf dasselbe minimierte Ortsschema normalisiert und die IANA-Zeitzone
+app-eigen ermittelt. Der Client hält mindestens 1,1 Sekunden Abstand zwischen
+diesen Anfragen, verwendet einen begrenzten persistenten Cache und zeigt die
 OpenStreetMap-/ODbL-Attribution dauerhaft an.
 
-Beim Tippen filtert die Oberfläche ausschließlich bereits lokal bekannte
-Cachetreffer und den erst nach freiwilliger Freigabe gerundeten Geräteort. Das
-Öffnen oder Auswählen dieser Vorschläge erzeugt weder eine Provideranfrage noch
-eine neue Standortabfrage. Ein bisher unbekannter Ort bleibt eine ausdrückliche
-Enter-/„Suchen“-Aktion.
+Bereits bekannte Cachetreffer und der erst nach freiwilliger Freigabe gerundete
+Geräteort werden in dieselbe Vorschlagsliste wie neue Providerergebnisse
+eingefügt. Ihre Auswahl erzeugt keine neue Standortabfrage; dynamische
+Provideranfragen enthalten ausschließlich den eingegebenen Suchtext, niemals
+den gespeicherten oder genauen Gerätestandort.
 
 ## Sichtbare Information
 

@@ -58,12 +58,12 @@ Produktversion sollte für solche Fälle eine manuelle Zonenkorrektur erwägen.
 
 ## Ortssuche
 
-Manuelle Ortssuche verwendet standardmäßig die öffentliche Nominatim-Instanz.
-Der Endpunkt ist über `public/runtime-config.json` austauschbar. Die App:
+Die genauere manuelle Ortssuche verwendet standardmäßig die öffentliche
+Nominatim-Instanz. Der Endpunkt ist über `public/runtime-config.json`
+austauschbar. Die App:
 
-- sendet nur ausdrücklich abgesendete Suchen und kein Autocomplete;
-- filtert während der Eingabe ausschließlich bereits lokal gespeicherte
-  Ergebnisse und sendet dafür keine neue Anfrage;
+- sendet an Nominatim nur ausdrücklich abgesendete Suchen und kein
+  Nominatim-Autocomplete;
 - begrenzt Anfragen auf höchstens eine pro 1,1 Sekunden;
 - speichert maximal 20 Suchantworten für 30 Tage lokal;
 - zeigt OpenStreetMap-Attribution;
@@ -78,6 +78,34 @@ Verbindliche Quellen:
 Die Suchdaten stehen unter ODbL; OpenStreetMap-Mitwirkende werden in der App
 sichtbar genannt. Die Oberfläche und das Portal-Vorschaubild enthalten keine
 übernommenen Kartenkacheln oder Drittanbieterbilder.
+
+Dynamische Vorschläge ab drei Zeichen verwenden den getrennt konfigurierbaren
+Open-Meteo-Geocoding-Endpunkt. Er ist für partielle und unscharfe Ortssuchen
+dokumentiert und liefert unter anderem Name, administrative Ebenen, Land,
+Ländercode, WGS84-Koordinaten und IANA-Zeitzone. Die App:
+
+- wartet nach der Eingabe, verwirft abgebrochene oder veraltete Antworten und
+  zeigt höchstens sechs Ergebnisse;
+- hält höchstens 20 Antworten für sechs Stunden nur im flüchtigen
+  Seitenspeicher;
+- mischt lokale bekannte Orte und Providerergebnisse in genau eine
+  zugängliche Combobox-/Listbox-Struktur;
+- sendet keine Gerätekoordinaten, gespeicherten Orte oder App-URL-Daten an den
+  Vorschlagsdienst;
+- behält Endpoint und Providerintegration austauschbar.
+
+Verbindliche Quellen:
+
+- [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api)
+- [Open-Meteo Terms](https://open-meteo.com/en/terms)
+- [Open-Meteo Licence](https://open-meteo.com/en/licence)
+- [GeoNames](https://www.geonames.org/)
+- [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
+
+Die Open-Meteo-Geocoding-Daten basieren auf GeoNames und stehen laut
+Open-Meteo unter CC BY 4.0. Beide Namen und die Lizenz werden in der App
+sichtbar genannt. Der öffentliche Dienst ist eine DEV-/nichtkommerzielle
+Abhängigkeit mit dokumentierten Nutzungsgrenzen, kein garantiertes App-Backend.
 
 ## Softwarelizenzen
 

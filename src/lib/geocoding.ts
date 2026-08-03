@@ -61,7 +61,10 @@ export class GeocodingError extends Error {
 
 type GeocodingCache = Record<string, CacheEntry>;
 
-function runtimeConfig(): RuntimeConfig {
+function runtimeConfig(): Pick<
+  RuntimeConfig,
+  "geocodingEndpoint" | "environment"
+> {
   return {
     geocodingEndpoint:
       window.__DAYLIGHT_CONFIG__?.geocodingEndpoint ??

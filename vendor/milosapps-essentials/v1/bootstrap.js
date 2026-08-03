@@ -65,11 +65,11 @@ export const milosAppEssentials = initMilosAppEssentials({
     "datePicker": false,
     "placeSearch": true,
     "placeSuggestions": {
-      "enabled": false,
+      "enabled": true,
       "minChars": 3,
       "debounceMs": 350,
-      "providerCapability": "submit-only",
-      "evidenceFile": null
+      "providerCapability": "provider-autocomplete-direct",
+      "evidenceFile": "docs/GEOCODING_AUTOCOMPLETE_PROVIDER.md"
     }
   }
 });

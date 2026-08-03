@@ -221,69 +221,30 @@ h1 {
   margin-top: 0.25rem;
 }
 
-.local-suggestions {
-  min-width: 0;
-  margin-top: 0.35rem;
-  padding: 0.2rem;
-  border: 1px solid var(--line);
+.location-options milos-place-search [data-milos-place-results] {
+  max-height: min(12rem, 34dvh);
+  margin-top: 0.05rem;
+  padding: 0.18rem;
+  border-color: var(--line);
   border-radius: 0.65rem;
   background: var(--paper-solid);
-  box-shadow: 0 0.5rem 1.4rem rgba(74, 47, 28, 0.1);
+  box-shadow: 0 0.5rem 1.4rem rgba(0, 0, 0, 0.18);
 }
 
-.local-suggestions-title {
-  margin: 0;
-  padding: 0.25rem 0.45rem 0.2rem;
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 750;
-}
-
-.local-suggestion-list {
-  display: grid;
-  gap: 0.1rem;
-}
-
-.local-suggestion {
-  width: 100%;
-  min-width: 0;
+.location-options milos-place-search [data-milos-place-option] {
   min-height: 2.75rem;
-  display: grid;
-  align-content: center;
-  gap: 0.08rem;
-  padding: 0.38rem 0.55rem;
-  border: 0;
+  padding: 0.4rem 0.55rem;
   border-radius: 0.45rem;
-  background: transparent;
-  color: var(--ink);
-  text-align: left;
-  cursor: pointer;
 }
 
-.local-suggestion:hover {
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-}
-
-.local-suggestion:focus-visible {
-  background: color-mix(in srgb, var(--accent) 9%, transparent);
-  outline: 3px solid var(--amber);
-  outline-offset: 2px;
-}
-
-.local-suggestion strong,
-.local-suggestion span {
-  overflow-wrap: anywhere;
-}
-
-.local-suggestion strong {
+.location-options milos-place-search [data-milos-place-option] strong {
   font-size: 0.78rem;
   line-height: 1.15;
 }
 
-.local-suggestion span {
-  color: var(--muted);
+.location-options milos-place-search [data-milos-place-option] small {
   font-size: 0.68rem;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .button {

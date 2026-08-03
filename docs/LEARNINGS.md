@@ -408,3 +408,25 @@ App-Task nicht verändert.
 - **Gültigkeitsgrenze:** Eine frische weltweite Vorschlagsliste beim ersten
   Tippen benötigt einen nachgewiesenen, dafür geeigneten Proxy oder Provider.
   Ohne diesen Vertrag bleiben ausschließlich lokale bekannte Orte verfügbar.
+
+## 2026-08-03: Dynamische Vorschläge brauchen einen eigenen Providervertrag, aber kein zweites UI
+
+- **Evidenz:** Die öffentliche Nominatim-Richtlinie verbietet clientseitiges
+  Autocomplete. Open-Meteo dokumentiert dagegen partielle und unscharfe
+  Ortssuche ab drei Zeichen, liefert die benötigte IANA-Zeitzone und erlaubt
+  credential-freie Browseraufrufe. Das WAI-ARIA-APG beschreibt eine einzige
+  Combobox mit kontrollierter Listbox, nicht getrennte lokale und entfernte
+  Ergebnisflächen.
+- **Folge:** Daylight nutzt Open-Meteo ausschließlich für dynamische
+  Vorschläge und Nominatim weiterhin nur nach Enter/Suchen. Lokale letzte Orte,
+  der freiwillig gerundete Geräteort und neue Providerergebnisse werden
+  app-eigen dedupliziert und durch genau dieselbe Shared-Listbox dargestellt.
+  Escape, Auswahl und Pointerinteraktion außerhalb schließen diese Liste.
+- **Regression:** Provideraufruf erst ab drei Zeichen, Debounce, Abort und
+  verspätete Antwort; genau eine sichtbare Listbox; Tastatur/ARIA; Außenklick;
+  lokale Offline-Treffer; DE/EN; 390 × 844 und 360 × 800 bei 200 Prozent.
+- **Gültigkeitsgrenze:** Der öffentliche Open-Meteo-Dienst besitzt
+  Nutzungsgrenzen und keine Verfügbarkeitsgarantie. Endpoint und Providerlogik
+  bleiben austauschbar; vor Production werden Bedingungen, Kapazität und
+  Datenschutz erneut bewertet. Bei Ausfall bleiben lokale Orte und die
+  ausdrückliche Nominatim-Suche getrennt nutzbar.

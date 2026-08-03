@@ -37,12 +37,15 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   vollständiges Löschen von Ort, Suchcache und gerundetem Gerätevorschlag;
 - Teilen nativ mit stillem Erfolg und Abbruch, geometrisch stabilem
   Clipboard-/Fehler-Toast sowie kanonischer, ortsneutraler URL;
-- explizite gemeinsame Combobox-/Listbox-Ortssuche für Stadt und Region, ohne
-  Netz-Autocomplete, mit Abbruch, Cache, Netzfehlern und Locate-Provider;
-- während der Eingabe passend gefilterte lokale Vorschläge aus letzten
-  abgesendeten Ergebnissen sowie aus dem erst nach freiwilliger Freigabe
-  gerundeten Gerätestandort, ohne neuen Netzaufruf und ohne automatische
-  Permission-Abfrage; geschlossene Liste bei leerer oder unpassender Eingabe;
+- gemeinsame Combobox-/Listbox-Ortssuche für Stadt und Region mit getrennten
+  Providern: dynamische Open-Meteo-Vorschläge ab drei Zeichen und genauere
+  Nominatim-Suche ausschließlich nach Enter/Suchen;
+- lokale letzte Orte, freiwillig gerundeter Geräteort und dynamische
+  Providerergebnisse in genau einer Liste, ohne automatische Permission;
+  geschlossene Liste bei leerer/unpassender Eingabe, Escape, Auswahl und
+  Pointerinteraktion außerhalb;
+- 3-Zeichen-Grenze, Debounce, flüchtiger begrenzter Vorschlagscache,
+  Providerfehler, Offline-Fallback, Abort sowie veraltete/verspätete Antworten;
 - kompakte Ortskarte auf Desktop, 44 × 44 Pixel große Icon-Aktion für den
   Gerätestandort und vollständige zugängliche Beschriftung trotz reduziertem
   visuellen Platzbedarf;

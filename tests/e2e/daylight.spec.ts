@@ -46,6 +46,16 @@ async function mockGeocoder(
   });
 }
 
+async function mockSuggestionProvider(page: Page, results: unknown[] = []): Promise<void> {
+  await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ results }),
+    });
+  });
+}
+
 async function selectBerlin(page: Page): Promise<void> {
   await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Berlin");
   await page.getByRole("button", { name: "Suchen" }).click();
@@ -66,6 +76,10 @@ async function openStoredLocationAt(
   await page.goto("/");
 }
 
+test.beforeEach(async ({ page }) => {
+  await mockSuggestionProvider(page);
+});
+
 test.describe("öffentlicher Kernfluss", () => {
   test.beforeEach(async ({ page }) => {
     await mockGeocoder(page);
@@ -79,7 +93,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.6.1",
+      version: "0.7.0",
       environment: "dev",
     });
   });
@@ -416,7 +430,7 @@ test.describe("public-app-essentials/v1", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
   });
 
-  test("hält Privacy und OpenStreetMap auch mobil als 44-Pixel-Ziele", async ({
+  test("hält alle Datenschutz- und Providerlinks mobil als 44-Pixel-Ziele", async ({
     page,
   }, testInfo) => {
     test.skip(
@@ -428,7 +442,7 @@ test.describe("public-app-essentials/v1", () => {
     await page.getByRole("button", { name: "EN", exact: true }).click();
 
     const targets = page.locator(".privacy-summary a, .data-attribution a");
-    await expect(targets).toHaveCount(2);
+    await expect(targets).toHaveCount(3);
     const sizes = await targets.evaluateAll((links) =>
       links.map((link) => {
         const rect = link.getBoundingClientRect();
@@ -510,10 +524,17 @@ test.describe("public-app-essentials/v1", () => {
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(beforeHeight);
   });
 
-  test("startet die providerneutrale Ortssuche nur mit Enter oder Suchen", async ({
+  test("trennt dynamische Vorschläge von der Nominatim-Suche per Enter", async ({
     page,
   }) => {
     let requests = 0;
+    await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ results: [] }),
+      });
+    });
     await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
       requests += 1;
       await route.fulfill({
@@ -525,6 +546,7 @@ test.describe("public-app-essentials/v1", () => {
     await page.goto("/");
     const searchbox = page.getByRole("combobox", { name: "Ort oder Region" });
     await searchbox.fill("Berlin");
+    await page.waitForTimeout(500);
     expect(requests).toBe(0);
     await searchbox.press("Enter");
     await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
@@ -626,7 +648,8 @@ test.describe("public-app-shell/v2", () => {
     await expect(page.getByText(/Until the end of civil twilight|above the horizon/)).toBeVisible();
     await expect(page.getByText("Private:", { exact: true })).toBeVisible();
     await expect(page.getByText("Manage local data", { exact: true })).toBeVisible();
-    await expect(page.getByText("Place data ©", { exact: true })).toBeVisible();
+    await expect(page.getByText("Place data:", { exact: true })).toBeVisible();
+    await expect(page.getByText("Open-Meteo / GeoNames", { exact: true })).toBeVisible();
     await expect(page.getByText(/NOAA\/Meeus approximation/)).toBeVisible();
 
     expect(
@@ -997,6 +1020,7 @@ test.describe("Standortzustände und Datenschutz", () => {
       permissions: ["geolocation"],
     });
     const page = await context.newPage();
+    await mockSuggestionProvider(page);
     await page.goto("/");
     await page.getByRole("button", { name: "Meinen Ort verwenden" }).click();
     await expect(page.getByRole("heading", { name: "In deiner Nähe" })).toBeVisible();
@@ -1009,7 +1033,7 @@ test.describe("Standortzustände und Datenschutz", () => {
     await page.getByRole("button", { name: "Ort ändern" }).click();
     await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Nähe");
     await expect(
-      page.locator("#local-suggestion-list").getByRole("option", {
+      page.getByRole("option", {
         name: "In deiner Nähe Auf etwa 1 km gerundet",
       }),
     ).toBeVisible();
@@ -1024,7 +1048,7 @@ test.describe("Standortzustände und Datenschutz", () => {
     await page.getByRole("button", { name: "Ort ändern" }).click();
     await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Nähe");
     await expect(
-      page.locator("#local-suggestion-list").getByRole("option", {
+      page.getByRole("option", {
         name: "In deiner Nähe Auf etwa 1 km gerundet",
       }),
     ).toBeVisible();
@@ -1109,6 +1133,13 @@ test.describe("Standortzustände und Datenschutz", () => {
         body: JSON.stringify([berlinResult]),
       });
     });
+    await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ results: [] }),
+      });
+    });
     await page.goto("/");
     const searchbox = page.getByRole("combobox", { name: "Ort oder Region" });
     await searchbox.fill("Berlin");
@@ -1116,7 +1147,7 @@ test.describe("Standortzustände und Datenschutz", () => {
     await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
     await page.getByRole("option", { name: "Berlin Deutschland" }).click();
     await page.getByRole("button", { name: "Ort ändern" }).click();
-    const localResult = page.locator("#local-suggestion-list").getByRole("option", {
+    const localResult = page.getByRole("option", {
       name: "Berlin Deutschland",
     });
     await expect(localResult).toBeHidden();
@@ -1126,12 +1157,14 @@ test.describe("Standortzustände und Datenschutz", () => {
     await expect(localResult).toBeVisible();
     expect(requests).toBe(1);
     await searchbox.press("ArrowDown");
-    await expect(localResult).toBeFocused();
-    await localResult.press("Enter");
+    const localResultId = await localResult.getAttribute("id");
+    expect(localResultId).not.toBeNull();
+    await expect(searchbox).toHaveAttribute("aria-activedescendant", localResultId ?? "");
+    await searchbox.press("Enter");
     await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
     await page.reload();
     await page.getByRole("button", { name: "Ort ändern" }).click();
-    const reloadedResult = page.locator("#local-suggestion-list").getByRole("option", {
+    const reloadedResult = page.getByRole("option", {
       name: "Berlin Deutschland",
     });
     await expect(reloadedResult).toBeHidden();

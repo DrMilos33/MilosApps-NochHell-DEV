@@ -77,16 +77,16 @@ sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 ## Public App Essentials
 
 Loader, Datenschutzinformation, Teilen und Ortssuche stammen app-eigen vendort
-aus `public-app-essentials/v1.1.3` am festen Shared-Commit
-`babe74a0e62e1a7f9095648195e54b322a837726`. Daylight aktiviert keinen
-Date-Picker. Die
-Ortssuche bleibt ein Daylight-Provider mit Nominatim-Takt, Cache, Attribution,
-austauschbarem Endpunkt und IANA-Zeitzonenauflösung; der gemeinsame Baustein
-vereinheitlicht nur explizites Absenden, Ergebnisformat und Tastaturführung.
-Während der Eingabe filtert eine kompakte Vorschlagsliste bereits bekannte,
-lokal gespeicherte Orte. Netzvorschläge bleiben deaktiviert; ein neuer Ort wird
-erst mit Enter oder „Suchen“ an den Provider gesendet. Der erst nach freiwilliger
-Freigabe gerundete eigene Ort kann ebenfalls lokal wieder angeboten werden.
+aus `public-app-essentials/v1.1.4` am festen Shared-Commit
+`b22c94cc6d648fd3052f7d32c9bd80f703094f8d`. Daylight aktiviert keinen
+Date-Picker. Die Ortssuche bleibt app-eigene Providerlogik: Open-Meteo liefert
+nach einer kurzen Eingabepause dynamische Vorschläge ab drei Zeichen,
+Nominatim bleibt die genauere, ausdrücklich per Enter oder „Suchen“ gestartete
+Suche mit Takt, Cache, Attribution und austauschbarem Endpunkt. Beide Antworten
+werden auf das minimierte Daylight-Ortsschema samt IANA-Zeitzone normalisiert.
+Bereits bekannte lokale Orte und der erst nach freiwilliger Freigabe gerundete
+eigene Ort werden in dieselbe gemeinsame, kompakte Combobox-/Listbox-Struktur
+einsortiert.
 
 `pnpm verify:essentials` prüft Manifest und sechsteiligen Verbraucher-Lock.
 Essentials startet vor allen Verbraucher-Modulen; erst nach fachlicher
@@ -108,9 +108,10 @@ kanonische App-URL ohne Suchparameter, Fragment, Ortsname oder Koordinaten.
   notwendigen Zugriffe und führt zur Datenschutzseite sowie zur lokalen
   Datenverwaltung.
 - Koordinaten erscheinen weder in der Seiten-URL noch in Teil-URLs.
-- Manuelle Suchen werden erst beim Absenden an den konfigurierten
-  Nominatim-Endpunkt geschickt. Es gibt kein serverseitiges Profil und kein
-  Autocomplete.
+- Ab drei Zeichen wird nur der eingegebene Suchtext für dynamische Vorschläge
+  an den konfigurierten Open-Meteo-Endpunkt gesendet. Die genauere manuelle
+  Suche fragt Nominatim erst beim Absenden. Es gibt kein serverseitiges
+  App-Profil und keine Gerätekoordinaten in diesen Requests.
 - Ein gespeicherter Ort öffnet nach einer erfolgreichen Erstladung auch
   offline; eine neue Ortssuche benötigt eine Netzverbindung.
 

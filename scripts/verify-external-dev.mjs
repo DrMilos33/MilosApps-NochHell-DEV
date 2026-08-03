@@ -28,7 +28,7 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "0.6.1",
+  version: "0.7.0",
   environment: "dev",
   database: false,
 });
@@ -99,6 +99,15 @@ async function verifyViewport({
     assert.equal(await page.locator("footer").count(), 1);
     assert.equal(await page.locator("h1").count(), 1);
     assert.equal(await page.locator("[data-milos-loading-title]").evaluate((node) => node.tagName), "P");
+    const loaderIcon = page.locator("[data-milos-loading-icon]");
+    assert.deepEqual(
+      await loaderIcon.evaluate((node) => {
+        const style = getComputedStyle(node);
+        return { width: Number.parseFloat(style.width), height: Number.parseFloat(style.height) };
+      }),
+      { width: 32, height: 32 },
+      `${name}: shared loader icon must be exactly 32 by 32 CSS pixels.`,
+    );
     assert.equal(await page.locator("milos-app-shell").count(), 1);
     assert.equal(
       await page.locator("[data-milos-privacy-notice]").count(),
@@ -169,9 +178,16 @@ async function verifyViewport({
     );
 
     if (runNetworkBoundary) {
-      await page
-        .getByRole("combobox", { name: "Place or region" })
-        .fill("Berlin");
+      const placeInput = page.getByRole("combobox", { name: "Place or region" });
+      await placeInput.fill("Freib");
+      await page.getByRole("option").first().waitFor({ timeout: 30_000 });
+      assert.equal(await page.locator("[role=listbox]:visible").count(), 1);
+      assert.equal(await placeInput.getAttribute("aria-expanded"), "true");
+      await page.getByRole("heading", { name: "Choose a place" }).click();
+      await page.locator("[role=listbox]:visible").waitFor({ state: "hidden" });
+      assert.equal(await placeInput.getAttribute("aria-expanded"), "false");
+
+      await placeInput.fill("Berlin");
       await page.getByRole("button", { name: "Search" }).click();
       const result = page.getByRole("option", { name: "Berlin Germany" });
       await result.waitFor({ timeout: 30_000 });
@@ -181,10 +197,12 @@ async function verifyViewport({
       await page
         .getByRole("combobox", { name: "Place or region" })
         .fill("Ber");
-      await page
-        .locator("#local-suggestion-list")
-        .getByRole("option", { name: "Berlin Germany" })
-        .waitFor();
+      await page.getByRole("option", { name: "Berlin Germany" }).first().waitFor();
+      assert.equal(
+        await page.locator("[role=listbox]:visible").count(),
+        1,
+        "Local and provider suggestions must share exactly one listbox.",
+      );
       assert.equal(
         await page.locator(".event-card").count(),
         4,
@@ -225,14 +243,14 @@ async function verifyViewport({
       );
     assert.equal(
       appInlineTargets.length,
-      2,
-      `${name}: both app-owned inline links must be present.`,
+      3,
+      `${name}: Privacy, OpenStreetMap and Open-Meteo/GeoNames links must be present.`,
     );
     assert.ok(
       appInlineTargets.every(
         ({ width, height }) => width >= 44 && height >= 44,
       ),
-      `${name}: Privacy and OpenStreetMap must keep 44px hit boxes.`,
+      `${name}: all app-owned inline links must keep 44px hit boxes.`,
     );
 
     const unexpectedBrowserErrors = browserErrors.filter(

@@ -72,27 +72,27 @@
     "datePicker": false,
     "placeSearch": true,
     "placeSuggestions": {
-      "enabled": false,
+      "enabled": true,
       "minChars": 3,
       "debounceMs": 350,
-      "providerCapability": "submit-only",
-      "evidenceFile": null
+      "providerCapability": "provider-autocomplete-direct",
+      "evidenceFile": "docs/GEOCODING_AUTOCOMPLETE_PROVIDER.md"
     }
   },
   "theme": {
-    "accent": "#c84f31",
+    "accent": "var(--accent)",
     "accentContrast": "#ffffff",
-    "surface": "#fffaf1",
-    "surfaceSoft": "#f7efe1",
-    "text": "#2a211c",
-    "muted": "#72645b",
-    "border": "#d8c9bb",
-    "focus": "#9a3a21"
+    "surface": "var(--paper-solid)",
+    "surfaceSoft": "var(--paper-raised)",
+    "text": "var(--ink)",
+    "muted": "var(--muted)",
+    "border": "var(--line)",
+    "focus": "var(--amber)"
   },
   "essentialsContract": {
     "id": "public-app-essentials/v1",
-    "version": "1.1.3",
-    "sharedCommit": "babe74a0e62e1a7f9095648195e54b322a837726",
+    "version": "1.1.4",
+    "sharedCommit": "b22c94cc6d648fd3052f7d32c9bd80f703094f8d",
     "vendorDirectory": "vendor/milosapps-essentials/v1",
     "runtimeBasePath": "vendor/milosapps-essentials/v1"
   }

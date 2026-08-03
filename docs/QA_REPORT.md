@@ -643,3 +643,62 @@ Firefox-Wiederholungslauf bestand anschließend mit 25/25 ausgeführten Fällen
 und 20 beabsichtigten Profilskips. Damit sind alle 107 erwarteten Browserfälle
 mindestens einmal grün; 28 projektweit beabsichtigte Profilskips bleiben
 unverändert.
+
+Der lokale 0.6.1-Commit wurde wegen des koordinierten Shared-Holds nicht separat
+veröffentlicht. Er bleibt als verlustfreier Vorgänger in der App-Historie und
+wird durch die folgende atomare v1.1.4-Migration abgelöst.
+
+## Dynamische Ortssuche für Version 0.7.0
+
+Die Ortssuche folgt nun dem WAI-ARIA-Combobox-Muster und lädt ab drei Zeichen
+nach 350 Millisekunden dynamisch Vorschläge, ohne Enter oder „Suchen“ zu
+verlangen. Der direkte Vorschlagsprovider ist Open-Meteo Geocoding; öffentliches
+Nominatim bleibt entsprechend seiner Nutzungsrichtlinie ausschließlich der
+genaueren expliziten Enter-/Suchen-Aktion vorbehalten. Providerbedingungen,
+CORS, Lizenz, Limits, übertragene Daten, Cachegrenze und Production-
+Neubewertung sind in `docs/GEOCODING_AUTOCOMPLETE_PROVIDER.md` belegt.
+
+Die App verwendet `public-app-essentials/v1.1.4` am unveränderlichen
+Shared-Commit `b22c94cc6d648fd3052f7d32c9bd80f703094f8d`. Genau eine Shared-Listbox
+vereint flüchtige Netztreffer, bereits ausdrücklich gesuchte Orte und den
+freiwillig gerundeten Gerätestandort. Sie liegt im normalen Dokumentfluss,
+überdeckt daher weder bekannte Orte noch die Tageslichtkarten und schließt bei
+Außenklick, Escape, Auswahl, Sprachwechsel sowie Disconnect. Pfeiltasten und
+`aria-activedescendant` halten den Fokus im Suchfeld. „Meinen Ort verwenden“
+bleibt als vollständiger zugänglicher Name erhalten, erscheint visuell aber als
+kompaktes 44 × 44 Pixel großes Iconziel.
+
+Lokale Abschlussgates:
+
+| Gate | Ergebnis |
+| --- | --- |
+| Shared Shell / Essentials | PASS; Shell v2.0.3 und Essentials v1.1.4 mit sechs gelockten Verbraucherartefakten |
+| Unit- und Fachtests | 30/30 PASS |
+| Fokussierte Place-E2E | 15/15 PASS auf Chromium, Firefox und Mobile Chromium |
+| Vollständige Browsermatrix | 122 PASS, 28 beabsichtigte profilgebundene Skips, 0 Fehler |
+| Build / Built-Artefakt | PASS; externe Same-Origin-CSS-/JS-Artefakte und Lock unverändert |
+| Frischer Windows-Checkout | PASS mit `core.autocrlf=true`; beide Vendorbäume `i/lf w/lf`, beide Verifier, 30 Tests, Build und erneut 122 Browserfälle grün |
+
+Die vollständige Matrix umfasst zusätzlich Astroreferenzen, DST,
+Polartag/-nacht, Datumssprung, Geräteort erlaubt/verweigert/abgebrochen,
+Offline-Wiederöffnung, Resume über Sonnenuntergang und Mitternacht, DE/EN,
+Tastatur, Screenreader-Semantik, CSP, MIME, Reduced Motion und Touchziele.
+
+Sichtbare In-App-Browsermessung nach echtem dynamischem Provideraufruf:
+
+| Profil | Eingabe | Standortziel | Ergebnisliste | Seitenfluss / Überlauf |
+| --- | ---: | ---: | ---: | --- |
+| 1440 × 900 | 547 × 44 px | 44 × 44 px | 192 px hoch, statisch | Ortskarte endet exakt vor Tageslichtkarten; 0 px Überlauf |
+| 390 × 844 | 182,45 × 44 px | 44 × 44 px | 192 px hoch; Optionen ≥ 44 px | keine Überlagerung; client/scroll 375/375 |
+| 360 × 800 | 155,67 × 44 px | 44 × 44 px | 192 px hoch; Optionen ≥ 44 px | keine Überlagerung; client/scroll 345/345 |
+
+Außenklick und Escape setzen `aria-expanded=false`, verbergen die Listbox und
+entfernen `aria-activedescendant`. `ArrowDown` markiert eine Option korrekt;
+die Browserkonsole blieb ohne Warnungen oder Fehler. In der ersten QA-Runde
+wurde die erwartete Accessible-Name-Trennung präzisiert. In der zweiten Runde
+fand der vollständige Gate-Lauf noch einen veralteten Testselektor der früheren
+separaten lokalen Liste; der Regressionstest wurde auf die eine gemeinsame
+Listbox umgestellt und die vollständige Matrix danach erneut grün ausgeführt.
+
+Die externe HTTPS-/No-Login-/Health-/Provider-/Offline-Matrix folgt erst nach
+dem koordinierten app-eigenen DEV-Publish. Production bleibt gesperrt.

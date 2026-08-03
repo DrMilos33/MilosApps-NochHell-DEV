@@ -32,6 +32,7 @@ export interface NormalizedPlace {
 
 export interface RuntimeConfig {
   geocodingEndpoint: string;
+  suggestionsEndpoint: string;
   environment: "dev" | "production";
 }
 

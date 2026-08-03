@@ -49,22 +49,26 @@ Eine Production-Abbildung wird weder erzeugt noch veröffentlicht.
 | Feld | Wert |
 | --- | --- |
 | Contract-ID | `public-app-essentials/v1` |
-| Version | `1.1.2` |
-| Shared-Commit | `b14aac6107b75f03ff49e74160af7e7e30c29e59` |
-| Shared-Tag | `public-app-essentials-v1.1.2` |
-| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/b14aac6107b75f03ff49e74160af7e7e30c29e59/contracts/public-app-essentials/v1` |
+| Version | `1.1.4` |
+| Shared-Commit | `b22c94cc6d648fd3052f7d32c9bd80f703094f8d` |
+| Shared-Tag | `public-app-essentials-v1.1.4` |
+| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/b22c94cc6d648fd3052f7d32c9bd80f703094f8d/contracts/public-app-essentials/v1` |
 | Lokaler Vendor | `vendor/milosapps-essentials/v1/` |
 | Lock | `vendor/milosapps-essentials/v1/essentials-lock.json` |
 | Runtime-Abhängigkeit | keine |
 | Production-Freigabe | `false` |
 
-Daylight aktiviert den kleinen CSS-first Startzustand, die dauerhafte
-No-Cookies-Information ohne Banner oder Schließzustand, Teilen ohne private
-Ortsdaten und die gemeinsame explizite Ort-/Regionssuche. Datumsauswahl bleibt
-deaktiviert. Die app-eigene Nominatim-Anbindung behält 1,1 Sekunden
-Mindestabstand, Cache, Attribution, austauschbaren Endpunkt sowie die
-unterschiedenen Offline-, Netzwerk-, HTTP- und Antwortfehler. Gerätestandorte
-werden weiterhin vor jeder Speicherung gerundet.
+Daylight aktiviert den 32 × 32 Pixel großen CSS-first Startzustand, die
+dauerhafte No-Cookies-Information ohne Banner oder Schließzustand, Teilen ohne
+private Ortsdaten und die gemeinsame explizite Ort-/Regionssuche. Die eine
+Shared-Combobox verwendet für dynamische Vorschläge die vertragliche Fähigkeit
+`provider-autocomplete-direct` und schließt bei Außenklick, Escape, Auswahl,
+Sprachwechsel sowie Disconnect. Datumsauswahl bleibt deaktiviert. Die
+app-eigene Nominatim-Anbindung bleibt davon getrennt und behält für die
+explizite Enter-/Suchen-Aktion 1,1 Sekunden Mindestabstand, Cache, Attribution,
+austauschbaren Endpunkt sowie die unterschiedenen Offline-, Netzwerk-, HTTP-
+und Antwortfehler. Gerätestandorte werden weiterhin vor jeder Speicherung
+gerundet.
 
 `milos-essentials.json` ist die kanonische Verbraucherdefinition. Sie bindet
 den physischen Vendorpfad getrennt vom öffentlichen Same-Origin-Pfad und nennt

@@ -11,6 +11,7 @@ import {
   searchPlaces,
   toStoredLocation,
 } from "./lib/geocoding";
+import { searchPlaceSuggestions } from "./lib/place-suggestions";
 import {
   formatLightSummary,
   localeFor,
@@ -98,29 +99,8 @@ app.innerHTML = `
           Abbrechen
         </button>
         <p id="search-hint" class="field-hint" data-i18n="searchHint">
-          Neue Orte mit Enter oder Suchen finden.
+          Orte erscheinen ab drei Zeichen. Enter sucht genauer.
         </p>
-        <div
-          id="local-suggestions"
-          class="local-suggestions"
-          role="group"
-          aria-labelledby="local-suggestions-title"
-          hidden
-        >
-          <p
-            id="local-suggestions-title"
-            class="local-suggestions-title"
-            data-i18n="localSuggestionsTitle"
-          >
-            Bekannte Orte
-          </p>
-          <div
-            id="local-suggestion-list"
-            class="local-suggestion-list"
-            role="listbox"
-            aria-labelledby="local-suggestions-title"
-          ></div>
-        </div>
       </div>
     </section>
 
@@ -235,12 +215,17 @@ app.innerHTML = `
     </section>
 
   <p class="data-attribution">
-    <span data-i18n="attributionPrefix">Ortsdaten ©</span>
+    <span data-i18n="attributionPrefix">Ortsdaten:</span>
     <a href="https://www.openstreetmap.org/copyright" rel="noreferrer">
       <span data-i18n="attributionName">OpenStreetMap-Mitwirkende</span>
-    </a>,
+    </a>
+    <span data-i18n="attributionNominatimLicense">(ODbL)</span>
+    <span aria-hidden="true">·</span>
+    <a href="https://open-meteo.com/en/docs/geocoding-api" rel="noreferrer">
+      <span data-i18n="attributionSuggestionsName">Open-Meteo / GeoNames</span>
+    </a>
     <span data-i18n="attributionSuffix">
-      ODbL. Sonnenzeiten nach NOAA/Meeus-Näherung.
+      (CC BY 4.0). Sonnenzeiten nach NOAA/Meeus-Näherung.
     </span>
   </p>
 `;
@@ -265,6 +250,9 @@ interface MilosPlaceSearchElement extends HTMLElement {
   resultsElement?: HTMLElement;
   cancelSearch(): void;
   setSearchProvider(
+    provider: (options: PlaceProviderOptions) => Promise<NormalizedPlace[]>,
+  ): void;
+  setSuggestionsProvider(
     provider: (options: PlaceProviderOptions) => Promise<NormalizedPlace[]>,
   ): void;
   setLocateProvider(
@@ -293,9 +281,6 @@ const answerCard = element<HTMLElement>("#answer-card");
 const answerTitle = element<HTMLHeadingElement>("#answer-title");
 const clearDataButton = element<HTMLButtonElement>("#clear-data");
 const storageNote = element<HTMLParagraphElement>("#storage-note");
-const localSuggestions = element<HTMLElement>("#local-suggestions");
-const localSuggestionList = element<HTMLElement>("#local-suggestion-list");
-const sharedResultsId = placeSearch.input?.getAttribute("aria-controls") ?? "";
 
 type Feedback = {
   key: MessageKey;
@@ -365,7 +350,6 @@ function applyStaticLanguage(): void {
   renderFeedback(searchState, searchFeedback);
   renderFeedback(storageNote, storageFeedback);
   decorateLocateButton();
-  renderLocalSuggestions();
 }
 
 function readableContext(value: string): string {
@@ -375,91 +359,87 @@ function readableContext(value: string): string {
     .join(" · ");
 }
 
-function normalizedSearchText(value: string): string {
+function normalizedSearchText(value: string, locale = language): string {
   return value
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase(language === "en" ? "en-GB" : "de-DE")
+    .toLocaleLowerCase(locale === "en" ? "en-GB" : "de-DE")
     .trim();
 }
 
-function hideLocalSuggestions(): void {
-  localSuggestions.hidden = true;
-  localSuggestionList.replaceChildren();
-  if (placeSearch.input) {
-    placeSearch.input.setAttribute("aria-controls", sharedResultsId);
-    if (placeSearch.resultsElement?.hidden !== false) {
-      placeSearch.input.setAttribute("aria-expanded", "false");
-    }
+function normalizedStoredLocation(
+  location: DaylightLocation,
+  locale: Language,
+): NormalizedPlace {
+  if (location.source === "device") {
+    return {
+      id: location.id,
+      name: translate(locale, "nearbyName"),
+      region: translate(locale, "nearbyContext"),
+      country: "",
+      countryCode: "",
+      latitude: location.latitude,
+      longitude: location.longitude,
+      type: "device",
+      timeZone: location.timeZone,
+    };
   }
+  const context = location.context
+    .split(/\s*(?:,|·)\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const country = context.at(-1) ?? "";
+  return {
+    id: location.id,
+    name: location.name,
+    region: context.slice(0, -1).join(", "),
+    country,
+    countryCode: "",
+    latitude: location.latitude,
+    longitude: location.longitude,
+    type: "place",
+    timeZone: location.timeZone,
+  };
 }
 
-function renderLocalSuggestions(): void {
-  const query = normalizedSearchText(placeSearch.input?.value ?? "");
-  if (!query) {
-    hideLocalSuggestions();
-    return;
-  }
-  const suggestions: DaylightLocation[] = [];
+function localPlaceSuggestions(
+  query: string,
+  locale: Language,
+): NormalizedPlace[] {
+  const normalizedQuery = normalizedSearchText(query, locale);
+  const suggestions: NormalizedPlace[] = [];
   const seen = new Set<string>();
-  const add = (location: DaylightLocation) => {
-    const key = `${location.id}|${location.latitude}|${location.longitude}`;
-    if (!seen.has(key)) {
+  const add = (place: NormalizedPlace) => {
+    const searchable = normalizedSearchText(
+      `${place.name} ${place.region} ${place.country}`,
+      locale,
+    );
+    const key = `${place.id}|${place.latitude}|${place.longitude}`;
+    if (searchable.includes(normalizedQuery) && !seen.has(key)) {
       seen.add(key);
-      suggestions.push(location);
+      suggestions.push(place);
     }
   };
-  if (deviceSuggestion) add(deviceSuggestion);
-  if (currentLocation) add(currentLocation);
-  loadCachedPlaces(language).map(toStoredLocation).forEach(add);
+  if (deviceSuggestion) add(normalizedStoredLocation(deviceSuggestion, locale));
+  if (currentLocation) add(normalizedStoredLocation(currentLocation, locale));
+  loadCachedPlaces(locale).map(normalizedPlace).forEach(add);
+  return suggestions;
+}
 
-  const matchingSuggestions = suggestions
-    .filter((location) => {
-      const name =
-        location.source === "device"
-          ? translate(language, "nearbyName")
-          : location.name;
-      const context =
-        location.source === "device"
-          ? translate(language, "nearbyContext")
-          : location.context;
-      return normalizedSearchText(`${name} ${context}`).includes(query);
-    })
-    .slice(0, 4);
-
-  localSuggestionList.replaceChildren();
-  matchingSuggestions.forEach((location) => {
-    const button = document.createElement("button");
-    button.className = "local-suggestion";
-    button.type = "button";
-    button.setAttribute("role", "option");
-    button.setAttribute("aria-selected", "false");
-    const name = document.createElement("strong");
-    name.textContent =
-      location.source === "device"
-        ? translate(language, "nearbyName")
-        : location.name;
-    const context = document.createElement("span");
-    context.textContent =
-      location.source === "device"
-        ? translate(language, "nearbyContext")
-        : readableContext(location.context);
-    button.append(name, context);
-    button.addEventListener("click", () => selectLocation(location));
-    localSuggestionList.append(button);
-  });
-  localSuggestions.hidden = matchingSuggestions.length === 0;
-  if (placeSearch.input) {
-    placeSearch.input.setAttribute(
-      "aria-controls",
-      matchingSuggestions.length > 0
-        ? [sharedResultsId, localSuggestionList.id].filter(Boolean).join(" ")
-        : sharedResultsId,
-    );
-    if (matchingSuggestions.length > 0) {
-      placeSearch.input.setAttribute("aria-expanded", "true");
+function mergePlaceSuggestions(
+  local: NormalizedPlace[],
+  remote: NormalizedPlace[],
+): NormalizedPlace[] {
+  const merged: NormalizedPlace[] = [];
+  const seen = new Set<string>();
+  for (const place of [...local, ...remote]) {
+    const key = `${normalizedSearchText(place.name)}|${place.latitude.toFixed(3)}|${place.longitude.toFixed(3)}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      merged.push(place);
     }
   }
+  return merged.slice(0, 6);
 }
 
 function decorateLocateButton(): void {
@@ -648,7 +628,6 @@ function selectLocation(location: DaylightLocation): void {
         ? translate(language, "nearbyName")
         : location.name,
   });
-  hideLocalSuggestions();
   renderSnapshot(true);
 }
 
@@ -760,7 +739,6 @@ window.addEventListener("milosapps:localechange", (event) => {
 });
 
 placeSearch.setSearchProvider(async ({ query, locale, signal }) => {
-  hideLocalSuggestions();
   activeSearchSignal = signal;
   cancelSearchButton.hidden = false;
   try {
@@ -788,44 +766,30 @@ placeSearch.setSearchProvider(async ({ query, locale, signal }) => {
   }
 });
 
+placeSearch.setSuggestionsProvider(async ({ query, locale, signal }) => {
+  const local = localPlaceSuggestions(query, locale);
+  if (!navigator.onLine) return local;
+  try {
+    const remote = await searchPlaceSuggestions(query, signal, locale);
+    if (signal.aborted) {
+      throw new DOMException("Outdated place suggestions", "AbortError");
+    }
+    return mergePlaceSuggestions(local, remote.map(normalizedPlace));
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw error;
+    }
+    if (local.length > 0) return local;
+    throw error;
+  }
+});
+
 cancelSearchButton.addEventListener("click", () => {
   placeSearch.cancelSearch();
 });
 
 placeSearch.setLocateProvider(async () => locateDevice());
 decorateLocateButton();
-
-placeSearch.input?.addEventListener("input", renderLocalSuggestions);
-placeSearch.input?.addEventListener("keydown", (event) => {
-  if (event.key !== "ArrowDown" || localSuggestions.hidden) return;
-  const first = localSuggestionList.querySelector<HTMLElement>("[role='option']");
-  if (!first) return;
-  event.preventDefault();
-  first.focus();
-});
-
-localSuggestionList.addEventListener("keydown", (event) => {
-  const options = [
-    ...localSuggestionList.querySelectorAll<HTMLElement>("[role='option']"),
-  ];
-  const currentIndex = options.indexOf(document.activeElement as HTMLElement);
-  if (event.key === "Escape") {
-    event.preventDefault();
-    hideLocalSuggestions();
-    placeSearch.input?.focus();
-    return;
-  }
-  if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-  event.preventDefault();
-  const direction = event.key === "ArrowDown" ? 1 : -1;
-  const nextIndex =
-    currentIndex < 0
-      ? direction > 0
-        ? 0
-        : options.length - 1
-      : (currentIndex + direction + options.length) % options.length;
-  options[nextIndex]?.focus();
-});
 
 placeSearch.addEventListener("milosapps:placechange", (event) => {
   const detail = (event as CustomEvent<NormalizedPlace>).detail;
@@ -842,7 +806,6 @@ element<HTMLButtonElement>("#change-location").addEventListener("click", () => {
   locationPickerOpen = true;
   locationCard.hidden = false;
   if (placeSearch.input) placeSearch.input.value = "";
-  hideLocalSuggestions();
   locationCard.scrollIntoView({
     behavior: "smooth",
     block: "start",
@@ -857,7 +820,6 @@ clearDataButton.addEventListener("click", () => {
   deviceSuggestion = null;
   if (placeSearch.input) placeSearch.input.value = "";
   renderSnapshot();
-  renderLocalSuggestions();
   setStorageMessage(cleared ? "dataCleared" : "noLocalData");
   setSearchMessage("dataClearedStatus", "success");
   placeSearch.input?.focus();
