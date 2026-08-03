@@ -98,6 +98,23 @@ async function verifyViewport({
     assert.equal(await page.locator("main").count(), 1);
     assert.equal(await page.locator("footer").count(), 1);
     assert.equal(await page.locator("h1").count(), 1);
+    assert.equal(
+      await page.getByText("Standardort", { exact: true }).count(),
+      1,
+      `${name}: a fresh context must identify Cologne as the default place.`,
+    );
+    assert.equal(
+      await page.getByRole("heading", { name: "Köln", exact: true }).count(),
+      1,
+      `${name}: a fresh context must show Cologne without waiting for place input.`,
+    );
+    assert.equal(
+      await page.evaluate(() =>
+        localStorage.getItem("milosapps.daylight.location.v1"),
+      ),
+      null,
+      `${name}: the default place must not be persisted as a user choice.`,
+    );
     assert.equal(await page.locator("[data-milos-loading-title]").evaluate((node) => node.tagName), "P");
     const loaderIcon = page.locator("[data-milos-loading-icon]");
     assert.deepEqual(
@@ -140,10 +157,10 @@ async function verifyViewport({
     if (name === "desktop" || name === "smartphone") {
       const density = await page.evaluate(() => {
         const intro = document.querySelector(".intro")?.getBoundingClientRect();
-        const location = document.querySelector(".location-card")?.getBoundingClientRect();
+        const answer = document.querySelector(".answer-card")?.getBoundingClientRect();
         return {
           introHeight: intro?.height ?? Number.POSITIVE_INFINITY,
-          locationTop: location?.top ?? Number.POSITIVE_INFINITY,
+          answerTop: answer?.top ?? Number.POSITIVE_INFINITY,
         };
       });
       assert.ok(
@@ -151,8 +168,8 @@ async function verifyViewport({
         `${name}: intro must stay within the compact density budget.`,
       );
       assert.ok(
-        density.locationTop <= (name === "desktop" ? 225 : 290),
-        `${name}: the primary place task must remain visible early.`,
+        density.answerTop <= (name === "desktop" ? 235 : 270),
+        `${name}: the daylight answer for the default place must remain visible early.`,
       );
     }
     const footerGap = await page.locator("milos-app-shell").evaluate((shell) => {
@@ -169,7 +186,7 @@ async function verifyViewport({
     await page.waitForFunction(() => document.title === "Still light? – MilosApps");
     assert.equal(await page.title(), "Still light? – MilosApps");
     await page.getByRole("link", { name: "All apps" }).waitFor();
-    await page.getByRole("button", { name: "Use my location" }).waitFor();
+    await page.getByRole("button", { name: "Change place" }).waitFor();
     await page.reload({ waitUntil: "networkidle" });
     assert.equal(
       await page.locator("html").getAttribute("lang"),
@@ -178,6 +195,8 @@ async function verifyViewport({
     );
 
     if (runNetworkBoundary) {
+      await page.getByRole("button", { name: "Change place" }).click();
+      await page.getByRole("button", { name: "Use my location" }).waitFor();
       const placeInput = page.getByRole("combobox", { name: "Place or region" });
       await placeInput.fill("Freib");
       await page.getByRole("option").first().waitFor({ timeout: 30_000 });
@@ -323,6 +342,7 @@ async function verifyStrictCspRuntime() {
     assert.equal(response?.status(), 200, "strict-csp: app must return HTTP 200.");
     await page.evaluate(() => customElements.whenDefined("milos-app-shell"));
     await page.getByRole("link", { name: "Alle Apps" }).waitFor();
+    await page.getByRole("button", { name: "Ort ändern" }).click();
     const runtime = await page.locator("milos-app-shell").evaluate((shell) => {
       const root = shell.shadowRoot;
       const brand = root?.querySelector(".brand");

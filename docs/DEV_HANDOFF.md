@@ -18,8 +18,8 @@ Stand: 3. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `bf65fcf197b1453b05dbb27337c35079b2744c6a` |
-| Pages-Artefaktrevision | `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056` |
+| Deployte Quellrevision | `eb0af83ef0f9234819107ceab19a729895850021` |
+| Pages-Artefaktrevision | `d13eb3c842978a8e556b79a58e2ab82417e9cab1` |
 | Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.5` aus Shared `2942132ad3bf6cf39edc9f52ed918de6a230be23` |
 
 ## Readiness
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "environment": "dev",
   "database": false
 }
@@ -95,9 +95,9 @@ mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
 HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
 Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
-Aktuell gesund ist `98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a`. Der
+Aktuell gesund ist `d13eb3c842978a8e556b79a58e2ab82417e9cab1`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` als neuen
+Artefaktrevision `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
@@ -226,6 +226,39 @@ Browserfehler. Cookie-lose GET- und HEAD-Aufrufe der unveränderten
 Portal-DEV-Route liefern HTTP 302 exakt auf die unabhängige App-URL; die
 Productionroute bleibt HTTP 404. Es wurden keine App-Fachfunktion,
 Portaldatei, Route, Infrastruktur oder Production geändert.
+
+## Kompakter Standardort- und Ereignisstand 0.8.0
+
+Ein frischer Aufruf zeigt Köln sofort als ausdrücklich bezeichneten,
+nicht gespeicherten `Standardort`. Die Tageslichtantwort steht damit vor der
+Ortswahl; „Ort ändern“ öffnet weiterhin die gleichwertige manuelle Suche und
+freiwillige Geräteortung. Eine bewusste Ortswahl bleibt lokal erhalten und
+ersetzt die Kennzeichnung durch `Ausgewählter Ort` beziehungsweise
+`Gerundeter Gerätestandort`.
+
+Die schwach lesbare Aktualisierungszeile ist jetzt ein kontrastreiches
+Textziel auf dunkler Fläche. Sonnenaufgang, Sonnenuntergang, Ende der
+bürgerlichen Dämmerung und morgiger Sonnenaufgang bilden eine verbundene,
+ruhige Ereignisfläche. Die dreifache Wiederholung „Ortszeit“ entfällt; sie
+steht einmal an der lokalen Datumszeile, während nur der morgige Sonnenaufgang
+den fachlich nötigen Hinweis `Nächster Kalendertag` behält.
+
+Der Source-Stand `eb0af83ef0f9234819107ceab19a729895850021` erzeugte das
+bytegleich geprüfte Pages-Artefakt
+`d13eb3c842978a8e556b79a58e2ab82417e9cab1`. GitHub Pages Run
+`30820540034` mit Build-Job `91709072493`, Status-Job `91709150651` und
+Deploy-Job `91709150678` war vollständig erfolgreich. Die externe Matrix
+bestätigte Health `ready/daylight/0.8.0/dev`, Direktaufruf ohne Login,
+DE/EN-Persistenz, echte Online-Ortssuche, Offline-Wiederöffnung, strikte CSP,
+korrekte Same-Origin-Artefakte sowie Desktop, 390 × 844 und 360 × 800 bei
+200 Prozent ohne horizontalen Überlauf. Im sichtbaren 390-Pixel-Liveprofil
+maß jede Ereigniszeile 72 Pixel; die Aktualisierungszeile war weiß auf
+`rgba(7, 24, 34, 0.76)`, und die Browserkonsole blieb leer. Cookie-lose GET-
+und HEAD-Aufrufe der unveränderten Portal-DEV-Route liefern HTTP 302 exakt auf
+die unabhängige App-URL; die Productionroute bleibt HTTP 404.
+
+Rollback bleibt Source `bf65fcf197b1453b05dbb27337c35079b2744c6a` mit Pages
+`10cd1c0dd6d9c72ebaddac100a7527aac2f7d056`.
 
 ## Verbleibende Blocker und Grenzen
 

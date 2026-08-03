@@ -758,3 +758,46 @@ Share, Datum, Routing, Infrastruktur und Production blieben unverändert.
 Rollback bleibt der vorherige gesunde Runtime-Stand
 `d5f2d72b66a094b5d96b6029a8e63ec58168037c` mit Pages
 `98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a`.
+
+## Köln als Standardort und kompakte Ereignisfläche für Version 0.8.0
+
+Der Erststart war nach dem eingeklappten Suchbereich zwar kompakt, zeigte aber
+ohne gespeicherte Wahl keine Tageslichtantwort. Köln ist nun als fester,
+nicht persistierter Standardort aktiv. Der sichtbare Status lautet
+`Standardort`/`Default place`, nicht `Ausgewählter Ort`; erst eine bewusste
+Suche oder freiwillige Geräteortung erzeugt eine gespeicherte Nutzerwahl. Das
+Löschen lokaler Ortsdaten kehrt nachvollziehbar zu Köln zurück.
+
+Die Aktualisierungszeit erhielt eine weiße, kräftige Schrift auf einer
+halbtransparenten dunklen Pillenfläche. Die vier bisher getrennten großen
+Ereigniskarten wurden zu einer verbundenen Fläche mit feinen Trennlinien,
+kleinen Farbpunkten und rechts ausgerichteten Zeiten verdichtet. Auf Mobil
+misst jede Zeile 72 Pixel statt der früheren hohen Textstapel. Der generische
+Hinweis `Ortszeit` steht einmal an der Datumszeile; nur der morgige
+Sonnenaufgang behält `Nächster Kalendertag` als notwendige fachliche
+Unterscheidung.
+
+Abschlussgates:
+
+| Gate | Ergebnis |
+| --- | --- |
+| Unit-/Fachtests | 30/30 PASS |
+| Build / Built-Artefakt | PASS; TypeScript, Vite und externes Essentials-Artefaktgate |
+| Desktop Chromium | 52/52 PASS |
+| Mobile Chromium | 43 PASS, 9 beabsichtigte profilgebundene Skips |
+| Firefox fokussiert | 3 PASS, 1 beabsichtigter Chromium-Geometrieskip |
+| Sichtbare QA | 1440 × 900 und 390 × 844, keine Browserwarnungen, kein horizontaler Überlauf |
+| GitHub Pages | PASS; Run `30820540034`, Artefakt `d13eb3c842978a8e556b79a58e2ab82417e9cab1` |
+| Externes DEV | PASS; No-Login, Health 0.8.0, DE/EN, Online-Suche, Offline-Wiederöffnung, CSP, 390 und 360@200 % |
+
+Der erste externe Verifierlauf legte ausschließlich eine veraltete
+Prüferannahme offen: Das Ortsformular ist beim neuen Standardort absichtlich
+geschlossen. Der Prüfer bildet jetzt den echten Nutzerweg über „Ort ändern“
+ab und bestätigt zusätzlich Köln, die Kennzeichnung `Standardort` und das
+Ausbleiben eines stillschweigend gespeicherten Orts. Der wiederholte externe
+Lauf war vollständig grün. Production und die Portalroute blieben
+unverändert.
+
+Runtime-Source ist `eb0af83ef0f9234819107ceab19a729895850021`; Rollback ist
+`bf65fcf197b1453b05dbb27337c35079b2744c6a` mit Pages
+`10cd1c0dd6d9c72ebaddac100a7527aac2f7d056`.

@@ -430,3 +430,35 @@ App-Task nicht verändert.
   bleiben austauschbar; vor Production werden Bedingungen, Kapazität und
   Datenschutz erneut bewertet. Bei Ausfall bleiben lokale Orte und die
   ausdrückliche Nominatim-Suche getrennt nutzbar.
+
+## 2026-08-03: Ein nützlicher Standardort ist keine gespeicherte Nutzerwahl
+
+- **Evidenz:** Ein leerer Erststart verlangte eine Ortsaktion, bevor die
+  Kernantwort sichtbar wurde. Wird ein Fallback dagegen wie eine bewusste
+  Auswahl beschriftet oder gespeichert, ist die Herkunft für Nutzer unklar.
+- **Folge:** Köln liefert sofort eine lokale Tageslichtantwort, trägt aber den
+  eigenen Status `Standardort` und wird nicht in `localStorage` geschrieben.
+  Nur Suche oder freiwillige Geräteortung erzeugen eine persistierte Wahl.
+- **Regression:** Frischer Kontext, Datenlöschung, DE/EN und externer
+  No-Login-Lauf prüfen Köln, Status und fehlenden Orts-Speichereintrag. Die
+  Antwort steht mobil vor 270 Pixeln; „Ort ändern“ hält die Suche erreichbar.
+- **Gültigkeitsgrenze:** Der Fallback ist eine Produkthilfe für eine
+  standortbezogene öffentliche App. Er darf weder eine automatische
+  Standortberechtigung auslösen noch als tatsächlicher Nutzerort ausgegeben
+  werden.
+
+## 2026-08-03: Ereignisdichte entsteht durch Hierarchie, nicht durch kleinere Klickziele
+
+- **Evidenz:** Vier eigenständige Karten wiederholten `Ortszeit`, Rahmen,
+  Abstand und Dekoration. Dadurch wirkte eine kleine Datenmenge wie ein langer
+  Textstapel; die Aktualisierungszeit verlor zugleich Kontrast auf dem Himmel.
+- **Folge:** Eine verbundene Ereignisfläche nutzt feine Trennlinien,
+  Farbpunkte und rechts ausgerichtete Zeiten. `Ortszeit` steht einmal an der
+  Datumszeile; nur der fachlich abweichende morgige Kalendertag behält einen
+  Hinweis. Die Aktualisierung erhält eine eigene kontrastreiche Fläche.
+- **Regression:** Vier semantische `dt`/`dd`-Paare bleiben erhalten, jede
+  mobile Zeile misst 72 Pixel, 390 × 844 und 360 × 800@200 % bleiben ohne
+  Überlauf, Axe und Tastaturfluss bleiben grün.
+- **Gültigkeitsgrenze:** Fachliche Polar-/Kein-Ereignis-Zustände dürfen
+  weiterhin längere Texte benötigen; Dichtebudgets dürfen diese Aussagen
+  nicht abschneiden oder durch erfundene Uhrzeiten ersetzen.
