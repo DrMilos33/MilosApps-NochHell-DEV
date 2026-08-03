@@ -7,6 +7,7 @@ import type {
 import { createSnapshot, type DaylightSnapshot } from "./lib/daylight";
 import {
   GeocodingError,
+  loadCachedPlaces,
   searchPlaces,
   toStoredLocation,
 } from "./lib/geocoding";
@@ -21,7 +22,9 @@ import {
   browserStorage,
   clearLocalData,
   coarsenDeviceCoordinate,
+  loadDeviceSuggestion,
   loadLocation,
+  saveDeviceSuggestion,
   saveLocation,
 } from "./lib/storage";
 import {
@@ -31,6 +34,10 @@ import {
   resolveTimeZone,
 } from "./lib/timezone";
 import { loadRuntimeConfig } from "./lib/runtime-config";
+
+declare global {
+  var milosAppEssentials: { ready(): void };
+}
 
 const supportedLanguages: readonly Language[] = ["de", "en"];
 
@@ -56,12 +63,11 @@ app.dataset.environment = environment;
 
 app.innerHTML = `
   <section class="intro" aria-labelledby="intro-title">
-      <p class="eyebrow" data-i18n="introEyebrow">Tageslicht, auf einen Blick</p>
-      <h1 id="intro-title" data-i18n="introTitle">Passt der Spaziergang noch ins Helle?</h1>
+      <h1 id="intro-title" data-i18n="introTitle">Noch hell für einen Spaziergang?</h1>
       <div class="intro-row">
         <p class="intro-copy" data-i18n="introCopy">
-          Ein Ort genügt. Du siehst Sonnenuntergang, Dämmerungsende und den
-          nächsten Sonnenaufgang – ohne Wetter, Konto oder Standorttracking.
+          Ort wählen und Sonnenuntergang, Dämmerungsende sowie den nächsten
+          Sonnenaufgang sehen.
         </p>
         <milos-share-button id="share-button"></milos-share-button>
       </div>
@@ -71,11 +77,8 @@ app.innerHTML = `
       <div class="section-heading">
         <div>
           <p class="section-kicker" data-i18n="locationKicker">Dein Ort</p>
-          <h2 id="location-title" data-i18n="locationTitle">Suchen oder Gerät fragen</h2>
+          <h2 id="location-title" data-i18n="locationTitle">Ort wählen</h2>
         </div>
-        <p class="section-note" data-i18n="locationNote">
-          Beide Wege liefern dieselbe vollständige Ansicht.
-        </p>
       </div>
 
       <div class="location-options">
@@ -83,8 +86,8 @@ app.innerHTML = `
           id="place-search"
           label-de="Ort oder Region"
           label-en="Place or region"
-          placeholder-de="z. B. Freiburg, Bayern oder Tromsø"
-          placeholder-en="e.g. Freiburg, Bavaria or Tromsø"
+          placeholder-de="z. B. Freiburg"
+          placeholder-en="e.g. Freiburg"
         ></milos-place-search>
         <button
           id="cancel-search"
@@ -98,6 +101,12 @@ app.innerHTML = `
         <p id="search-hint" class="field-hint" data-i18n="searchHint">
           Suche erst nach dem Absenden. Der Suchtext geht dann an OpenStreetMap.
         </p>
+        <div id="local-suggestions" class="local-suggestions" hidden>
+          <p class="local-suggestions-title" data-i18n="localSuggestionsTitle">
+            Lokale Vorschläge
+          </p>
+          <div id="local-suggestion-list" class="local-suggestion-list"></div>
+        </div>
       </div>
     </section>
 
@@ -182,17 +191,22 @@ app.innerHTML = `
       </aside>
     </section>
 
-    <section class="privacy-section" aria-labelledby="privacy-title">
-      <div>
-        <p class="section-kicker" data-i18n="privacyKicker">Privat by design</p>
-        <h2 id="privacy-title" data-i18n="privacyTitle">
-          Dein genauer Standort bleibt auf diesem Gerät.
-        </h2>
-      </div>
-      <div class="privacy-grid">
+    <section class="privacy-section" aria-label="Datenschutz" data-i18n-aria-label="privacyLabel">
+      <p class="privacy-summary">
+        <strong data-i18n="privacyShort">Privat:</strong>
+        <span data-i18n="privacySummary">
+          Ort, Sprache und ein kleiner Suchcache bleiben lokal; Gerätekoordinaten werden vor dem Speichern gerundet.
+        </span>
+        <a
+          data-milos-privacy-info
+          href="https://dev.milos-apps.de/datenschutz"
+          data-i18n="privacyLink"
+        >Datenschutz</a>
+      </p>
+      <details class="privacy-details">
+        <summary data-i18n="privacyDetails">Lokale Daten verwalten</summary>
         <p data-i18n="privacyCopy">
-          Gerätekoordinaten werden vor dem Speichern gerundet. Es gibt kein
-          Konto, keine App-Datenbank und keine Koordinaten in der Seitenadresse.
+          Kein Tracking, keine Cookies, kein Konto und keine Koordinaten in der Seitenadresse.
         </p>
         <button
           id="clear-data"
@@ -202,9 +216,9 @@ app.innerHTML = `
         >
           Lokale Ortsdaten löschen
         </button>
-      </div>
-      <p id="storage-note" class="field-hint"></p>
-  </section>
+        <p id="storage-note" class="field-hint"></p>
+      </details>
+    </section>
 
   <p class="data-attribution">
     <span data-i18n="attributionPrefix">Ortsdaten ©</span>
@@ -232,9 +246,9 @@ type PlaceProviderOptions = {
 };
 
 interface MilosPlaceSearchElement extends HTMLElement {
-  controller?: AbortController;
   input?: HTMLInputElement;
   status?: HTMLParagraphElement;
+  cancelSearch(): void;
   setSearchProvider(
     provider: (options: PlaceProviderOptions) => Promise<NormalizedPlace[]>,
   ): void;
@@ -253,6 +267,7 @@ await customElements.whenDefined("milos-place-search");
 await customElements.whenDefined("milos-share-button");
 
 const placeSearch = element<MilosPlaceSearchElement>("#place-search");
+const locationCard = element<HTMLElement>(".location-card");
 const cancelSearchButton = element<HTMLButtonElement>("#cancel-search");
 const shareButton = element<MilosShareButtonElement>("#share-button");
 const searchState = placeSearch.status ?? element<HTMLParagraphElement>(
@@ -263,6 +278,8 @@ const answerCard = element<HTMLElement>("#answer-card");
 const answerTitle = element<HTMLHeadingElement>("#answer-title");
 const clearDataButton = element<HTMLButtonElement>("#clear-data");
 const storageNote = element<HTMLParagraphElement>("#storage-note");
+const localSuggestions = element<HTMLElement>("#local-suggestions");
+const localSuggestionList = element<HTMLElement>("#local-suggestion-list");
 
 type Feedback = {
   key: MessageKey;
@@ -271,6 +288,12 @@ type Feedback = {
 };
 
 let currentLocation: DaylightLocation | null = loadLocation();
+let locationPickerOpen = currentLocation === null;
+let deviceSuggestion: DaylightLocation | null =
+  currentLocation?.source === "device" ? currentLocation : loadDeviceSuggestion();
+if (deviceSuggestion && currentLocation?.source === "device") {
+  saveDeviceSuggestion(deviceSuggestion);
+}
 let refreshTimer: number | null = null;
 let searchFeedback: Feedback | null = null;
 let storageFeedback: Feedback | null = null;
@@ -325,6 +348,50 @@ function applyStaticLanguage(): void {
     });
   renderFeedback(searchState, searchFeedback);
   renderFeedback(storageNote, storageFeedback);
+  renderLocalSuggestions();
+}
+
+function readableContext(value: string): string {
+  return value
+    .split(/\s*(?:,|·)\s*/)
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function renderLocalSuggestions(): void {
+  const suggestions: DaylightLocation[] = [];
+  const seen = new Set<string>();
+  const add = (location: DaylightLocation) => {
+    const key = `${location.id}|${location.latitude}|${location.longitude}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      suggestions.push(location);
+    }
+  };
+  if (deviceSuggestion) add(deviceSuggestion);
+  if (currentLocation) add(currentLocation);
+  loadCachedPlaces(language).map(toStoredLocation).forEach(add);
+
+  localSuggestionList.replaceChildren();
+  suggestions.slice(0, 4).forEach((location) => {
+    const button = document.createElement("button");
+    button.className = "local-suggestion";
+    button.type = "button";
+    const name = document.createElement("strong");
+    name.textContent =
+      location.source === "device"
+        ? translate(language, "nearbyName")
+        : location.name;
+    const context = document.createElement("span");
+    context.textContent =
+      location.source === "device"
+        ? translate(language, "nearbyContext")
+        : readableContext(location.context);
+    button.append(name, context);
+    button.addEventListener("click", () => selectLocation(location));
+    localSuggestionList.append(button);
+  });
+  localSuggestions.hidden = suggestions.length === 0;
 }
 
 function eventCopy(
@@ -389,6 +456,8 @@ function writeEvent(
 
 function renderSnapshot(focusAnswer = false): void {
   if (!currentLocation) {
+    locationPickerOpen = true;
+    locationCard.hidden = false;
     dashboard.hidden = true;
     document.body.dataset.phase = "unselected";
     return;
@@ -401,6 +470,7 @@ function renderSnapshot(focusAnswer = false): void {
     language,
   );
   dashboard.hidden = false;
+  locationCard.hidden = !locationPickerOpen;
   document.body.dataset.phase = snapshot.summary.phase;
   answerCard.dataset.phase = snapshot.summary.phase;
   element("#location-name").textContent =
@@ -416,7 +486,7 @@ function renderSnapshot(focusAnswer = false): void {
   element("#location-detail").textContent = [
     currentLocation.source === "device"
       ? translate(language, "nearbyContext")
-      : currentLocation.context,
+      : readableContext(currentLocation.context),
     formatTimeZoneLabel(
       snapshot.generatedAt,
       currentLocation.timeZone,
@@ -477,6 +547,11 @@ function renderSnapshot(focusAnswer = false): void {
 
 function selectLocation(location: DaylightLocation): void {
   currentLocation = location;
+  locationPickerOpen = false;
+  if (location.source === "device") {
+    deviceSuggestion = location;
+    saveDeviceSuggestion(location);
+  }
   const stored = saveLocation(location);
   setStorageMessage(stored ? "storedLocation" : "storageUnavailable");
   setSearchMessage("selectedMessage", "success", {
@@ -485,6 +560,7 @@ function selectLocation(location: DaylightLocation): void {
         ? translate(language, "nearbyName")
         : location.name,
   });
+  renderLocalSuggestions();
   renderSnapshot(true);
 }
 
@@ -520,7 +596,7 @@ function locationFromPlace(place: NormalizedPlace): DaylightLocation {
   const source = place.id.startsWith("device-") ? "device" : "manual";
   return toStoredLocation({
     ...place,
-    context: [place.region, place.country].filter(Boolean).join(", "),
+    context: [place.region, place.country].filter(Boolean).join(" · "),
     timeZone:
       place.timeZone ?? resolveTimeZone(place.latitude, place.longitude),
     source,
@@ -584,7 +660,7 @@ function changeLanguage(nextLanguage: unknown): void {
   if (selected === language) {
     return;
   }
-  placeSearch.controller?.abort();
+  placeSearch.cancelSearch();
   language = selected;
   applyStaticLanguage();
   renderSnapshot();
@@ -600,6 +676,9 @@ placeSearch.setSearchProvider(async ({ query, locale, signal }) => {
   cancelSearchButton.hidden = false;
   try {
     const results = await searchPlaces(query, signal, locale);
+    if (signal.aborted || activeSearchSignal !== signal) {
+      throw new DOMException("Outdated place search", "AbortError");
+    }
     return results.map(normalizedPlace);
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
@@ -621,7 +700,7 @@ placeSearch.setSearchProvider(async ({ query, locale, signal }) => {
 });
 
 cancelSearchButton.addEventListener("click", () => {
-  placeSearch.controller?.abort();
+  placeSearch.cancelSearch();
 });
 
 placeSearch.setLocateProvider(async () => locateDevice());
@@ -638,7 +717,9 @@ shareButton.setPayloadProvider(() => ({
 }));
 
 element<HTMLButtonElement>("#change-location").addEventListener("click", () => {
-  element<HTMLElement>(".location-card").scrollIntoView({
+  locationPickerOpen = true;
+  locationCard.hidden = false;
+  locationCard.scrollIntoView({
     behavior: "smooth",
     block: "start",
   });
@@ -648,7 +729,10 @@ element<HTMLButtonElement>("#change-location").addEventListener("click", () => {
 clearDataButton.addEventListener("click", () => {
   const cleared = clearLocalData();
   currentLocation = null;
+  locationPickerOpen = true;
+  deviceSuggestion = null;
   renderSnapshot();
+  renderLocalSuggestions();
   setStorageMessage(cleared ? "dataCleared" : "noLocalData");
   setSearchMessage("dataClearedStatus", "success");
   if (placeSearch.input) placeSearch.input.value = "";
@@ -686,7 +770,7 @@ if (!browserStorage()) {
 
 applyStaticLanguage();
 renderSnapshot();
-document.dispatchEvent(new CustomEvent("milosapps:ready"));
+globalThis.milosAppEssentials.ready();
 refreshTimer = window.setInterval(() => renderSnapshot(), 60_000);
 window.addEventListener("beforeunload", () => {
   if (refreshTimer !== null) {

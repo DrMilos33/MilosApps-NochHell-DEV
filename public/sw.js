@@ -1,4 +1,4 @@
-const CACHE_NAME = "daylight-shell-v5";
+const CACHE_NAME = "milosapps.daylight.offline-shell.v1";
 const CORE_URLS = ["./", "./index.html", "./runtime-config.json", "./app.webmanifest", "./health.json"];
 
 async function installShell() {

@@ -39,7 +39,7 @@ try {
   const page = await context.newPage();
   await page.addInitScript(() => {
     localStorage.setItem(
-      "daylight.location.v1",
+      "milosapps.daylight.location.v1",
       JSON.stringify({
         id: "relation-62422",
         name: "Berlin",

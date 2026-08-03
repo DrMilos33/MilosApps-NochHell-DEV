@@ -27,13 +27,22 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   bei Desktop, 390 × 844 und 200-Prozent-Reflow.
 - CSS-first Loader bei langsamem Start mit höchstens 56 Pixel Desktop und
   48 Pixel mobil sowie genau einer Dokumentüberschrift;
-- wahrheitsgemäßer No-Cookies-/LocalStorage-Hinweis in DE/EN einschließlich
-  Tastatur, Datenschutzlink, Schließen und Reload-Persistenz;
-- Teilen nativ, Clipboard-Fallback und stiller Abbruch mit kanonischer,
-  ortsneutraler URL;
+- vollständiges Cookie-/LocalStorage-/CacheStorage-Inventar; bei ausschließlich
+  notwendigen Zugriffen eine dauerhaft erreichbare kurze Information in DE/EN
+  ohne Banner, Einwilligungsattrappe oder Dismiss-Key;
+- Migration der alten Orts-/Cache-Keys in den app-namensräumigen Bestand sowie
+  vollständiges Löschen von Ort, Suchcache und gerundetem Gerätevorschlag;
+- Teilen nativ mit stillem Erfolg und Abbruch, geometrisch stabilem
+  Clipboard-/Fehler-Toast sowie kanonischer, ortsneutraler URL;
 - explizite gemeinsame Combobox-/Listbox-Ortssuche für Stadt und Region, ohne
-  Autocomplete, mit Abbruch, Cache, Netzfehlern und Locate-Provider;
-- fünfteiliger Essentials-Lock, externe Same-Origin-CSS-/JS-Dateien,
+  Netz-Autocomplete, mit Abbruch, Cache, Netzfehlern und Locate-Provider;
+- lokale Vorschläge aus letzten abgesendeten Ergebnissen sowie aus dem erst
+  nach freiwilliger Freigabe gerundeten Gerätestandort, ohne neuen Netzaufruf
+  und ohne automatische Permission-Abfrage;
+- Abort-, Escape- und verspätete Providerantworten dürfen weder alte
+  Ergebnislisten noch falsche Busy-Zustände wiederherstellen;
+- sechsteiliger Essentials-Verbraucher-Lock einschließlich Schema, externe
+  Same-Origin-CSS-/JS-Dateien,
   korrekte MIME-Typen und strikte `style-src 'self'`-/`script-src 'self'`-CSP.
 
 ## Wiederholung vor einer DEV-Veröffentlichung

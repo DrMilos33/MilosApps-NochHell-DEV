@@ -265,8 +265,8 @@ App-Task nicht verändert.
 - **Folge:** Das vendorte Essentials-Verzeichnis enthält eine enge
   `.gitattributes` mit `* text eol=lf`. Ein frischer Windows-Checkout muss den
   unveränderten Lock erneut bestehen.
-- **Regression:** Essentials-Verifier und Recheckout-Prüfung der fünf
-  gelockten Dateien.
+- **Regression:** Essentials-Verifier und Recheckout-Prüfung der aktuell sechs
+  gelockten Verbraucherdateien einschließlich Schema.
 - **Gültigkeitsgrenze:** Die Regel gilt nur für diesen Vendorordner; sie
   verändert weder globale Git-Einstellungen noch andere App-Dateien.
 
@@ -283,3 +283,93 @@ App-Task nicht verändert.
 - **Gültigkeitsgrenze:** Auch zustandsbasiertes Warten kann einen externen
   Ausfall nicht heilen; der Test bleibt mit einem endlichen Timeout
   fail-closed.
+
+## 2026-08-03: Notwendige lokale Speicherung braucht Information, keine Schein-Einwilligung
+
+- **Evidenz:** Daylight verwendet weder Cookies noch Tracking. Sprache,
+  gewählter Ort, gerundeter Gerätevorschlag, begrenzter Geocoding-Cache und
+  Offline-Shell erfüllen jeweils eine konkrete vom Nutzer angeforderte
+  Funktion. Der bisherige wegklickbare No-Cookies-Hinweis erzeugte trotzdem
+  das Muster eines Consent-Banners und zusätzlichen Dismiss-Zustand.
+- **Folge:** Alle Endgerätezugriffe sind zweck-, laufzeit- und löschwegbezogen
+  inventarisiert. Es gibt kein Banner und keinen Consent-/Dismiss-Key, sondern
+  eine kurze dauerhaft erreichbare Zeile mit Datenschutzlink und progressiver
+  lokaler Datenverwaltung. Optionale Zwecke bleiben deaktiviert.
+- **Regression:** Manifest- und Lock-Verifier, DE-/EN-E2E ohne
+  Privacy-Notice, Entfernung des alten Notice-Keys und
+  `docs/PRIVACY_INVENTORY.md`.
+- **Gültigkeitsgrenze:** Die technische Einstufung dokumentiert den
+  Produktstand und ist keine Rechtsberatung. Neue Analyse-, Werbe- oder andere
+  optionale Zwecke benötigen einen eigenen Consent-Vertrag.
+
+## 2026-08-03: Lokale Ortsvorschläge sind nicht dasselbe wie Netzwerk-Autocomplete
+
+- **Evidenz:** Der öffentliche Nominatim-Endpunkt soll nur nach explizitem
+  Absenden angesprochen werden. Trotzdem braucht der fokussierte Helfer einen
+  schnellen Weg zurück zu bereits verwendeten Orten und zum freiwillig
+  ermittelten eigenen Ort.
+- **Folge:** Die App leitet Vorschläge ausschließlich aus frischen,
+  sprachgebundenen Cacheantworten sowie aus der vorab auf etwa einen Kilometer
+  gerundeten Geräteposition ab. Tippen löst keinen Netzaufruf und keine
+  Standortberechtigung aus. Name und Kontext werden einheitlich als
+  Name sowie Region · Land dargestellt.
+- **Regression:** Unit-Filter für Sprache, Alter, Manipulation und Deduplizierung;
+  Browserfälle für null Requests vor Enter, lokale Wiederwahl ohne Netz und
+  null Geolocation-Aufrufe vor dem bewussten Button.
+- **Gültigkeitsgrenze:** Echte automatische Netzvorschläge bleiben ohne
+  nachgewiesenen app-eigenen Proxy/Provider deaktiviert. Lokale Ergebnisse
+  können nur Orte anbieten, die der Browser bereits erhalten hat.
+
+## 2026-08-03: Abort muss bis hinter die letzte asynchrone Providergrenze geprüft werden
+
+- **Evidenz:** Nach der Essentials-Migration verwies der app-eigene
+  Abbruchknopf noch auf ein früheres internes Controllerfeld. Zusätzlich kann
+  ein Testprovider einen Abort ignorieren und seine Antwort später erfüllen.
+  Ohne zweite Prüfung erschien nach dem Abbruch wieder ein altes Ergebnis.
+- **Folge:** Daylight nutzt die öffentliche `cancelSearch()`-Methode und prüft
+  nach dem letzten `await` sowohl das Signal als auch die aktive Anfrage,
+  bevor Ergebnisse an die gemeinsame Komponente zurückgegeben werden.
+- **Regression:** Verzögerte Suche, sichtbarer Abbruch, leere Ergebnisliste und
+  wieder aktivierter Submit-Button; der Provider darf die verspätete Antwort
+  absichtlich noch liefern.
+- **Gültigkeitsgrenze:** Die Shared-Komponente schützt ihren eigenen
+  Lebenszyklus. Jeder asynchrone App-Provider bleibt zusätzlich dafür
+  verantwortlich, Abort an seine I/O-Grenzen weiterzugeben und vor dem
+  Zurückgeben erneut zu prüfen.
+
+## 2026-08-03: Kompaktheit wird an der ersten Aufgabe gemessen, nicht an kleinen Touchzielen
+
+- **Evidenz:** Vor der Überarbeitung belegte das Intro 214,6 Pixel auf Desktop
+  und 213,9 Pixel auf 390 Pixel Breite; die Ortswahl begann bei 283,6
+  beziehungsweise 325,3 Pixel. Der große Privacy-Block belegte mobil weitere
+  266,6 Pixel.
+- **Folge:** Die redundante Überzeile entfällt, H1 und Einleitung sind kürzer,
+  die Ortskarte enthält nur noch notwendige Hinweise und die Privacy-Aussage
+  fließt als kompakte Zeile. In der finalen lokalen Messung beginnt die
+  Ortswahl bei 182,0 Pixel auf Desktop und 256,9 Pixel mobil; Intro und
+  Privacy messen mobil 145,5 und 132,8 Pixel. Alle Interaktionsziele bleiben
+  mindestens 44 Pixel hoch. Bei einem gespeicherten Ort ist die redundante
+  Suche eingeklappt und über „Ort ändern“ sofort erreichbar: Mobil rückt die
+  Antwort dadurch von 606,6 auf 272,9 Pixel, die Seite schrumpft von 1844,0
+  auf 1418,9 Pixel.
+- **Regression:** Engere Dichtebudgets für 1440 × 900 und 390 × 844 sowie die
+  bestehende 360 × 800/200-Prozent-, Fokus-, Touch- und Overflowmatrix.
+- **Gültigkeitsgrenze:** Diese Werte gelten für die leere Startansicht. Nach
+  einer Auswahl darf die fachlich notwendige Sonnenzeitenansicht länger sein,
+  muss aber weiterhin ohne horizontalen Überlauf und mit früher sichtbarer
+  Antwort funktionieren.
+
+## 2026-08-03: Loader-Quelldatei und öffentliche URL sind getrennte Verträge
+
+- **Evidenz:** Eine statische App kann dieselbe relative Schreibweise für
+  Repositorydatei und Browser-URL verwenden; Frameworks mit getrenntem
+  Public-Root können das nicht. Eine einzige Pfadangabe beweist deshalb weder
+  den vorhandenen Quellbestand noch die tatsächlich ausgelieferte Ressource.
+- **Folge:** Daylight pinnt mit Essentials v1.1.2 den physischen Pfad
+  `public/daylight-icon.svg` getrennt von der öffentlichen Same-Origin-URL
+  `./daylight-icon.svg`. Es existiert kein doppeltes Schattenasset.
+- **Regression:** Shared-Verifier und Lock prüfen beide Pfade exakt. Der
+  app-eigene Post-Build- und Browsertest verlangt stabile HTML-URL, HTTP 200,
+  `image/svg+xml` und einen zur Source identischen SHA-256-Hash.
+- **Gültigkeitsgrenze:** Ein Quell-Lock beweist nicht den MIME-Typ des
+  Hostings; der HTTP-Nachweis bleibt Teil jedes App-DEV-Lifecycles.

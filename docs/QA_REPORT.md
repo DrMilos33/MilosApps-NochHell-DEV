@@ -404,3 +404,78 @@ mit `ready/daylight/0.4.0/dev` und `database=false` überein. Die
 Productionroute bleibt HTTP 404. Runtime-Source `105d80c…`, Pages-Artefakt
 `b7c9a55…` und Evidenz-/LF-Tipp `35769e1…` blieben unverändert; der Portal-
 Task nahm keine Daylight-Repositorymutation vor.
+
+## UX-Verfeinerung und kompakter Tageslichtfluss für Version 0.5.0
+
+Stand: 3. August 2026. Die Produktarbeit folgt der Kampagne
+`public-app-ux-refinement-2026-08`. Der unveränderliche Shared-Pin ist
+`public-app-essentials/v1.1.2` am Commit
+`b14aac6107b75f03ff49e74160af7e7e30c29e59`. Die externe DEV-Evidenz folgt
+nach dem koordinierten App-Publish; bis dahin bleibt der bestehende 0.4.0-
+Pages-Stand unverändert gesund.
+
+### Baseline
+
+Im gesunden 0.4.0-DEV begann die Ortswahl bei 1440 × 900 nach 283,6 Pixeln und
+bei 390 × 844 nach 357,4 Pixeln. Das Intro war 214,6 beziehungsweise 246,1
+Pixel hoch. Nach einer bereits gewählten Ortsangabe blieb die komplette
+Ortswahl weiterhin vor der eigentlichen Tageslichtantwort sichtbar.
+
+### Verbesserungsrunde 1: Einstieg, Ort und Datenschutz
+
+Die redundante Überüberschrift „Tageslicht, auf einen Blick“ entfällt. H1,
+Erklärung, Ortskarte und Sonnenzeitkarten sind kleiner. Der lange
+„Privat by design“-Block ist eine dauerhaft sichtbare kurze Zeile mit exaktem
+Datenschutzlink und einer aufklappbaren lokalen Datenverwaltung. Da keine
+Cookies, kein Tracking und keine optionale Speicherung stattfinden, gibt es
+kein Schein-Einwilligungsbanner.
+
+Die gemeinsame Ortssuche zeigt normalisierte Ergebnisse als
+`Name · Region · Land`. Öffentliches Nominatim bleibt strikt submit-only;
+lokale letzte Ergebnisse und ein erst nach freiwilliger Geräteortung
+gespeicherter, vorher gerundeter eigener Ort erscheinen ohne Netzaufruf als
+Vorschläge. Eine Standortberechtigung wird nie automatisch angefragt.
+
+Messung nach Runde 1:
+
+| Ansicht | Intro | Beginn Ortswahl | Privacy | Dokumenthöhe | Horizontaler Überlauf |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 1440 × 900 | 113,0 px | 182,0 px | 102,1 px | 900 px | 0 px |
+| 390 × 844 | 145,5 px | 256,9 px | 132,8 px | 844 px | 0 px |
+
+### Verbesserungsrunde 2: Ergebnis sofort zeigen
+
+Eine vorhandene oder neu gewählte Ortsangabe klappt den Suchbereich nun ein.
+Die Tageslichtantwort steht dadurch beim Wiederöffnen und nach einer Auswahl
+direkt nach dem Intro. „Ort ändern“ öffnet die vollständige gleichwertige
+manuelle Suche und freiwillige Geräteortung wieder, scrollt zum Bereich und
+setzt den Fokus. Das Löschen lokaler Ortsdaten öffnet denselben Einstieg.
+
+Bei 390 × 844 wanderte die Antwortoberkante von zuvor 606,6 auf 272,9 Pixel;
+die Seite schrumpfte im ausgewählten Zustand von 1844 auf 1418,9 Pixel. Auf
+Desktop beginnt die Antwort nach 210 Pixeln. Die Antwortkarte ist 272 bis 276
+Pixel hoch, behält aber Resthelligkeit, Ort, Aktualisierungszeit und den
+direkten Änderungsweg.
+
+### Lokale Regression nach dem finalen Shared-Sync
+
+| Gate | Ergebnis |
+| --- | --- |
+| Unit/Fachtests | 26/26 PASS in 6 Dateien |
+| Shared Shell | PASS, `public-app-shell/v2.0.3` |
+| Shared Essentials | PASS, `public-app-essentials/v1.1.2`; sechs Verbraucherartefakte, Manifest und Hashes gelockt |
+| Build/Artefaktgate | PASS; beide CSS- und beide JS-Dateien extern und SHA-256-gelockt; Loader-SVG stabil, MIME-geprüft und bytegleich zur Source |
+| Chromium | 43/43 PASS |
+| Gesamte Browsermatrix | 105 PASS, 24 bewusst profilgebundene Skips, 0 Fehler |
+| Browser | Chromium, Firefox und Mobile Chromium |
+| Diff | `git diff --check` sauber |
+
+Die Matrix deckt Astro-/Zeitzonen-/DST-/Datumsgrenzen, Äquator, hohe Breiten,
+Polartag und Polarnacht ebenso ab wie freiwillige Ortung erlaubt, verweigert,
+abgebrochen, nicht verfügbar und Timeout. Zusätzlich geprüft sind lokale
+Vorschläge ohne Netz, gleichnamige und unbekannte Orte, langsames Geocoding,
+abgebrochene und veraltete Providerantworten, Offline-Wiederöffnung, Resume
+über Sonnenuntergang/Dämmerungsende/Mitternacht, vollständiges DE/EN samt
+Reload, Share-Erfolg/Abbruch/Fallback ohne Layoutsprung, Tastatur, Fokus,
+axe-core, 44-Pixel-Ziele, Reduced Motion, strikte CSP sowie 360 × 800 bei
+200 Prozent.

@@ -1,8 +1,10 @@
 import type { DaylightLocation, PlaceSearchResult, RuntimeConfig } from "../types";
 import type { Language } from "./i18n";
-import { resolveTimeZone } from "./timezone";
+import { isValidTimeZone, resolveTimeZone } from "./timezone";
 import {
   browserStorage,
+  legacyStorageKeys,
+  readMigratedStorageValue,
   storageKeys,
   type BrowserStorage,
 } from "./storage";
@@ -76,7 +78,13 @@ function readCache(storage: BrowserStorage | null): GeocodingCache {
     return {};
   }
   try {
-    const parsed: unknown = JSON.parse(storage.getItem(storageKeys.geocodingCache) ?? "{}");
+    const parsed: unknown = JSON.parse(
+      readMigratedStorageValue(
+        storageKeys.geocodingCache,
+        legacyStorageKeys.geocodingCache,
+        storage,
+      ) ?? "{}",
+    );
     if (!parsed || typeof parsed !== "object") {
       return {};
     }
@@ -84,6 +92,59 @@ function readCache(storage: BrowserStorage | null): GeocodingCache {
   } catch {
     return {};
   }
+}
+
+function isCachedPlace(value: unknown): value is PlaceSearchResult {
+  if (!value || typeof value !== "object") return false;
+  const place = value as Partial<PlaceSearchResult>;
+  return (
+    typeof place.id === "string" &&
+    typeof place.name === "string" &&
+    place.name.length > 0 &&
+    typeof place.region === "string" &&
+    typeof place.country === "string" &&
+    typeof place.countryCode === "string" &&
+    typeof place.latitude === "number" &&
+    Number.isFinite(place.latitude) &&
+    place.latitude >= -90 &&
+    place.latitude <= 90 &&
+    typeof place.longitude === "number" &&
+    Number.isFinite(place.longitude) &&
+    place.longitude >= -180 &&
+    place.longitude <= 180 &&
+    typeof place.timeZone === "string" &&
+    isValidTimeZone(place.timeZone) &&
+    typeof place.type === "string" &&
+    typeof place.osmType === "string" &&
+    place.source === "manual"
+  );
+}
+
+export function loadCachedPlaces(
+  language: Language,
+  storage = browserStorage(),
+  now = Date.now(),
+): PlaceSearchResult[] {
+  const prefix = `${language}:`;
+  const seen = new Set<string>();
+  return Object.entries(readCache(storage))
+    .filter(([key, entry]) =>
+      key.startsWith(prefix) &&
+      typeof entry?.storedAt === "number" &&
+      entry.storedAt <= now &&
+      now - entry.storedAt <= CACHE_MAX_AGE_MS &&
+      Array.isArray(entry.results),
+    )
+    .sort(([, left], [, right]) => right.storedAt - left.storedAt)
+    .flatMap(([, entry]) => entry.results)
+    .filter(isCachedPlace)
+    .filter((place) => {
+      const key = `${place.id}|${place.latitude}|${place.longitude}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 4);
 }
 
 function writeCache(cache: GeocodingCache, storage: BrowserStorage | null): void {

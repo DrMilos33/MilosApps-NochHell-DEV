@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import { chromium } from "@playwright/test";
 
 const defaultUrl = "https://drmilos33.github.io/MilosApps-NochHell-DEV/";
@@ -26,10 +28,28 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "0.4.0",
+  version: "0.5.0",
   environment: "dev",
   database: false,
 });
+
+const iconUrl = new URL("daylight-icon.svg", appUrl);
+const iconResponse = await fetch(iconUrl, { cache: "no-store" });
+assert.equal(iconResponse.status, 200, "Loader icon must return HTTP 200.");
+assert.match(
+  iconResponse.headers.get("content-type") ?? "",
+  /^image\/svg\+xml(?:;|$)/i,
+  "Loader icon must be served as image/svg+xml.",
+);
+const iconBytes = Buffer.from(await iconResponse.arrayBuffer());
+const sourceIcon = await readFile(
+  new URL("../public/daylight-icon.svg", import.meta.url),
+);
+assert.equal(
+  createHash("sha256").update(iconBytes).digest("hex"),
+  createHash("sha256").update(sourceIcon).digest("hex"),
+  "Published loader icon must be byte-identical to the app source SVG.",
+);
 
 const browser = await chromium.launch();
 
@@ -81,6 +101,16 @@ async function verifyViewport({
     assert.equal(await page.locator("[data-milos-loading-title]").evaluate((node) => node.tagName), "P");
     assert.equal(await page.locator("milos-app-shell").count(), 1);
     assert.equal(
+      await page.locator("[data-milos-privacy-notice]").count(),
+      0,
+      `${name}: necessary-only storage must not show a consent-like banner.`,
+    );
+    assert.equal(
+      await page.locator("[data-milos-privacy-info]").getAttribute("href"),
+      "https://dev.milos-apps.de/datenschutz",
+      `${name}: privacy information must remain permanently reachable.`,
+    );
+    assert.equal(
       await page.getByRole("link", { name: "Alle Apps" }).getAttribute("href"),
       "https://dev.milos-apps.de/apps",
     );
@@ -98,6 +128,24 @@ async function verifyViewport({
       0,
       `${name}: public direct access must not expose a login gate.`,
     );
+    if (name === "desktop" || name === "smartphone") {
+      const density = await page.evaluate(() => {
+        const intro = document.querySelector(".intro")?.getBoundingClientRect();
+        const location = document.querySelector(".location-card")?.getBoundingClientRect();
+        return {
+          introHeight: intro?.height ?? Number.POSITIVE_INFINITY,
+          locationTop: location?.top ?? Number.POSITIVE_INFINITY,
+        };
+      });
+      assert.ok(
+        density.introHeight <= (name === "desktop" ? 155 : 175),
+        `${name}: intro must stay within the compact density budget.`,
+      );
+      assert.ok(
+        density.locationTop <= (name === "desktop" ? 225 : 290),
+        `${name}: the primary place task must remain visible early.`,
+      );
+    }
     const footerGap = await page.locator("milos-app-shell").evaluate((shell) => {
       const footer = shell.shadowRoot?.querySelector("footer");
       if (!(footer instanceof HTMLElement)) return Number.POSITIVE_INFINITY;
@@ -129,6 +177,11 @@ async function verifyViewport({
       await result.waitFor({ timeout: 30_000 });
       await result.click();
       await page.getByText("Sunrise", { exact: true }).waitFor();
+      await page.getByRole("button", { name: "Change place" }).click();
+      await page
+        .locator("#local-suggestion-list")
+        .getByRole("button", { name: "Berlin Germany" })
+        .waitFor();
       assert.equal(
         await page.locator(".event-card").count(),
         4,
@@ -331,6 +384,9 @@ try {
         status: "passed",
         appUrl: appUrl.href,
         healthUrl: healthUrl.href,
+        iconUrl: iconUrl.href,
+        iconContentType: iconResponse.headers.get("content-type"),
+        iconSha256: createHash("sha256").update(iconBytes).digest("hex"),
         health,
         results,
       },

@@ -1,5 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 
 const berlinResult = {
   osm_id: 62422,
@@ -58,7 +60,7 @@ async function openStoredLocationAt(
   instant: string,
 ): Promise<void> {
   await page.addInitScript((storedLocation) => {
-    localStorage.setItem("daylight.location.v1", JSON.stringify(storedLocation));
+    localStorage.setItem("milosapps.daylight.location.v1", JSON.stringify(storedLocation));
   }, location);
   await page.clock.install({ time: new Date(instant) });
   await page.goto("/");
@@ -77,18 +79,49 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.4.0",
+      version: "0.5.0",
       environment: "dev",
     });
   });
 
   test("bietet manuelle Suche und Geräteortung gleichwertig ohne Login an", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Passt der Spaziergang noch ins Helle?" })).toBeVisible();
-    await expect(page.getByRole("combobox", { name: "Ort oder Region" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Noch hell für einen Spaziergang?" })).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Ort oder Region" })).toHaveAttribute(
+      "placeholder",
+      "z. B. Freiburg",
+    );
     await expect(page.getByRole("button", { name: "Meinen Ort verwenden" })).toBeVisible();
-    await expect(page.getByText("Beide Wege liefern dieselbe vollständige Ansicht.")).toBeVisible();
     await expect(page.getByText(/Anmelden|Login|Konto erstellen/)).toHaveCount(0);
+  });
+
+  test("fragt den Gerätestandort nie automatisch an", async ({ page, browserName }) => {
+    test.skip(browserName !== "chromium", "Permission-Aufrufe werden einmal in Chromium geprüft.");
+    await page.addInitScript(() => {
+      const state = window as Window & { __GEO_REQUESTS__?: number };
+      state.__GEO_REQUESTS__ = 0;
+      Object.defineProperty(navigator, "geolocation", {
+        configurable: true,
+        value: {
+          getCurrentPosition: () => {
+            state.__GEO_REQUESTS__ = (state.__GEO_REQUESTS__ ?? 0) + 1;
+          },
+        },
+      });
+    });
+    await page.goto("/");
+    await page.waitForTimeout(250);
+    expect(
+      await page.evaluate(
+        () => (window as Window & { __GEO_REQUESTS__?: number }).__GEO_REQUESTS__,
+      ),
+    ).toBe(0);
+    await page.getByRole("button", { name: "Meinen Ort verwenden" }).click();
+    expect(
+      await page.evaluate(
+        () => (window as Window & { __GEO_REQUESTS__?: number }).__GEO_REQUESTS__,
+      ),
+    ).toBe(1);
   });
 
   test("zeigt alle geforderten Sonnenzeiten und hält Koordinaten aus der App-URL", async ({
@@ -200,7 +233,7 @@ test.describe("öffentlicher Kernfluss", () => {
     await page.emulateMedia({ colorScheme: "light" });
     await page.goto("/");
     const lightColor = await page.evaluate(() => getComputedStyle(document.body).color);
-    await expect(page.getByRole("heading", { name: "Passt der Spaziergang noch ins Helle?" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Noch hell für einen Spaziergang?" })).toBeVisible();
 
     await page.emulateMedia({ colorScheme: "dark" });
     const darkColor = await page.evaluate(() => getComputedStyle(document.body).color);
@@ -226,8 +259,8 @@ test.describe("öffentlicher Kernfluss", () => {
     test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
 
     for (const viewport of [
-      { width: 1440, height: 900, introMax: 225, locationTopMax: 300 },
-      { width: 390, height: 844, introMax: 275, locationTopMax: 390 },
+      { width: 1440, height: 900, introMax: 155, locationTopMax: 225 },
+      { width: 390, height: 844, introMax: 175, locationTopMax: 290 },
     ]) {
       await page.setViewportSize(viewport);
       await page.goto("/");
@@ -243,7 +276,7 @@ test.describe("öffentlicher Kernfluss", () => {
         };
       });
       expect(metrics.introHeight).toBeLessThanOrEqual(viewport.introMax);
-      expect(metrics.headingSize).toBeLessThanOrEqual(viewport.width > 500 ? 56 : 36);
+      expect(metrics.headingSize).toBeLessThanOrEqual(viewport.width > 500 ? 34 : 30);
       expect(metrics.locationTop).toBeLessThanOrEqual(viewport.locationTopMax);
     }
 
@@ -259,8 +292,24 @@ test.describe("öffentlicher Kernfluss", () => {
         eventHeight: Math.max(...eventCards.map((card) => card.getBoundingClientRect().height)),
       };
     });
-    expect(resultMetrics.answerHeight).toBeLessThanOrEqual(360);
-    expect(resultMetrics.eventHeight).toBeLessThanOrEqual(160);
+    expect(resultMetrics.answerHeight).toBeLessThanOrEqual(300);
+    expect(resultMetrics.eventHeight).toBeLessThanOrEqual(135);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    const mobileResultMetrics = await page.evaluate(() => {
+      const answer = document.querySelector<HTMLElement>(".answer-card");
+      const eventCards = [...document.querySelectorAll<HTMLElement>(".event-card")];
+      if (!answer || eventCards.length !== 4) throw new Error("Mobiles Ergebnislayout fehlt");
+      return {
+        answerHeight: answer.getBoundingClientRect().height,
+        eventHeight: Math.max(...eventCards.map((card) => card.getBoundingClientRect().height)),
+        answerTop: answer.getBoundingClientRect().top,
+      };
+    });
+    expect(mobileResultMetrics.answerHeight).toBeLessThanOrEqual(310);
+    expect(mobileResultMetrics.eventHeight).toBeLessThanOrEqual(135);
+    expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(290);
   });
 
   test("fließt bei einer 200-Prozent-äquivalenten Breite ohne horizontales Scrollen um", async ({
@@ -310,16 +359,26 @@ test.describe("public-app-essentials/v1", () => {
     await expect(page.locator("h1")).toHaveCount(1);
   });
 
-  test("erklärt Datenschutz wahrheitsgemäß in DE und EN und merkt nur das Schließen lokal", async ({
+  test("zeigt bei ausschließlich notwendiger Speicherung eine dauerhafte Information ohne Schein-Einwilligung", async ({
     page,
   }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem("milosapps.daylight.privacyNotice.v1", "dismissed");
+    });
     await page.goto("/");
-    const notice = page.locator("[data-milos-privacy-notice]");
-    await expect(notice).toContainText("Keine Werbe- oder Tracking-Cookies");
+    await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
+    const privacy = page.locator(".privacy-section");
+    await expect(privacy).toContainText("Ort, Sprache und ein kleiner Suchcache bleiben lokal");
+    await expect(privacy.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
+      "href",
+      "https://dev.milos-apps.de/datenschutz",
+    );
+    expect(
+      await page.evaluate(() => localStorage.getItem("milosapps.daylight.privacyNotice.v1")),
+    ).toBeNull();
     await page.getByRole("button", { name: "EN", exact: true }).click();
-    await expect(notice).toContainText("No advertising or tracking cookies");
-    await notice.getByRole("button", { name: "Got it" }).click();
-    await expect(notice).toHaveCount(0);
+    await expect(privacy).toContainText("Place, language and a small search cache stay local");
+    await expect(privacy.getByRole("link", { name: "Privacy" })).toBeVisible();
     await page.reload();
     await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
@@ -337,13 +396,16 @@ test.describe("public-app-essentials/v1", () => {
       });
     });
     await page.goto("/?latitude=52.5#private-location");
-    await page.getByRole("button", { name: "Teilen" }).click();
+    const share = page.getByRole("button", { name: "Teilen" });
+    const before = await share.boundingBox();
+    await share.click();
     const payload = await page.evaluate(
       () => (window as Window & { __SHARED__?: ShareData }).__SHARED__,
     );
     expect(payload?.url).toBe("http://127.0.0.1:4319/");
     expect(JSON.stringify(payload)).not.toMatch(/52\.5|Berlin|latitude/);
-    await expect(page.locator("[data-milos-share-status]")).toHaveText("Geteilt");
+    await expect(page.locator("[data-milos-share-status]")).toHaveText("");
+    expect(await share.boundingBox()).toEqual(before);
 
     await page.evaluate(() => {
       Object.defineProperty(navigator, "share", {
@@ -353,7 +415,7 @@ test.describe("public-app-essentials/v1", () => {
         },
       });
     });
-    await page.getByRole("button", { name: "Teilen" }).click();
+    await share.click();
     await expect(page.locator("[data-milos-share-status]")).toHaveText("");
   });
 
@@ -373,6 +435,7 @@ test.describe("public-app-essentials/v1", () => {
       });
     });
     await page.goto("/");
+    const beforeHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     await page.getByRole("button", { name: "Teilen" }).click();
     const copied = await page.evaluate(
       () => (window as Window & { __COPIED__?: string }).__COPIED__,
@@ -380,6 +443,8 @@ test.describe("public-app-essentials/v1", () => {
     expect(copied).toContain("http://127.0.0.1:4319/");
     expect(copied).not.toMatch(/Koordinat|latitude|longitude/);
     await expect(page.locator("[data-milos-share-status]")).toHaveText("Link kopiert");
+    await expect(page.locator("[data-milos-share-status]")).toHaveCSS("position", "fixed");
+    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(beforeHeight);
   });
 
   test("startet die providerneutrale Ortssuche nur mit Enter oder Suchen", async ({
@@ -420,6 +485,13 @@ test.describe("public-app-essentials/v1", () => {
       expect(response.status()).toBe(200);
       expect(response.headers()["content-type"]).toContain("text/javascript");
     }
+    const iconResponse = await request.get("/daylight-icon.svg");
+    expect(iconResponse.status()).toBe(200);
+    expect(iconResponse.headers()["content-type"]).toContain("image/svg+xml");
+    const sourceIcon = await readFile("public/daylight-icon.svg");
+    expect(
+      createHash("sha256").update(await iconResponse.body()).digest("hex"),
+    ).toBe(createHash("sha256").update(sourceIcon).digest("hex"));
   });
 });
 
@@ -450,7 +522,7 @@ test.describe("public-app-shell/v2", () => {
       "https://dev.milos-apps.de/impressum",
     );
     await expect(
-      page.locator("milos-app-shell").getByRole("link", { name: "Datenschutz" }),
+      page.getByLabel("Rechtliches").getByRole("link", { name: "Datenschutz" }),
     ).toHaveAttribute("href", "https://dev.milos-apps.de/datenschutz");
     await expect(page.getByText("Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.")).toBeVisible();
   });
@@ -466,14 +538,14 @@ test.describe("public-app-shell/v2", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await expect(page).toHaveTitle("Still light? – MilosApps");
     await expect(
-      page.getByRole("heading", { name: "Is there enough daylight left for a walk?" }),
+      page.getByRole("heading", { name: "Still light for a walk?" }),
     ).toBeVisible();
     await expect(page.getByRole("combobox", { name: "Place or region" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Use my location" })).toBeVisible();
     await expect(page.getByRole("link", { name: "All apps" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Legal notice" })).toBeVisible();
     await expect(
-      page.locator("milos-app-shell").getByRole("link", { name: "Privacy" }),
+      page.getByLabel("Legal").getByRole("link", { name: "Privacy" }),
     ).toBeVisible();
 
     await page.getByRole("combobox", { name: "Place or region" }).fill("Berlin");
@@ -489,7 +561,8 @@ test.describe("public-app-shell/v2", () => {
     await expect(page.getByText("Local time", { exact: true }).first()).toBeVisible();
     await expect(page.locator("#answer-title")).toContainText(/daylight left|still light/i);
     await expect(page.getByText(/Until the end of civil twilight|above the horizon/)).toBeVisible();
-    await expect(page.getByText("Private by design", { exact: true })).toBeVisible();
+    await expect(page.getByText("Private:", { exact: true })).toBeVisible();
+    await expect(page.getByText("Manage local data", { exact: true })).toBeVisible();
     await expect(page.getByText("Place data ©", { exact: true })).toBeVisible();
     await expect(page.getByText(/NOAA\/Meeus approximation/)).toBeVisible();
 
@@ -864,10 +937,32 @@ test.describe("Standortzustände und Datenschutz", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Meinen Ort verwenden" }).click();
     await expect(page.getByRole("heading", { name: "In deiner Nähe" })).toBeVisible();
-    const stored = await page.evaluate(() => localStorage.getItem("daylight.location.v1"));
-    expect(stored).toContain('"latitude":52.52');
-    expect(stored).toContain('"longitude":13.4');
-    expect(stored).not.toContain("52.520008");
+    const storedDevice = await page.evaluate(() =>
+      localStorage.getItem("milosapps.daylight.device-suggestion.v1"),
+    );
+    expect(storedDevice).toContain('"latitude":52.52');
+    expect(storedDevice).toContain('"longitude":13.4');
+    expect(storedDevice).not.toContain("52.520008");
+    await page.getByRole("button", { name: "Ort ändern" }).click();
+    await expect(
+      page.locator("#local-suggestion-list").getByRole("button", {
+        name: "In deiner Nähe Auf etwa 1 km gerundet",
+      }),
+    ).toBeVisible();
+    await page.evaluate((manualLocation) => {
+      localStorage.setItem(
+        "milosapps.daylight.location.v1",
+        JSON.stringify(manualLocation),
+      );
+    }, berlinLocation);
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
+    await page.getByRole("button", { name: "Ort ändern" }).click();
+    await expect(
+      page.locator("#local-suggestion-list").getByRole("button", {
+        name: "In deiner Nähe Auf etwa 1 km gerundet",
+      }),
+    ).toBeVisible();
     expect(new URL(page.url()).search).toBe("");
     await context.close();
   });
@@ -923,13 +1018,19 @@ test.describe("Standortzustände und Datenschutz", () => {
     await mockGeocoder(page);
     await page.goto("/");
     await selectBerlin(page);
+    await page.getByText("Lokale Daten verwalten", { exact: true }).click();
     await page.getByRole("button", { name: "Lokale Ortsdaten löschen" }).click();
     await expect(page.getByText("vollständig gelöscht")).toBeVisible();
+    await expect(page.getByRole("combobox", { name: "Ort oder Region" })).toBeVisible();
     const keys = await page.evaluate(() => Object.keys(localStorage));
-    expect(keys.filter((key) => key.startsWith("daylight."))).toEqual([]);
+    expect(keys).not.toContain("daylight.location.v1");
+    expect(keys).not.toContain("daylight.geocoding-cache.v1");
+    expect(keys).not.toContain("milosapps.daylight.location.v1");
+    expect(keys).not.toContain("milosapps.daylight.geocoding-cache.v1");
+    expect(keys).not.toContain("milosapps.daylight.device-suggestion.v1");
   });
 
-  test("bedient dieselbe Ortssuche für wiederholte Eingaben aus dem lokalen Cache", async ({
+  test("bietet abgesendete Ergebnisse lokal erneut an und nutzt für die Auswahl kein Netz", async ({
     page,
     browserName,
   }) => {
@@ -948,6 +1049,22 @@ test.describe("Standortzustände und Datenschutz", () => {
     await searchbox.fill("Berlin");
     await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
+    await page.getByRole("option", { name: "Berlin Deutschland" }).click();
+    await page.getByRole("button", { name: "Ort ändern" }).click();
+    await expect(
+      page.locator("#local-suggestion-list").getByRole("button", {
+        name: "Berlin Deutschland",
+      }),
+    ).toBeVisible();
+    await page.reload();
+    await page.getByRole("button", { name: "Ort ändern" }).click();
+    const localResult = page.locator("#local-suggestion-list").getByRole("button", {
+      name: "Berlin Deutschland",
+    });
+    await expect(localResult).toBeVisible();
+    await localResult.click();
+    await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
+    await page.getByRole("button", { name: "Ort ändern" }).click();
     await searchbox.fill("  Berlin  ");
     await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
@@ -967,9 +1084,8 @@ test.describe("langsames Netz, Offline und App-Resume", () => {
       "Orte werden gesucht",
     );
     await page.getByRole("button", { name: "Abbrechen" }).click();
-    await expect(page.locator("[data-milos-place-status]")).toContainText(
-      "abgebrochen",
-    );
+    await expect(page.locator("[data-milos-place-status]")).toContainText("abgebrochen");
+    await expect(page.getByRole("option")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Suchen" })).toBeEnabled();
   });
 
@@ -998,7 +1114,7 @@ test.describe("langsames Netz, Offline und App-Resume", () => {
   }) => {
     test.skip(browserName !== "chromium", "Uhrsteuerung wird einmal in Chromium geprüft.");
     await page.addInitScript((location) => {
-      localStorage.setItem("daylight.location.v1", JSON.stringify(location));
+      localStorage.setItem("milosapps.daylight.location.v1", JSON.stringify(location));
     }, berlinLocation);
     await page.clock.install({ time: new Date("2026-05-01T18:00:00Z") });
     await page.goto("/");
@@ -1014,7 +1130,7 @@ test.describe("langsames Netz, Offline und App-Resume", () => {
   test("aktualisiert beim Resume über lokale Mitternacht", async ({ page, browserName }) => {
     test.skip(browserName !== "chromium", "Uhrsteuerung wird einmal in Chromium geprüft.");
     await page.addInitScript((location) => {
-      localStorage.setItem("daylight.location.v1", JSON.stringify(location));
+      localStorage.setItem("milosapps.daylight.location.v1", JSON.stringify(location));
     }, berlinLocation);
     await page.clock.install({ time: new Date("2026-07-30T21:59:00Z") });
     await page.goto("/");

@@ -1,6 +1,6 @@
 # Gepinnte Shared-Verträge
 
-Stand: 2. August 2026.
+Stand: 3. August 2026.
 
 ## `public-app-shell/v2`
 
@@ -49,25 +49,28 @@ Eine Production-Abbildung wird weder erzeugt noch veröffentlicht.
 | Feld | Wert |
 | --- | --- |
 | Contract-ID | `public-app-essentials/v1` |
-| Version | `1.0.0` |
-| Shared-Commit | `b09e09008ff05fe87f05bc647a7c4964ff13e6f6` |
-| Shared-Tag | `public-app-essentials-v1.0.0` |
-| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/b09e09008ff05fe87f05bc647a7c4964ff13e6f6/contracts/public-app-essentials/v1` |
+| Version | `1.1.2` |
+| Shared-Commit | `b14aac6107b75f03ff49e74160af7e7e30c29e59` |
+| Shared-Tag | `public-app-essentials-v1.1.2` |
+| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/b14aac6107b75f03ff49e74160af7e7e30c29e59/contracts/public-app-essentials/v1` |
 | Lokaler Vendor | `vendor/milosapps-essentials/v1/` |
 | Lock | `vendor/milosapps-essentials/v1/essentials-lock.json` |
 | Runtime-Abhängigkeit | keine |
 | Production-Freigabe | `false` |
 
-Daylight aktiviert den kleinen CSS-first Startzustand, den wahrheitsgemäßen
-No-Cookies-Hinweis mit lokaler Schließpersistenz, Teilen ohne private
+Daylight aktiviert den kleinen CSS-first Startzustand, die dauerhafte
+No-Cookies-Information ohne Banner oder Schließzustand, Teilen ohne private
 Ortsdaten und die gemeinsame explizite Ort-/Regionssuche. Datumsauswahl bleibt
 deaktiviert. Die app-eigene Nominatim-Anbindung behält 1,1 Sekunden
 Mindestabstand, Cache, Attribution, austauschbaren Endpunkt sowie die
 unterschiedenen Offline-, Netzwerk-, HTTP- und Antwortfehler. Gerätestandorte
 werden weiterhin vor jeder Speicherung gerundet.
 
-`milos-essentials.json` ist die kanonische Verbraucherdefinition. Der Sync
-erzeugt fünf gelockte Dateien. Beide CSS-Dateien, Bootstrap und Runtime bleiben
+`milos-essentials.json` ist die kanonische Verbraucherdefinition. Sie bindet
+den physischen Vendorpfad getrennt vom öffentlichen Same-Origin-Pfad und nennt
+`src/main.ts` samt ausgeliefertem Modulpfad als tatsächlichen Verbraucher-
+Einstieg. Der Sync erzeugt sechs gelockte Dateien einschließlich des vendorten
+Schemas. Beide CSS-Dateien, Bootstrap und Runtime bleiben
 im gebauten App-Artefakt als externe Same-Origin-Dateien unter dem Vendorpfad
 erhalten; `scripts/verify-built-essentials.mjs` vergleicht die gebauten Bytes
 fail-closed mit dem SHA-256-Lock. Weder CDN noch Shared-Laufzeitimport,
@@ -76,6 +79,15 @@ fail-closed mit dem SHA-256-Lock. Weder CDN noch Shared-Laufzeitimport,
 Eine enge `.gitattributes` im Essentials-Vendorverzeichnis erzwingt LF für
 genau diesen bytegelockten Bestand. Damit bleiben die SHA-256-Nachweise auch
 nach einem Windows-Recheckout mit aktivem `core.autocrlf` reproduzierbar.
+
+Der physische Loader-Iconpfad `public/daylight-icon.svg` und die stabile
+öffentliche Same-Origin-URL `./daylight-icon.svg` sind getrennt gelockt. Der
+Build- und HTTP-Nachweis prüft MIME-Typ und Bytegleichheit zur Quelldatei.
+
+Essentials-Bootstrap ist das erste Modul im Dokument. Die App beendet den
+Startzustand erst nach fachlicher Initialisierung über
+`globalThis.milosAppEssentials.ready()`; ein direkter
+`milosapps:ready`-Dispatch existiert nicht mehr.
 
 ## Rollback
 

@@ -2,6 +2,12 @@ import type { DaylightLocation } from "../types";
 import { isValidTimeZone } from "./timezone";
 
 export const storageKeys = {
+  location: "milosapps.daylight.location.v1",
+  geocodingCache: "milosapps.daylight.geocoding-cache.v1",
+  deviceSuggestion: "milosapps.daylight.device-suggestion.v1",
+} as const;
+
+export const legacyStorageKeys = {
   location: "daylight.location.v1",
   geocodingCache: "daylight.geocoding-cache.v1",
 } as const;
@@ -11,13 +17,36 @@ export type BrowserStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">
 export function browserStorage(): BrowserStorage | null {
   try {
     const storage = window.localStorage;
-    const probe = "daylight.storage-probe";
+    const probe = "milosapps.daylight.storage-probe";
     storage.setItem(probe, "1");
     storage.removeItem(probe);
     return storage;
   } catch {
     return null;
   }
+}
+
+export function readMigratedStorageValue(
+  key: string,
+  legacyKey: string,
+  storage: BrowserStorage | null,
+): string | null {
+  if (!storage) return null;
+  const current = storage.getItem(key);
+  if (current !== null) {
+    return current;
+  }
+  const legacy = storage.getItem(legacyKey);
+  if (legacy === null) {
+    return null;
+  }
+  try {
+    storage.setItem(key, legacy);
+    storage.removeItem(legacyKey);
+  } catch {
+    // The readable legacy value still works for this session.
+  }
+  return legacy;
 }
 
 function validCoordinate(value: unknown, minimum: number, maximum: number): value is number {
@@ -48,7 +77,11 @@ export function loadLocation(storage = browserStorage()): DaylightLocation | nul
     return null;
   }
   try {
-    const raw = storage.getItem(storageKeys.location);
+    const raw = readMigratedStorageValue(
+      storageKeys.location,
+      legacyStorageKeys.location,
+      storage,
+    );
     if (!raw) {
       return null;
     }
@@ -83,6 +116,44 @@ export function saveLocation(
   }
 }
 
+export function loadDeviceSuggestion(
+  storage = browserStorage(),
+): DaylightLocation | null {
+  if (!storage) return null;
+  try {
+    const raw = storage.getItem(storageKeys.deviceSuggestion);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isDaylightLocation(parsed) || parsed.source !== "device") {
+      storage.removeItem(storageKeys.deviceSuggestion);
+      return null;
+    }
+    return parsed;
+  } catch {
+    try {
+      storage.removeItem(storageKeys.deviceSuggestion);
+    } catch {
+      // Storage is optional; a failed cleanup must not prevent app use.
+    }
+    return null;
+  }
+}
+
+export function saveDeviceSuggestion(
+  location: DaylightLocation,
+  storage = browserStorage(),
+): boolean {
+  if (!storage || !isDaylightLocation(location) || location.source !== "device") {
+    return false;
+  }
+  try {
+    storage.setItem(storageKeys.deviceSuggestion, JSON.stringify(location));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function clearLocalData(storage = browserStorage()): boolean {
   if (!storage) {
     return false;
@@ -90,6 +161,9 @@ export function clearLocalData(storage = browserStorage()): boolean {
   try {
     storage.removeItem(storageKeys.location);
     storage.removeItem(storageKeys.geocodingCache);
+    storage.removeItem(storageKeys.deviceSuggestion);
+    storage.removeItem(legacyStorageKeys.location);
+    storage.removeItem(legacyStorageKeys.geocodingCache);
     return true;
   } catch {
     return false;

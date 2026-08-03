@@ -76,15 +76,20 @@ sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 
 ## Public App Essentials
 
-Loader, Datenschutzhinweis, Teilen und Ortssuche stammen app-eigen vendort aus
-`public-app-essentials/v1.0.0` am festen Shared-Commit
-`b09e09008ff05fe87f05bc647a7c4964ff13e6f6`. Daylight aktiviert keinen
-Date-Picker. Die Ortssuche bleibt ein Daylight-Provider mit Nominatim-Takt,
-Cache, Attribution, austauschbarem Endpunkt und IANA-Zeitzonenauflösung; der
-gemeinsame Baustein vereinheitlicht nur explizites Absenden, Ergebnisformat
-und Tastaturführung.
+Loader, Datenschutzinformation, Teilen und Ortssuche stammen app-eigen vendort
+aus `public-app-essentials/v1.1.2` am festen Shared-Commit
+`b14aac6107b75f03ff49e74160af7e7e30c29e59`. Daylight aktiviert keinen
+Date-Picker. Die
+Ortssuche bleibt ein Daylight-Provider mit Nominatim-Takt, Cache, Attribution,
+austauschbarem Endpunkt und IANA-Zeitzonenauflösung; der gemeinsame Baustein
+vereinheitlicht nur explizites Absenden, Ergebnisformat und Tastaturführung.
+Netzvorschläge während der Eingabe bleiben deaktiviert. Stattdessen bietet die
+App letzte ausdrücklich abgesendete Ergebnisse und den erst nach freiwilliger
+Freigabe gerundeten eigenen Ort lokal erneut an.
 
-`pnpm verify:essentials` prüft Manifest und fünfteiligen Quell-Lock. Jeder
+`pnpm verify:essentials` prüft Manifest und sechsteiligen Verbraucher-Lock.
+Essentials startet vor allen Verbraucher-Modulen; erst nach fachlicher
+Bereitschaft beendet `globalThis.milosAppEssentials.ready()` den Loader. Jeder
 Build prüft zusätzlich fail-closed, dass CSS, Bootstrap und Runtime als
 externe Same-Origin-Dateien unter dem Vendorpfad erhalten und bytegenau zum
 Lock geblieben sind. Der Share-Payload verwendet ausschließlich die
@@ -97,12 +102,19 @@ kanonische App-URL ohne Suchparameter, Fragment, Ortsname oder Koordinaten.
   zwei Nachkommastellen gerundet.
 - Der gewählte Ort und ein kleiner Suchcache liegen ausschließlich im lokalen
   Browser-Speicher und lassen sich in der App vollständig löschen.
+- Es gibt kein Einwilligungsbanner, weil kein Tracking und keine optionale
+  Speicherung stattfinden. Eine kurze dauerhafte Zeile erklärt die belegten
+  notwendigen Zugriffe und führt zur Datenschutzseite sowie zur lokalen
+  Datenverwaltung.
 - Koordinaten erscheinen weder in der Seiten-URL noch in Teil-URLs.
 - Manuelle Suchen werden erst beim Absenden an den konfigurierten
   Nominatim-Endpunkt geschickt. Es gibt kein serverseitiges Profil und kein
   Autocomplete.
 - Ein gespeicherter Ort öffnet nach einer erfolgreichen Erstladung auch
   offline; eine neue Ortssuche benötigt eine Netzverbindung.
+
+Das vollständige technische Inventar steht unter
+[Datenschutz- und Endgerätezugriffe](docs/PRIVACY_INVENTORY.md).
 
 ## DEV- und Portalstatus
 
@@ -127,4 +139,5 @@ Details:
 - [DEV-Deployment](docs/DEV_DEPLOYMENT.md)
 - [DEV- und Portalübergabe](docs/DEV_HANDOFF.md)
 - [Gepinnte Shared-Verträge](docs/SHARED_CONTRACTS.md)
+- [Datenschutz- und Endgerätezugriffe](docs/PRIVACY_INVENTORY.md)
 - [Erkenntnisse](docs/LEARNINGS.md)

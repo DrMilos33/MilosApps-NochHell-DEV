@@ -6,22 +6,21 @@ const deMessages = {
   documentTitle: "Noch hell? – MilosApps",
   documentDescription:
     "Noch hell? zeigt Sonnenaufgang, Sonnenuntergang, Dämmerungsende und die verbleibende Helligkeit für deinen Ort.",
-  introEyebrow: "Tageslicht, auf einen Blick",
-  introTitle: "Passt der Spaziergang noch ins Helle?",
+  introTitle: "Noch hell für einen Spaziergang?",
   introCopy:
-    "Ein Ort genügt. Du siehst Sonnenuntergang, Dämmerungsende und den nächsten Sonnenaufgang – ohne Wetter, Konto oder Standorttracking.",
+    "Ort wählen und Sonnenuntergang, Dämmerungsende sowie den nächsten Sonnenaufgang sehen.",
   shareText:
     "Noch hell? zeigt Sonnenuntergang, Dämmerungsende und den nächsten Sonnenaufgang – ohne private Ortsdaten im Link.",
   locationKicker: "Dein Ort",
-  locationTitle: "Suchen oder Gerät fragen",
-  locationNote: "Beide Wege liefern dieselbe vollständige Ansicht.",
+  locationTitle: "Ort wählen",
   placeLabel: "Ort oder Region",
-  placePlaceholder: "z. B. Freiburg oder Tromsø",
+  placePlaceholder: "z. B. Freiburg",
   searchButton: "Suchen",
   searchRunning: "Suche läuft …",
   cancel: "Abbrechen",
   searchHint:
     "Suche erst nach dem Absenden. Der Suchtext geht dann an OpenStreetMap.",
+  localSuggestionsTitle: "Lokale Vorschläge",
   deviceTitle: "Gerätestandort",
   deviceCopy: "Nur nach deinem Tipp, auf etwa 1 km gerundet gespeichert.",
   locateButton: "Standort verwenden",
@@ -46,10 +45,14 @@ const deMessages = {
   accuracyTitle: "Gute Orientierung, keine Sichtgarantie",
   accuracyCopy:
     "Berge, Gebäude und die aktuelle Atmosphäre können den sichtbaren Sonnenauf- oder -untergang verschieben. Nahe den Polen wächst die rechnerische Unsicherheit.",
-  privacyKicker: "Privat by design",
-  privacyTitle: "Dein genauer Standort bleibt auf diesem Gerät.",
+  privacyLabel: "Datenschutz und lokale Daten",
+  privacyShort: "Privat:",
+  privacySummary:
+    "Ort, Sprache und ein kleiner Suchcache bleiben lokal; Gerätekoordinaten werden vor dem Speichern gerundet.",
+  privacyLink: "Datenschutz",
+  privacyDetails: "Lokale Daten verwalten",
   privacyCopy:
-    "Gerätekoordinaten werden vor dem Speichern gerundet. Es gibt kein Konto, keine App-Datenbank und keine Koordinaten in der Seitenadresse.",
+    "Kein Tracking, keine Cookies, kein Konto und keine Koordinaten in der Seitenadresse.",
   clearData: "Lokale Ortsdaten löschen",
   attributionPrefix: "Ortsdaten ©",
   attributionName: "OpenStreetMap-Mitwirkende",
@@ -132,22 +135,21 @@ const enMessages: Record<MessageKey, string> = {
   documentTitle: "Still light? – MilosApps",
   documentDescription:
     "Still light? shows sunrise, sunset, the end of civil twilight and remaining daylight for your location.",
-  introEyebrow: "Daylight at a glance",
-  introTitle: "Is there enough daylight left for a walk?",
+  introTitle: "Still light for a walk?",
   introCopy:
-    "One place is enough. See sunset, the end of twilight and the next sunrise – without weather, an account or location tracking.",
+    "Choose a place to see sunset, the end of twilight and the next sunrise.",
   shareText:
     "Still light? shows sunset, the end of twilight and the next sunrise – without private location data in the link.",
   locationKicker: "Your place",
-  locationTitle: "Search or ask your device",
-  locationNote: "Both options lead to the same complete view.",
+  locationTitle: "Choose a place",
   placeLabel: "Place or region",
-  placePlaceholder: "e.g. Freiburg or Tromsø",
+  placePlaceholder: "e.g. Freiburg",
   searchButton: "Search",
   searchRunning: "Searching …",
   cancel: "Cancel",
   searchHint:
     "The search starts only after you submit. The search text is then sent to OpenStreetMap.",
+  localSuggestionsTitle: "Local suggestions",
   deviceTitle: "Device location",
   deviceCopy: "Only after your tap, stored rounded to about 1 km.",
   locateButton: "Use location",
@@ -171,10 +173,14 @@ const enMessages: Record<MessageKey, string> = {
   accuracyTitle: "Useful guidance, not a visibility guarantee",
   accuracyCopy:
     "Mountains, buildings and current atmospheric conditions can shift the visible sunrise or sunset. Computational uncertainty increases near the poles.",
-  privacyKicker: "Private by design",
-  privacyTitle: "Your precise location stays on this device.",
+  privacyLabel: "Privacy and local data",
+  privacyShort: "Private:",
+  privacySummary:
+    "Place, language and a small search cache stay local; device coordinates are rounded before storage.",
+  privacyLink: "Privacy",
+  privacyDetails: "Manage local data",
   privacyCopy:
-    "Device coordinates are rounded before storage. There is no account, app database or coordinates in the page address.",
+    "No tracking, cookies, account or coordinates in the page address.",
   clearData: "Delete local place data",
   attributionPrefix: "Place data ©",
   attributionName: "OpenStreetMap contributors",

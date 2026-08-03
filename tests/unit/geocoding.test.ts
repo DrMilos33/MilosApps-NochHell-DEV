@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  loadCachedPlaces,
   searchPlaces,
   toStoredLocation,
 } from "../../src/lib/geocoding";
-import type { BrowserStorage } from "../../src/lib/storage";
+import { legacyStorageKeys, storageKeys, type BrowserStorage } from "../../src/lib/storage";
 
 class MemoryStorage implements BrowserStorage {
   readonly values = new Map<string, string>();
@@ -100,5 +101,41 @@ describe("normalisierte Ortssuche", () => {
       timeZone: "Europe/Berlin",
       source: "manual",
     });
+  });
+
+  it("liefert nur frische lokale Ergebnisse der gewählten Sprache und migriert den alten Cache-Key", () => {
+    const storage = new MemoryStorage();
+    const now = Date.UTC(2026, 7, 3);
+    const berlin = {
+      id: "relation-1",
+      name: "Berlin",
+      context: "Berlin, Deutschland",
+      region: "Berlin",
+      country: "Deutschland",
+      countryCode: "DE",
+      latitude: 52.52,
+      longitude: 13.4,
+      timeZone: "Europe/Berlin",
+      source: "manual" as const,
+      type: "city",
+      osmType: "city",
+    };
+    storage.setItem(
+      legacyStorageKeys.geocodingCache,
+      JSON.stringify({
+        "de:berlin": { storedAt: now - 1_000, results: [berlin] },
+        "en:berlin": { storedAt: now, results: [{ ...berlin, country: "Germany" }] },
+        "de:alt": { storedAt: now - 31 * 24 * 60 * 60 * 1000, results: [berlin] },
+        "de:zukunft": { storedAt: now + 1_000, results: [berlin] },
+        "de:manipuliert": {
+          storedAt: now - 500,
+          results: [{ ...berlin, id: "bad", latitude: 999 }],
+        },
+      }),
+    );
+
+    expect(loadCachedPlaces("de", storage, now)).toEqual([berlin]);
+    expect(storage.getItem(storageKeys.geocodingCache)).not.toBeNull();
+    expect(storage.getItem(legacyStorageKeys.geocodingCache)).toBeNull();
   });
 });
