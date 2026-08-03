@@ -1,6 +1,6 @@
 # Unabhängiges DEV-Deployment
 
-Stand: 2. August 2026.
+Stand: 3. August 2026.
 
 ## Öffentlicher Vertrag
 
@@ -24,23 +24,25 @@ App-Datenbank, Portal-Session oder Production-Domain.
 
 | Rolle | Vollständiger SHA |
 | --- | --- |
-| Verifizierter App-Quellstand | `105d80c9028389b7e4029f18c48fb6e25f7af56c` |
-| Gebautes und extern verifiziertes Pages-Artefakt | `b7c9a5511d52b64a6438393acc7d6a399df8129f` |
-| Vorherige gesunde Quellrevision | `6d48e47ad6189cc98a22ca0424da1360c92bf1d6` |
-| Vorherige gesunde Pages-Revision | `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` |
+| Verifizierter App-Quellstand | `0ef76e08df2533949fd215b7b5564d4098f73ade` |
+| Gebautes und extern verifiziertes Pages-Artefakt | `4445064d440f0140b2c5c232e4d10f1196fd7d5d` |
+| Vorherige gesunde Quellrevision | `105d80c9028389b7e4029f18c48fb6e25f7af56c` |
+| Vorherige gesunde Pages-Revision | `b7c9a5511d52b64a6438393acc7d6a399df8129f` |
 
 Das Pages-Artefakt wurde ausschließlich mit `pnpm build` aus der
-Quellrevision `105d80c9028389b7e4029f18c48fb6e25f7af56c` erzeugt. Der
+Quellrevision `0ef76e08df2533949fd215b7b5564d4098f73ade` erzeugt. Der
 anschließende Dokumentationscommit wird nicht als anderer App-Build
 veröffentlicht.
 
-GitHub Pages meldete die Artefaktrevision am 2. August 2026 um 11:34:57Z
-terminal als `built` (erstellt um 11:34:30Z, Fehler `null`). Die externe
-Prüfung umfasste direkten Desktop- und Smartphone-Aufruf ohne Login, die
+GitHub Pages meldete die Artefaktrevision am 3. August 2026 um 03:39:21Z
+terminal als `built` (erstellt um 03:38:52Z, Fehler `null`). Die frische
+externe Prüfung umfasste direkte cookie-lose Desktop- und Smartphone-Aufrufe,
 echte Berlin-Suche, Offline-Wiederöffnung, DE/EN-Persistenz und 360 × 800 bei
 200 Prozent. Unter einer echten Response-CSP mit `style-src 'self'` blieben
 Shell- und Essentials-CSS extern; es gab weder Inline-Ausnahmen noch
-CSP-Fehler.
+CSP-Fehler. Das Loader-Icon antwortete mit HTTP 200 und `image/svg+xml`; sein
+SHA-256 `fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`
+stimmte bytegenau mit `public/daylight-icon.svg` überein.
 
 Das Zwischenartefakt `e49c6b2242aa4ca73007493fff9f06d149f1360c`
 wurde durch die externe Netzgrenzen-QA verworfen und nie als gesunde Revision
@@ -54,7 +56,7 @@ Die absolute Health-URL antwortet aktuell mit:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "environment": "dev",
   "database": false
 }
@@ -82,10 +84,10 @@ DEV-Hostingdienst; das Portal ist weder Build- noch Laufzeitvoraussetzung.
 ## Rollback
 
 Die aktuelle gesunde DEV-Artefaktrevision ist
-`b7c9a5511d52b64a6438393acc7d6a399df8129f`. Der unmittelbare Rückfallstand ist
+`4445064d440f0140b2c5c232e4d10f1196fd7d5d`. Der unmittelbare Rückfallstand ist
 die vorherige gesunde Revision
-`2fb055e6b7f4a038142a82309d65a362b2e9ab6f`, gebaut aus
-`6d48e47ad6189cc98a22ca0424da1360c92bf1d6`.
+`b7c9a5511d52b64a6438393acc7d6a399df8129f`, gebaut aus
+`105d80c9028389b7e4029f18c48fb6e25f7af56c`.
 
 Ein Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision erneut als neuen, vorwärts gerichteten `gh-pages`-Commit und

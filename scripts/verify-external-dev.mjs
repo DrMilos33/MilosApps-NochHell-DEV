@@ -198,6 +198,7 @@ async function verifyViewport({
       await context.setOffline(true);
       await page.reload({ waitUntil: "domcontentloaded" });
       await page.getByRole("heading", { name: "Berlin" }).waitFor();
+      await page.getByRole("button", { name: "Change place" }).click();
       await page
         .getByRole("combobox", { name: "Place or region" })
         .fill("Hamburg");

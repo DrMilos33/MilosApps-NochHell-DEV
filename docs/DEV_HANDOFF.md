@@ -1,6 +1,6 @@
 # DEV- und Portalübergabe
 
-Stand: 2. August 2026.
+Stand: 3. August 2026.
 
 ## Metadaten
 
@@ -18,9 +18,9 @@ Stand: 2. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `105d80c9028389b7e4029f18c48fb6e25f7af56c` |
-| Pages-Artefaktrevision | `b7c9a5511d52b64a6438393acc7d6a399df8129f` |
-| Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.0.0` aus Shared `b09e09008ff05fe87f05bc647a7c4964ff13e6f6` |
+| Deployte Quellrevision | `0ef76e08df2533949fd215b7b5564d4098f73ade` |
+| Pages-Artefaktrevision | `4445064d440f0140b2c5c232e4d10f1196fd7d5d` |
+| Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.2` aus Shared `b14aac6107b75f03ff49e74160af7e7e30c29e59` |
 
 ## Readiness
 
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "environment": "dev",
   "database": false
 }
@@ -95,9 +95,9 @@ mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
 HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
 Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
-Aktuell gesund ist `b7c9a5511d52b64a6438393acc7d6a399df8129f`. Der
+Aktuell gesund ist `4445064d440f0140b2c5c232e4d10f1196fd7d5d`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `2fb055e6b7f4a038142a82309d65a362b2e9ab6f` als neuen
+Artefaktrevision `b7c9a5511d52b64a6438393acc7d6a399df8129f` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
@@ -116,6 +116,19 @@ liefern jeweils HTTP 302 exakt auf die unabhängige Daylight-DEV-URL; App und
 Health liefern HTTP 200 mit `ready/daylight/0.4.0/dev` und `database=false`.
 Die Productionroute bleibt HTTP 404. Weder App-Repository noch Daylight-
 Deployment wurden durch diese Portalprüfung verändert.
+
+Der kompakte 0.5.0-Stand wurde am 3. August 2026 app-eigen veröffentlicht.
+GitHub Pages meldete `4445064d440f0140b2c5c232e4d10f1196fd7d5d`
+terminal als `built`, Fehler `null`; gebaut wurde exakt aus
+`0ef76e08df2533949fd215b7b5564d4098f73ade`. Frische cookie-lose Kontexte
+bestätigten Health `ready/daylight/0.5.0/dev`, echte Berlin-Suche,
+Offline-Wiederöffnung, vollständige DE/EN-Persistenz, strikte Same-Origin-CSP,
+Desktop, 390 × 844 sowie 360 × 800 bei 200 Prozent ohne horizontalen
+Überlauf. `daylight-icon.svg` lieferte HTTP 200, `image/svg+xml` und den zur
+Quell-SVG identischen SHA-256
+`fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`.
+Die Portalroute wurde durch diesen App-Publish nicht verändert; ihre
+abschließende read-only Revalidierung gehört Portal & Identity.
 
 ## Verbleibende Blocker und Grenzen
 

@@ -410,9 +410,9 @@ Task nahm keine Daylight-Repositorymutation vor.
 Stand: 3. August 2026. Die Produktarbeit folgt der Kampagne
 `public-app-ux-refinement-2026-08`. Der unveränderliche Shared-Pin ist
 `public-app-essentials/v1.1.2` am Commit
-`b14aac6107b75f03ff49e74160af7e7e30c29e59`. Die externe DEV-Evidenz folgt
-nach dem koordinierten App-Publish; bis dahin bleibt der bestehende 0.4.0-
-Pages-Stand unverändert gesund.
+`b14aac6107b75f03ff49e74160af7e7e30c29e59`. Der koordiniert veröffentlichte
+und extern verifizierte 0.5.0-Stand ist am Ende dieses Abschnitts dokumentiert;
+0.4.0 bleibt sein unmittelbarer Rollback.
 
 ### Baseline
 
@@ -479,3 +479,29 @@ abgebrochene und veraltete Providerantworten, Offline-Wiederöffnung, Resume
 Reload, Share-Erfolg/Abbruch/Fallback ohne Layoutsprung, Tastatur, Fokus,
 axe-core, 44-Pixel-Ziele, Reduced Motion, strikte CSP sowie 360 × 800 bei
 200 Prozent.
+
+### Externe DEV-Regression
+
+Der Source-Stand `0ef76e08df2533949fd215b7b5564d4098f73ade` wurde exakt
+gebaut und als Pages-Artefakt
+`4445064d440f0140b2c5c232e4d10f1196fd7d5d` veröffentlicht. GitHub Pages
+meldete den Build terminal als `built`, Fehler `null`. Der erste externe Lauf
+legte ausschließlich eine veraltete Prüferannahme offen: Nach einem Reload
+ist die Ortssuche bei gespeichertem Ort absichtlich eingeklappt. Der Prüfer
+nutzt nun wie ein Nutzer zuerst „Change place“; die App-Runtime blieb
+unverändert.
+
+Der vollständige Wiederholungslauf gegen die öffentliche HTTPS-DEV-URL
+bestand anschließend:
+
+- Health HTTP 200, exakt `ready/daylight/0.5.0/dev`, `database=false`;
+- Direktaufruf ohne Cookie, Authentifizierungszustand oder Portal;
+- Desktop 1440 × 900 mit echter Berlin-Suche und Offline-Wiederöffnung;
+- 390 × 844 unter strikter `default-src 'self'; script-src 'self';
+  style-src 'self'`-CSP, keine Konsolenfehler, externe Shell-/Essentials-CSS,
+  44-Pixel-Ziele und null horizontaler Überlauf;
+- 390 × 844 sowie 360 × 800 bei 200 Prozent mit vollständiger DE/EN-
+  Umschaltung und Reload-Persistenz;
+- Loader-Icon HTTP 200, `image/svg+xml`, SHA-256
+  `fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`
+  und damit bytegleich zu `public/daylight-icon.svg`.
