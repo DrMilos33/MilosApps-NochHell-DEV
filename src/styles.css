@@ -127,6 +127,21 @@ h1 {
   backdrop-filter: blur(12px);
 }
 
+.location-card {
+  width: 100%;
+  max-width: 44rem;
+  padding: 0.7rem 0.8rem 0.75rem;
+  border-radius: 0.85rem;
+}
+
+.location-card .section-heading {
+  margin-bottom: 0.45rem;
+}
+
+.location-card .section-heading h2 {
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+}
+
 .section-heading {
   display: flex;
   align-items: end;
@@ -152,52 +167,93 @@ h1 {
 }
 
 .location-options {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 0.45rem;
+  min-width: 0;
 }
 
 .location-options milos-place-search {
   min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  align-items: end;
+  gap: 0.3rem 0.4rem;
+}
+
+.location-options milos-place-search [data-milos-field-label],
+.location-options milos-place-search [data-milos-place-results],
+.location-options milos-place-search [data-milos-place-status] {
+  grid-column: 1 / -1;
+}
+
+.location-options milos-place-search [data-milos-field-label] {
+  font-size: 0.78rem;
+}
+
+.location-options milos-place-search [data-milos-place-row] {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.location-options milos-place-search [data-milos-place-locate] {
+  grid-column: 2;
+  grid-row: 2;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+
+.location-options milos-place-search [data-milos-place-locate] svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
 
 .place-cancel {
-  align-self: end;
+  margin-top: 0.35rem;
 }
 
 .location-options .field-hint {
-  grid-column: 1 / -1;
+  margin-top: 0.25rem;
 }
 
 .local-suggestions {
-  grid-column: 1 / -1;
   min-width: 0;
-  margin-top: 0.2rem;
+  margin-top: 0.35rem;
+  padding: 0.2rem;
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  background: var(--paper-solid);
+  box-shadow: 0 0.5rem 1.4rem rgba(74, 47, 28, 0.1);
 }
 
 .local-suggestions-title {
-  margin: 0 0 0.35rem;
+  margin: 0;
+  padding: 0.25rem 0.45rem 0.2rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 750;
 }
 
 .local-suggestion-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  display: grid;
+  gap: 0.1rem;
 }
 
 .local-suggestion {
+  width: 100%;
   min-width: 0;
   min-height: 2.75rem;
   display: grid;
   align-content: center;
   gap: 0.08rem;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid var(--line);
-  border-radius: 0.7rem;
+  padding: 0.38rem 0.55rem;
+  border: 0;
+  border-radius: 0.45rem;
   background: transparent;
   color: var(--ink);
   text-align: left;
@@ -209,6 +265,7 @@ h1 {
 }
 
 .local-suggestion:focus-visible {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
   outline: 3px solid var(--amber);
   outline-offset: 2px;
 }
@@ -703,17 +760,8 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
 }
 
 @media (max-width: 23rem) {
-  .location-options {
-    grid-template-columns: 1fr;
-  }
-
-  .place-cancel,
-  .location-options .field-hint {
-    grid-column: 1;
-  }
-
-  .local-suggestion-list {
-    display: grid;
+  .location-card {
+    padding-inline: 0.7rem;
   }
 
   .answer-location {

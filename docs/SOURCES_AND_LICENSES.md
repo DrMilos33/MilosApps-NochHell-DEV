@@ -62,6 +62,8 @@ Manuelle Ortssuche verwendet standardmäßig die öffentliche Nominatim-Instanz.
 Der Endpunkt ist über `public/runtime-config.json` austauschbar. Die App:
 
 - sendet nur ausdrücklich abgesendete Suchen und kein Autocomplete;
+- filtert während der Eingabe ausschließlich bereits lokal gespeicherte
+  Ergebnisse und sendet dafür keine neue Anfrage;
 - begrenzt Anfragen auf höchstens eine pro 1,1 Sekunden;
 - speichert maximal 20 Suchantworten für 30 Tage lokal;
 - zeigt OpenStreetMap-Attribution;

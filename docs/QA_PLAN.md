@@ -38,9 +38,13 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   Clipboard-/Fehler-Toast sowie kanonischer, ortsneutraler URL;
 - explizite gemeinsame Combobox-/Listbox-Ortssuche für Stadt und Region, ohne
   Netz-Autocomplete, mit Abbruch, Cache, Netzfehlern und Locate-Provider;
-- lokale Vorschläge aus letzten abgesendeten Ergebnissen sowie aus dem erst
-  nach freiwilliger Freigabe gerundeten Gerätestandort, ohne neuen Netzaufruf
-  und ohne automatische Permission-Abfrage;
+- während der Eingabe passend gefilterte lokale Vorschläge aus letzten
+  abgesendeten Ergebnissen sowie aus dem erst nach freiwilliger Freigabe
+  gerundeten Gerätestandort, ohne neuen Netzaufruf und ohne automatische
+  Permission-Abfrage; geschlossene Liste bei leerer oder unpassender Eingabe;
+- kompakte Ortskarte auf Desktop, 44 × 44 Pixel große Icon-Aktion für den
+  Gerätestandort und vollständige zugängliche Beschriftung trotz reduziertem
+  visuellen Platzbedarf;
 - Abort-, Escape- und verspätete Providerantworten dürfen weder alte
   Ergebnislisten noch falsche Busy-Zustände wiederherstellen;
 - sechsteiliger Essentials-Verbraucher-Lock einschließlich Schema, externe

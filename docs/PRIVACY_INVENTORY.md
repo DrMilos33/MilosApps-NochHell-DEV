@@ -49,6 +49,12 @@ IANA-Zeitzone normalisiert. Der Client hält mindestens 1,1 Sekunden Abstand
 zwischen Anfragen, verwendet einen begrenzten Cache und zeigt die
 OpenStreetMap-/ODbL-Attribution dauerhaft an.
 
+Beim Tippen filtert die Oberfläche ausschließlich bereits lokal bekannte
+Cachetreffer und den erst nach freiwilliger Freigabe gerundeten Geräteort. Das
+Öffnen oder Auswählen dieser Vorschläge erzeugt weder eine Provideranfrage noch
+eine neue Standortabfrage. Ein bisher unbekannter Ort bleibt eine ausdrückliche
+Enter-/„Suchen“-Aktion.
+
 ## Sichtbare Information
 
 Da ausschließlich die oben belegten notwendigen Zugriffe stattfinden, zeigt

@@ -79,7 +79,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.5.1",
+      version: "0.6.0",
       environment: "dev",
     });
   });
@@ -310,6 +310,36 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(mobileResultMetrics.answerHeight).toBeLessThanOrEqual(310);
     expect(mobileResultMetrics.eventHeight).toBeLessThanOrEqual(135);
     expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(290);
+  });
+
+  test("hält die Ortswahl auf Desktop schmal und den Standort als kompaktes 44-Pixel-Ziel", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
+    await page.setViewportSize({ width: 1080, height: 720 });
+    await page.goto("/");
+
+    const metrics = await page.evaluate(() => {
+      const card = document.querySelector<HTMLElement>(".location-card");
+      const locate = document.querySelector<HTMLElement>(
+        "milos-place-search [data-milos-place-locate]",
+      );
+      if (!card || !locate) throw new Error("Ortswahl-Geometrie fehlt");
+      const cardRect = card.getBoundingClientRect();
+      const locateRect = locate.getBoundingClientRect();
+      return {
+        cardWidth: cardRect.width,
+        cardHeight: cardRect.height,
+        locateWidth: locateRect.width,
+        locateHeight: locateRect.height,
+      };
+    });
+
+    expect(metrics.cardWidth).toBeLessThanOrEqual(720);
+    expect(metrics.cardHeight).toBeLessThanOrEqual(165);
+    expect(metrics.locateWidth).toBeGreaterThanOrEqual(44);
+    expect(metrics.locateWidth).toBeLessThanOrEqual(48);
+    expect(metrics.locateHeight).toBeGreaterThanOrEqual(44);
   });
 
   test("fließt bei einer 200-Prozent-äquivalenten Breite ohne horizontales Scrollen um", async ({
@@ -975,8 +1005,9 @@ test.describe("Standortzustände und Datenschutz", () => {
     expect(storedDevice).toContain('"longitude":13.4');
     expect(storedDevice).not.toContain("52.520008");
     await page.getByRole("button", { name: "Ort ändern" }).click();
+    await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Nähe");
     await expect(
-      page.locator("#local-suggestion-list").getByRole("button", {
+      page.locator("#local-suggestion-list").getByRole("option", {
         name: "In deiner Nähe Auf etwa 1 km gerundet",
       }),
     ).toBeVisible();
@@ -989,8 +1020,9 @@ test.describe("Standortzustände und Datenschutz", () => {
     await page.reload();
     await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
     await page.getByRole("button", { name: "Ort ändern" }).click();
+    await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Nähe");
     await expect(
-      page.locator("#local-suggestion-list").getByRole("button", {
+      page.locator("#local-suggestion-list").getByRole("option", {
         name: "In deiner Nähe Auf etwa 1 km gerundet",
       }),
     ).toBeVisible();
@@ -1061,7 +1093,7 @@ test.describe("Standortzustände und Datenschutz", () => {
     expect(keys).not.toContain("milosapps.daylight.device-suggestion.v1");
   });
 
-  test("bietet abgesendete Ergebnisse lokal erneut an und nutzt für die Auswahl kein Netz", async ({
+  test("schlägt bekannte Orte passend zur Eingabe vor und nutzt für die Auswahl kein Netz", async ({
     page,
     browserName,
   }) => {
@@ -1082,21 +1114,31 @@ test.describe("Standortzustände und Datenschutz", () => {
     await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
     await page.getByRole("option", { name: "Berlin Deutschland" }).click();
     await page.getByRole("button", { name: "Ort ändern" }).click();
-    await expect(
-      page.locator("#local-suggestion-list").getByRole("button", {
-        name: "Berlin Deutschland",
-      }),
-    ).toBeVisible();
-    await page.reload();
-    await page.getByRole("button", { name: "Ort ändern" }).click();
-    const localResult = page.locator("#local-suggestion-list").getByRole("button", {
+    const localResult = page.locator("#local-suggestion-list").getByRole("option", {
       name: "Berlin Deutschland",
     });
+    await expect(localResult).toBeHidden();
+    await searchbox.fill("Ham");
+    await expect(localResult).toBeHidden();
+    await searchbox.fill("Ber");
     await expect(localResult).toBeVisible();
-    await localResult.click();
+    expect(requests).toBe(1);
+    await searchbox.press("ArrowDown");
+    await expect(localResult).toBeFocused();
+    await localResult.press("Enter");
+    await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
+    await page.reload();
+    await page.getByRole("button", { name: "Ort ändern" }).click();
+    const reloadedResult = page.locator("#local-suggestion-list").getByRole("option", {
+      name: "Berlin Deutschland",
+    });
+    await expect(reloadedResult).toBeHidden();
+    await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Berlin");
+    await expect(reloadedResult).toBeVisible();
+    await reloadedResult.click();
     await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
     await page.getByRole("button", { name: "Ort ändern" }).click();
-    await searchbox.fill("  Berlin  ");
+    await page.getByRole("combobox", { name: "Ort oder Region" }).fill("  Berlin  ");
     await page.getByRole("button", { name: "Suchen" }).click();
     await expect(page.getByRole("option", { name: "Berlin Deutschland" })).toBeVisible();
     expect(requests).toBe(1);

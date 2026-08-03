@@ -83,9 +83,10 @@ Date-Picker. Die
 Ortssuche bleibt ein Daylight-Provider mit Nominatim-Takt, Cache, Attribution,
 austauschbarem Endpunkt und IANA-Zeitzonenauflösung; der gemeinsame Baustein
 vereinheitlicht nur explizites Absenden, Ergebnisformat und Tastaturführung.
-Netzvorschläge während der Eingabe bleiben deaktiviert. Stattdessen bietet die
-App letzte ausdrücklich abgesendete Ergebnisse und den erst nach freiwilliger
-Freigabe gerundeten eigenen Ort lokal erneut an.
+Während der Eingabe filtert eine kompakte Vorschlagsliste bereits bekannte,
+lokal gespeicherte Orte. Netzvorschläge bleiben deaktiviert; ein neuer Ort wird
+erst mit Enter oder „Suchen“ an den Provider gesendet. Der erst nach freiwilliger
+Freigabe gerundete eigene Ort kann ebenfalls lokal wieder angeboten werden.
 
 `pnpm verify:essentials` prüft Manifest und sechsteiligen Verbraucher-Lock.
 Essentials startet vor allen Verbraucher-Modulen; erst nach fachlicher

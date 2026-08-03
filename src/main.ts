@@ -76,7 +76,6 @@ app.innerHTML = `
     <section class="location-card" aria-labelledby="location-title">
       <div class="section-heading">
         <div>
-          <p class="section-kicker" data-i18n="locationKicker">Dein Ort</p>
           <h2 id="location-title" data-i18n="locationTitle">Ort wählen</h2>
         </div>
       </div>
@@ -99,13 +98,28 @@ app.innerHTML = `
           Abbrechen
         </button>
         <p id="search-hint" class="field-hint" data-i18n="searchHint">
-          Suche erst nach dem Absenden. Der Suchtext geht dann an OpenStreetMap.
+          Neue Orte mit Enter oder Suchen finden.
         </p>
-        <div id="local-suggestions" class="local-suggestions" hidden>
-          <p class="local-suggestions-title" data-i18n="localSuggestionsTitle">
-            Lokale Vorschläge
+        <div
+          id="local-suggestions"
+          class="local-suggestions"
+          role="group"
+          aria-labelledby="local-suggestions-title"
+          hidden
+        >
+          <p
+            id="local-suggestions-title"
+            class="local-suggestions-title"
+            data-i18n="localSuggestionsTitle"
+          >
+            Bekannte Orte
           </p>
-          <div id="local-suggestion-list" class="local-suggestion-list"></div>
+          <div
+            id="local-suggestion-list"
+            class="local-suggestion-list"
+            role="listbox"
+            aria-labelledby="local-suggestions-title"
+          ></div>
         </div>
       </div>
     </section>
@@ -248,6 +262,7 @@ type PlaceProviderOptions = {
 interface MilosPlaceSearchElement extends HTMLElement {
   input?: HTMLInputElement;
   status?: HTMLParagraphElement;
+  resultsElement?: HTMLElement;
   cancelSearch(): void;
   setSearchProvider(
     provider: (options: PlaceProviderOptions) => Promise<NormalizedPlace[]>,
@@ -280,6 +295,7 @@ const clearDataButton = element<HTMLButtonElement>("#clear-data");
 const storageNote = element<HTMLParagraphElement>("#storage-note");
 const localSuggestions = element<HTMLElement>("#local-suggestions");
 const localSuggestionList = element<HTMLElement>("#local-suggestion-list");
+const sharedResultsId = placeSearch.input?.getAttribute("aria-controls") ?? "";
 
 type Feedback = {
   key: MessageKey;
@@ -348,6 +364,7 @@ function applyStaticLanguage(): void {
     });
   renderFeedback(searchState, searchFeedback);
   renderFeedback(storageNote, storageFeedback);
+  decorateLocateButton();
   renderLocalSuggestions();
 }
 
@@ -358,7 +375,31 @@ function readableContext(value: string): string {
     .join(" · ");
 }
 
+function normalizedSearchText(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase(language === "en" ? "en-GB" : "de-DE")
+    .trim();
+}
+
+function hideLocalSuggestions(): void {
+  localSuggestions.hidden = true;
+  localSuggestionList.replaceChildren();
+  if (placeSearch.input) {
+    placeSearch.input.setAttribute("aria-controls", sharedResultsId);
+    if (placeSearch.resultsElement?.hidden !== false) {
+      placeSearch.input.setAttribute("aria-expanded", "false");
+    }
+  }
+}
+
 function renderLocalSuggestions(): void {
+  const query = normalizedSearchText(placeSearch.input?.value ?? "");
+  if (!query) {
+    hideLocalSuggestions();
+    return;
+  }
   const suggestions: DaylightLocation[] = [];
   const seen = new Set<string>();
   const add = (location: DaylightLocation) => {
@@ -372,11 +413,27 @@ function renderLocalSuggestions(): void {
   if (currentLocation) add(currentLocation);
   loadCachedPlaces(language).map(toStoredLocation).forEach(add);
 
+  const matchingSuggestions = suggestions
+    .filter((location) => {
+      const name =
+        location.source === "device"
+          ? translate(language, "nearbyName")
+          : location.name;
+      const context =
+        location.source === "device"
+          ? translate(language, "nearbyContext")
+          : location.context;
+      return normalizedSearchText(`${name} ${context}`).includes(query);
+    })
+    .slice(0, 4);
+
   localSuggestionList.replaceChildren();
-  suggestions.slice(0, 4).forEach((location) => {
+  matchingSuggestions.forEach((location) => {
     const button = document.createElement("button");
     button.className = "local-suggestion";
     button.type = "button";
+    button.setAttribute("role", "option");
+    button.setAttribute("aria-selected", "false");
     const name = document.createElement("strong");
     name.textContent =
       location.source === "device"
@@ -391,7 +448,38 @@ function renderLocalSuggestions(): void {
     button.addEventListener("click", () => selectLocation(location));
     localSuggestionList.append(button);
   });
-  localSuggestions.hidden = suggestions.length === 0;
+  localSuggestions.hidden = matchingSuggestions.length === 0;
+  if (placeSearch.input) {
+    placeSearch.input.setAttribute(
+      "aria-controls",
+      matchingSuggestions.length > 0
+        ? [sharedResultsId, localSuggestionList.id].filter(Boolean).join(" ")
+        : sharedResultsId,
+    );
+    if (matchingSuggestions.length > 0) {
+      placeSearch.input.setAttribute("aria-expanded", "true");
+    }
+  }
+}
+
+function decorateLocateButton(): void {
+  const button = placeSearch.querySelector<HTMLButtonElement>(
+    "[data-milos-place-locate]",
+  );
+  if (!button) return;
+  const label = translate(language, "locateButton");
+  button.setAttribute("aria-label", label);
+  button.title = label;
+  const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  icon.setAttribute("viewBox", "0 0 24 24");
+  icon.setAttribute("aria-hidden", "true");
+  icon.setAttribute("focusable", "false");
+  icon.innerHTML = `
+    <circle cx="12" cy="12" r="3"></circle>
+    <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+    <circle cx="12" cy="12" r="7"></circle>
+  `;
+  button.replaceChildren(icon);
 }
 
 function eventCopy(
@@ -560,7 +648,7 @@ function selectLocation(location: DaylightLocation): void {
         ? translate(language, "nearbyName")
         : location.name,
   });
-  renderLocalSuggestions();
+  hideLocalSuggestions();
   renderSnapshot(true);
 }
 
@@ -672,6 +760,7 @@ window.addEventListener("milosapps:localechange", (event) => {
 });
 
 placeSearch.setSearchProvider(async ({ query, locale, signal }) => {
+  hideLocalSuggestions();
   activeSearchSignal = signal;
   cancelSearchButton.hidden = false;
   try {
@@ -704,6 +793,39 @@ cancelSearchButton.addEventListener("click", () => {
 });
 
 placeSearch.setLocateProvider(async () => locateDevice());
+decorateLocateButton();
+
+placeSearch.input?.addEventListener("input", renderLocalSuggestions);
+placeSearch.input?.addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowDown" || localSuggestions.hidden) return;
+  const first = localSuggestionList.querySelector<HTMLElement>("[role='option']");
+  if (!first) return;
+  event.preventDefault();
+  first.focus();
+});
+
+localSuggestionList.addEventListener("keydown", (event) => {
+  const options = [
+    ...localSuggestionList.querySelectorAll<HTMLElement>("[role='option']"),
+  ];
+  const currentIndex = options.indexOf(document.activeElement as HTMLElement);
+  if (event.key === "Escape") {
+    event.preventDefault();
+    hideLocalSuggestions();
+    placeSearch.input?.focus();
+    return;
+  }
+  if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+  event.preventDefault();
+  const direction = event.key === "ArrowDown" ? 1 : -1;
+  const nextIndex =
+    currentIndex < 0
+      ? direction > 0
+        ? 0
+        : options.length - 1
+      : (currentIndex + direction + options.length) % options.length;
+  options[nextIndex]?.focus();
+});
 
 placeSearch.addEventListener("milosapps:placechange", (event) => {
   const detail = (event as CustomEvent<NormalizedPlace>).detail;
@@ -719,6 +841,8 @@ shareButton.setPayloadProvider(() => ({
 element<HTMLButtonElement>("#change-location").addEventListener("click", () => {
   locationPickerOpen = true;
   locationCard.hidden = false;
+  if (placeSearch.input) placeSearch.input.value = "";
+  hideLocalSuggestions();
   locationCard.scrollIntoView({
     behavior: "smooth",
     block: "start",
@@ -731,11 +855,11 @@ clearDataButton.addEventListener("click", () => {
   currentLocation = null;
   locationPickerOpen = true;
   deviceSuggestion = null;
+  if (placeSearch.input) placeSearch.input.value = "";
   renderSnapshot();
   renderLocalSuggestions();
   setStorageMessage(cleared ? "dataCleared" : "noLocalData");
   setSearchMessage("dataClearedStatus", "success");
-  if (placeSearch.input) placeSearch.input.value = "";
   placeSearch.input?.focus();
 });
 

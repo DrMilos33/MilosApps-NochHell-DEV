@@ -391,3 +391,20 @@ App-Task nicht verändert.
   Inline-Text vorsehen; der hier gepinnte MilosApps-Layoutvertrag fordert für
   sichtbare Interaktionsziele jedoch 44 × 44 Pixel und nennt für diese beiden
   App-Links keine Ausnahme.
+
+## 2026-08-03: Eingabevorschläge und Provideranfragen sind zwei getrennte Funktionen
+
+- **Evidenz:** Die dauerhaft sichtbaren lokalen Ortschips vergrößerten den
+  Einstieg, halfen aber nicht gezielt zur aktuellen Eingabe. Gleichzeitig
+  verbietet die Richtlinie der öffentlichen Nominatim-Instanz clientseitiges
+  Netz-Autocomplete.
+- **Folge:** Daylight zeigt gespeicherte Cachetreffer und den freiwillig
+  gerundeten Geräteort erst passend zur aktuellen Eingabe als kompakte Liste.
+  Auswahl, Pfeiltasten und Enter bleiben vollständig lokal; nur die separate
+  Enter-/„Suchen“-Aktion darf einen unbekannten Ortsnamen an Nominatim senden.
+- **Regression:** Der Browserfall sucht Berlin einmal ausdrücklich, öffnet die
+  Ortswahl erneut, filtert `Ham` auf leer und `Ber` auf Berlin, wählt den Treffer
+  per Pfeiltaste/Enter und belegt weiterhin genau eine Provideranfrage.
+- **Gültigkeitsgrenze:** Eine frische weltweite Vorschlagsliste beim ersten
+  Tippen benötigt einen nachgewiesenen, dafür geeigneten Proxy oder Provider.
+  Ohne diesen Vertrag bleiben ausschließlich lokale bekannte Orte verfügbar.

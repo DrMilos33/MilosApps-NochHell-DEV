@@ -560,3 +560,40 @@ Cookie-lose GET- und HEAD-Aufrufe von `/apps/daylight` liefern jeweils HTTP
 `application/json; charset=utf-8` und exakt `ready/daylight/0.5.1/dev` sowie
 `database=false`. Die Productionroute bleibt HTTP 404. Dabei wurden weder
 App-Repository, Pages, Portal, Shared noch Production verändert.
+
+## Kompakte Ortswahl und lokale Eingabevorschläge für Version 0.6.0
+
+Der Nutzerbefund zeigte die Ortskarte bei 1080 Pixeln mit 1016 Pixel Breite,
+einer vollbreiten zweiten Standortaktion und dauerhaft sichtbaren lokalen
+Vorschlägen. Zwei neue Chromium-Regressionsfälle wurden vor der Änderung rot:
+Die Ortskarte überschritt das neue 720-Pixel-Budget, und bekannte Orte wurden
+nicht passend zur Eingabe als zugängliche Optionsliste angeboten.
+
+Die Ortskarte besitzt nun maximal 704 Pixel Breite, weniger Innenabstand und
+nur noch die eindeutige Überschrift „Ort wählen“. Der Gerätestandort steht als
+44 × 44 Pixel große Icon-Aktion direkt neben Suche und Eingabe; sein
+zugänglicher Name bleibt vollständig „Meinen Ort verwenden“ beziehungsweise
+„Use my location“. Die lange Providererklärung wurde zur kurzen, weiterhin
+wahrheitsgemäßen Zeile „Neue Orte mit Enter oder Suchen finden.“ verdichtet.
+
+Bereits ausdrücklich gesuchte Orte und der freiwillig gerundete Geräteort
+werden erst nach passender Eingabe unter „Bekannte Orte“ gefiltert. Die Liste
+ist als benannte Listbox mit 44-Pixel-Optionen umgesetzt und lässt sich per
+Tab, Pfeiltasten, Enter und Escape bedienen. Das Filtern und Auswählen erzeugt
+keine neue Netz- oder Permissionanfrage. Ein unbekannter Ort bleibt wegen der
+Nominatim-Richtlinie eine explizite Enter-/„Suchen“-Aktion.
+
+Sichtbare Messung und automatisierte Geometrie:
+
+| Profil | Ortskarte | Eingabe | Standortziel | horizontaler Überlauf |
+| --- | ---: | ---: | ---: | ---: |
+| 1080 × 720 | 704 × 149,39 px | 543,45 × 44 px | 44 × 44 px | 0 px |
+| 390 × 844 | 358 × 145,39 px | 197,45 × 44 px | 44 × 44 px | 0 px |
+| 390 × 844, bekannte Eingabe `Ber` | Liste 315,41 × 74,56 px | Option 307,03 × 44 px | 44 × 44 px | 0 px |
+
+Der Abschlusslauf bestätigt beide vendorten Vertragsverifier, 26/26 Unit-
+und Fachtests, den Build samt externen Same-Origin-Artefaktgates sowie 107
+bestandene Browserfälle bei 28 bewusst profilgebundenen Skips und 0 Fehlern in
+Chromium, Firefox und Mobile Chromium. Astro-, DST-, Polar-, Datumssprung-,
+Offline-, Resume-, DE/EN-, CSP-, 44-Pixel-, 390-Pixel- und
+360 × 800/200-Prozent-Grenzen bleiben vollständig grün.
