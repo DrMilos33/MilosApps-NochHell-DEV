@@ -609,3 +609,13 @@ null Browserfehler. Auf dem sichtbaren 390-×-844-Profil maß die geöffnete
 Ortskarte mit Trefferliste 343 Pixel Breite, die Eingabe 186,36 × 44 Pixel,
 das Gerätestandortziel 44 × 44 Pixel und die lokale Option 307,03 × 44 Pixel;
 der horizontale Überlauf blieb null.
+
+### Portal-DEV-Revalidierung für 0.6.0
+
+Portal & Identity bestätigte die unveränderte Route abschließend read-only.
+Cookie-lose GET- und HEAD-Aufrufe von `/apps/daylight` liefern jeweils HTTP
+302 exakt auf die unabhängige Daylight-DEV-URL. Der direkte App-Aufruf
+antwortet HTTP 200 mit `text/html; charset=utf-8`; Health antwortet HTTP 200
+mit `application/json; charset=utf-8` und exakt
+`ready/daylight/0.6.0/dev`, `database=false`. Die Productionroute bleibt HTTP
+404. Dabei wurden weder Portal, App, Shared noch Production verändert.

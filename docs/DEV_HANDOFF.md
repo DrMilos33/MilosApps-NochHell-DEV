@@ -164,6 +164,14 @@ Offline-Wiederöffnung, DE/EN-Persistenz, strikte CSP sowie Desktop,
 Höhe; die Icon-Aktion ist 44 × 44 Pixel groß. Die unveränderte Portalroute
 wird nach diesem app-eigenen Handoff separat read-only revalidiert.
 
+Portal & Identity schloss diese Revalidierung anschließend ohne Mutation ab:
+Cookie-lose GET- und HEAD-Aufrufe von `https://dev.milos-apps.de/apps/daylight`
+liefern jeweils HTTP 302 exakt auf die unabhängige Daylight-DEV-URL. Die App
+antwortet HTTP 200 mit `text/html; charset=utf-8`, Health HTTP 200 mit
+`application/json; charset=utf-8` und exakt `ready/daylight/0.6.0/dev` sowie
+`database=false`. Die Productionroute bleibt HTTP 404. Portalroute, App,
+Shared und Production wurden nicht verändert.
+
 ## Verbleibende Blocker und Grenzen
 
 1. Dieses Eigentümer-Task läuft vorübergehend aus dem Workspace-Projekt. Das
