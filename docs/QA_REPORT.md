@@ -750,6 +750,7 @@ Share, Datum, Routing, Infrastruktur und Production blieben unverändert.
 | Lifecycle-Browsergate | PASS; vor Upgrade verborgen und ≤38 × 38, nach Upgrade bei verzögerter Komponenten-CSS sichtbar und ≤38 × 38, final exakt 38 × 38 |
 | Loadertrennung | PASS; HTML-/CSS-Loader weiterhin exakt 32 × 32 |
 | Responsive | PASS; 390 × 844 sowie 360 × 800 bei 200 Prozent ohne horizontalen Überlauf |
+| Sprache / Accessibility | PASS; vollständige DE/EN-Umschaltung mit Reload-Persistenz, logische Tastaturreihenfolge, sichtbarer Fokus, 44-Pixel-Ziele und Axe-Hauptfluss ohne Finding |
 | GitHub Pages | PASS; Artefakt `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056`, Run `30815637403` |
 | Externes DEV | PASS; App/Health 200, `ready/daylight/0.7.1/dev`, final 38 × 38, Loader-CSS 32 × 32, 390/360 ohne Überlauf, null Browserfehler |
 | Portal-/Productiongrenze | PASS; cookie-lose GET+HEAD `/apps/daylight` = 302 auf die unveränderte App-URL, Productionroute = 404 |
