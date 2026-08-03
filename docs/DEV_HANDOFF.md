@@ -144,9 +144,13 @@ Der Touchziel-Patch 0.5.1 wurde anschließend aus
 bestätigten Health `ready/daylight/0.5.1/dev`, DE/EN-Persistenz,
 Offline-Wiederöffnung, strikte CSP und null Überlauf auf Desktop, 390 × 844
 sowie 360 × 800 bei 200 Prozent. `Privacy` misst 49,69 × 44 Pixel,
-`OpenStreetMap contributors` 152,25 × 44 Pixel. Die bestehende Portalroute
-wurde nicht verändert und wird durch Portal & Identity read-only gegen 0.5.1
-revalidiert.
+`OpenStreetMap contributors` 152,25 × 44 Pixel. Portal & Identity
+revalidierte die bestehende Route anschließend ohne Mutation: cookie-lose GET-
+und HEAD-Aufrufe liefern jeweils HTTP 302 exakt auf die unabhängige App-URL,
+der direkte App-Aufruf HTTP 200 mit `text/html; charset=utf-8` und Health HTTP
+200 mit `application/json; charset=utf-8` sowie exakt
+`ready/daylight/0.5.1/dev`, `database=false`. Die Productionroute bleibt HTTP
+404. Source, Pages, Portal, Shared und Production blieben unverändert.
 
 ## Verbleibende Blocker und Grenzen
 

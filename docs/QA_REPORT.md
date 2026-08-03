@@ -550,3 +550,13 @@ strikte CSP, Desktop, 390 × 844 und 360 × 800 bei 200 Prozent. In allen drei
 Geometrieprofilen misst `Privacy` 49,69 × 44 Pixel und
 `OpenStreetMap contributors` 152,25 × 44 Pixel; horizontaler Überlauf und
 Konsolenfehler bleiben null.
+
+### Portal-DEV-Revalidierung für 0.5.1
+
+Portal & Identity bestätigte die unveränderte Route abschließend read-only.
+Cookie-lose GET- und HEAD-Aufrufe von `/apps/daylight` liefern jeweils HTTP
+302 exakt auf die unabhängige Daylight-DEV-URL. Die App antwortet HTTP 200 mit
+`text/html; charset=utf-8`, Health HTTP 200 mit
+`application/json; charset=utf-8` und exakt `ready/daylight/0.5.1/dev` sowie
+`database=false`. Die Productionroute bleibt HTTP 404. Dabei wurden weder
+App-Repository, Pages, Portal, Shared noch Production verändert.
