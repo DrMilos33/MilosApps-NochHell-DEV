@@ -24,21 +24,22 @@ App-Datenbank, Portal-Session oder Production-Domain.
 
 | Rolle | Vollständiger SHA |
 | --- | --- |
-| Verifizierter App-Quellstand | `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` |
-| Gebautes und extern verifiziertes Pages-Artefakt | `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` |
-| Vorherige gesunde Quellrevision | `24e8222c40af099f8d7adc25232f6376378e390e` |
-| Vorherige gesunde Pages-Revision | `649118c87730e38de157be548ab1aa5feb90b228` |
+| Verifizierter App-Quellstand | `d5f2d72b66a094b5d96b6029a8e63ec58168037c` |
+| Gebautes und extern verifiziertes Pages-Artefakt | `98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a` |
+| Vorherige gesunde Quellrevision | `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` |
+| Vorherige gesunde Pages-Revision | `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` |
 
 Das Pages-Artefakt wurde ausschließlich mit `pnpm build` aus der
-Quellrevision `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` erzeugt. Der
+Quellrevision `d5f2d72b66a094b5d96b6029a8e63ec58168037c` erzeugt. Der
 anschließende Dokumentationscommit wird nicht als anderer App-Build
 veröffentlicht.
 
 GitHub Pages veröffentlichte die Artefaktrevision über den erfolgreichen
-Workflow-Run `30793869668` (Build-Job `91622983482`, Deploy-Job
-`91623011230`). Die frische
+Workflow-Run `30804537717` (Build-Job `91656693505`, Deploy-Job
+`91656720225`). Die frische
 externe Prüfung umfasste direkte cookie-lose Desktop- und Smartphone-Aufrufe,
-echte Berlin-Suche, lokale Vorschläge nach der Eingabe `Ber`,
+echte dynamische Open-Meteo-Vorschläge ohne Enter, Außenklick, Escape,
+Pfeiltasten, eine einzige Listbox im normalen Seitenfluss,
 Offline-Wiederöffnung, DE/EN-Persistenz und 360 × 800 bei 200 Prozent. Unter
 einer echten Response-CSP mit `style-src 'self'` blieben
 Shell- und Essentials-CSS extern; es gab weder Inline-Ausnahmen noch
@@ -60,7 +61,7 @@ Die absolute Health-URL antwortet aktuell mit:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "environment": "dev",
   "database": false
 }
@@ -88,10 +89,10 @@ DEV-Hostingdienst; das Portal ist weder Build- noch Laufzeitvoraussetzung.
 ## Rollback
 
 Die aktuelle gesunde DEV-Artefaktrevision ist
-`f3bae04b8b9e64f8fa3790c0d020504e0c22d2db`. Der unmittelbare Rückfallstand ist
+`98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a`. Der unmittelbare Rückfallstand ist
 die vorherige gesunde Revision
-`649118c87730e38de157be548ab1aa5feb90b228`, gebaut aus
-`24e8222c40af099f8d7adc25232f6376378e390e`.
+`f3bae04b8b9e64f8fa3790c0d020504e0c22d2db`, gebaut aus
+`e0e1dc95f31fba7dc390d1e4c4cb57663d85193e`.
 
 Ein Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision erneut als neuen, vorwärts gerichteten `gh-pages`-Commit und
@@ -102,9 +103,10 @@ Portal-Redirects werden ausschließlich durch Portal & Identity zurückgerollt.
 ## Netzgrenze
 
 Astronomische Berechnung, gewählter Ort und grobe Gerätekoordinaten bleiben
-lokal. Eine neue manuelle Ortssuche sendet den eingegebenen Ortsnamen bewusst
-an den konfigurierten Nominatim-Endpunkt. Ist das Gerät sicher offline, zeigt
-die App ausdrücklich:
+lokal. Ab drei Zeichen sendet die App den eingegebenen Suchtext bewusst an den
+konfigurierten Open-Meteo-Vorschlagsendpunkt. Die genauere manuelle Suche
+sendet ihn erst nach Enter oder „Suchen“ an den konfigurierten Nominatim-
+Endpunkt. Ist das Gerät sicher offline, zeigt die App ausdrücklich:
 
 > Du bist offline. Ein gespeicherter Ort funktioniert weiterhin.
 

@@ -700,5 +700,26 @@ fand der vollständige Gate-Lauf noch einen veralteten Testselektor der frühere
 separaten lokalen Liste; der Regressionstest wurde auf die eine gemeinsame
 Listbox umgestellt und die vollständige Matrix danach erneut grün ausgeführt.
 
-Die externe HTTPS-/No-Login-/Health-/Provider-/Offline-Matrix folgt erst nach
-dem koordinierten app-eigenen DEV-Publish. Production bleibt gesperrt.
+Der koordiniert veröffentlichte Source-Stand
+`d5f2d72b66a094b5d96b6029a8e63ec58168037c` erzeugte das Pages-Artefakt
+`98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a`. GitHub Pages Run
+`30804537717` mit Build-Job `91656693505`, Status-Job `91656720020` und
+Deploy-Job `91656720225` war vollständig erfolgreich.
+
+Die frische externe HTTPS-Matrix bestätigte den direkten cookie-losen Aufruf,
+Health `ready/daylight/0.7.0/dev`, `database=false`, DE/EN-Persistenz,
+Offline-Wiederöffnung, strikte Same-Origin-CSP, externe Essentials- und
+Shell-Artefakte, korrekte MIME-Typen sowie 1440 × 900, 390 × 844 und
+360 × 800 bei 200 Prozent ohne horizontalen Überlauf. Das Loader-SVG lieferte
+HTTP 200, `image/svg+xml` und den zur Quelle identischen SHA-256
+`fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`.
+
+Im sichtbaren Live-Browser lieferte `Freib` ohne Enter sechs echte
+Open-Meteo-Treffer. Es existierte genau eine Shared-Listbox. Auf dem
+360-×-800-Profil maß die Eingabe 159,58 × 44 Pixel, das Standortziel
+44 × 44 Pixel, die statisch fließende Liste 192 Pixel Höhe und jede Option
+mindestens 44 Pixel. Ortskarte und Tageslichtbereich schlossen bei derselben
+Y-Koordinate aneinander an; client/scroll war 345/345. Außenklick und Escape
+schlossen die Liste und löschten den aktiven Nachfahren, während `ArrowDown`
+den ersten Treffer mit passender `aria-selected`-/ID-Verknüpfung markierte.
+Production bleibt gesperrt.

@@ -18,9 +18,9 @@ Stand: 3. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` |
-| Pages-Artefaktrevision | `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` |
-| Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.2` aus Shared `b14aac6107b75f03ff49e74160af7e7e30c29e59` |
+| Deployte Quellrevision | `d5f2d72b66a094b5d96b6029a8e63ec58168037c` |
+| Pages-Artefaktrevision | `98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a` |
+| Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.4` aus Shared `b22c94cc6d648fd3052f7d32c9bd80f703094f8d` |
 
 ## Readiness
 
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "environment": "dev",
   "database": false
 }
@@ -95,9 +95,9 @@ mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
 HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
 Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
-Aktuell gesund ist `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db`. Der
+Aktuell gesund ist `98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `649118c87730e38de157be548ab1aa5feb90b228` als neuen
+Artefaktrevision `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
@@ -171,6 +171,25 @@ antwortet HTTP 200 mit `text/html; charset=utf-8`, Health HTTP 200 mit
 `application/json; charset=utf-8` und exakt `ready/daylight/0.6.0/dev` sowie
 `database=false`. Die Productionroute bleibt HTTP 404. Portalroute, App,
 Shared und Production wurden nicht verändert.
+
+Der dynamische Ortssuche-Stand 0.7.0 wurde aus
+`d5f2d72b66a094b5d96b6029a8e63ec58168037c` als Pages-Artefakt
+`98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a` veröffentlicht. GitHub Pages Run
+`30804537717` mit Build-Job `91656693505`, Status-Job `91656720020` und
+Deploy-Job `91656720225` war vollständig erfolgreich. Die externe
+cookie-lose Matrix bestätigte Health `ready/daylight/0.7.0/dev`, strikte CSP,
+korrekte Same-Origin-MIME-Typen, das bytegleiche Loader-SVG, DE/EN-Persistenz,
+Offline-Wiederöffnung, Desktop, 390 × 844 sowie 360 × 800 bei 200 Prozent.
+
+Die sichtbare Live-Prüfung lud für `Freib` ohne Enter sechs echte
+Open-Meteo-Treffer. Genau eine Shared-Listbox lag statisch im Seitenfluss; auf
+360 Pixel Breite maß sie 192 Pixel Höhe, jede Option mindestens 44 Pixel und
+das kompakte Gerätestandortziel 44 × 44 Pixel. Ortskarte und anschließende
+Tageslichtkarten berührten sich ohne Überlagerung; client/scroll blieb
+345/345. Außenklick und Escape schlossen die Liste und entfernten
+`aria-activedescendant`; `ArrowDown` markierte den ersten Treffer korrekt.
+Die vorhandene Portalroute wird nach diesem app-eigenen Handoff ausschließlich
+read-only revalidiert. Production bleibt unverändert und nicht freigegeben.
 
 ## Verbleibende Blocker und Grenzen
 
