@@ -79,7 +79,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.6.0",
+      version: "0.6.1",
       environment: "dev",
     });
   });
@@ -379,12 +379,14 @@ test.describe("public-app-essentials/v1", () => {
       return {
         titleTag: title?.tagName,
         iconWidth: icon?.getBoundingClientRect().width ?? 0,
+        iconHeight: icon?.getBoundingClientRect().height ?? 0,
       };
     });
     releaseRuntime();
     await navigation;
     expect(loaderMetrics.titleTag).toBe("P");
-    expect(loaderMetrics.iconWidth).toBeLessThanOrEqual(56);
+    expect(loaderMetrics.iconWidth).toBe(32);
+    expect(loaderMetrics.iconHeight).toBe(32);
     await expect(loader).toBeHidden();
     await expect(page.locator("h1")).toHaveCount(1);
   });

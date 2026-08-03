@@ -619,3 +619,27 @@ antwortet HTTP 200 mit `text/html; charset=utf-8`; Health antwortet HTTP 200
 mit `application/json; charset=utf-8` und exakt
 `ready/daylight/0.6.0/dev`, `database=false`. Die Productionroute bleibt HTTP
 404. Dabei wurden weder Portal, App, Shared noch Production verändert.
+
+## Gemeinsames 32×32-Ladesymbol für Version 0.6.1
+
+Der appübergreifende Loadervertrag wurde atomar auf
+`public-app-essentials/v1.1.3` am unveränderlichen Shared-Commit
+`babe74a0e62e1a7f9095648195e54b322a837726` migriert. Quellmarkup und
+gemeinsames CSS begrenzen das App-Icon nun vor und nach dem CSS-Laden auf exakt
+32 × 32 Pixel; eine app-eigene Sondergröße existiert nicht. Der
+Service-Worker-Cache wurde auf `milosapps.daylight.offline-shell.v2` erneuert,
+damit ein bereits installiertes DEV nicht auf dem früheren Loader-CSS stehen
+bleibt.
+
+Der Regressionstest verzögert die Runtimekonfiguration gezielt, misst den noch
+sichtbaren CSS-first Loader, verlangt ein nicht-überschriftliches `p` für den
+Ladetitel sowie Breite und Höhe exakt 32 Pixel und prüft danach den
+Ready-Übergang auf genau eine Dokumentüberschrift. Die vollständige lokale
+Matrix belegte Shell- und Essentials-Verifier, 26/26 Unit-/Fachtests, Build und
+Artefaktgate. Im ersten Drei-Browser-Lauf bestanden 106 Fälle; Firefox brach
+einmal vor der ersten Assertion mit einem reproduktionsfreien
+`RenderCompositorSWGL`-/SessionStore-Prozessfehler ab. Der vollständige
+Firefox-Wiederholungslauf bestand anschließend mit 25/25 ausgeführten Fällen
+und 20 beabsichtigten Profilskips. Damit sind alle 107 erwarteten Browserfälle
+mindestens einmal grün; 28 projektweit beabsichtigte Profilskips bleiben
+unverändert.

@@ -77,8 +77,8 @@ sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 ## Public App Essentials
 
 Loader, Datenschutzinformation, Teilen und Ortssuche stammen app-eigen vendort
-aus `public-app-essentials/v1.1.2` am festen Shared-Commit
-`b14aac6107b75f03ff49e74160af7e7e30c29e59`. Daylight aktiviert keinen
+aus `public-app-essentials/v1.1.3` am festen Shared-Commit
+`babe74a0e62e1a7f9095648195e54b322a837726`. Daylight aktiviert keinen
 Date-Picker. Die
 Ortssuche bleibt ein Daylight-Provider mit Nominatim-Takt, Cache, Attribution,
 austauschbarem Endpunkt und IANA-Zeitzonenauflösung; der gemeinsame Baustein

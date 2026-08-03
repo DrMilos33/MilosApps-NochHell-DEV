@@ -27,8 +27,9 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   bei Desktop, 390 × 844 und 200-Prozent-Reflow.
 - app-eigene Inline-Links für Datenschutz und OpenStreetMap-Attribution als
   echte mindestens 44 × 44 Pixel große Ziele in DE und EN;
-- CSS-first Loader bei langsamem Start mit höchstens 56 Pixel Desktop und
-  48 Pixel mobil sowie genau einer Dokumentüberschrift;
+- CSS-first Loader bei langsamem Start mit exakt 32 × 32 Pixel großem Icon in
+  Quellmarkup, Desktop, Mobil und 200-Prozent-Reflow sowie genau einer
+  Dokumentüberschrift;
 - vollständiges Cookie-/LocalStorage-/CacheStorage-Inventar; bei ausschließlich
   notwendigen Zugriffen eine dauerhaft erreichbare kurze Information in DE/EN
   ohne Banner, Einwilligungsattrappe oder Dismiss-Key;
