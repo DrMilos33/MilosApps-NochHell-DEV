@@ -534,4 +534,19 @@ Inhalt bleiben unverändert. Der fokussierte Test ist danach grün; die gesamte
 Matrix bestätigt 26/26 Unit-Tests, 106 bestandene Browserfälle, 26 bewusst
 profilgebundene Skips und 0 Fehler. Kompaktheitsbudgets, Desktop, 390 × 844,
 360 × 800 bei 200 Prozent, DE/EN, Fokus, CSP, Offline und DEV-Vertrag bleiben
-grün. Die externe DEV-Evidenz folgt erst nach dem koordinierten 0.5.1-Publish.
+grün.
+
+Der koordiniert veröffentlichte Source-Stand
+`24e8222c40af099f8d7adc25232f6376378e390e` erzeugte das Pages-Artefakt
+`649118c87730e38de157be548ab1aa5feb90b228`. Der tatsächlich vorhandene
+GitHub-Pages-Workflow `30785833022` schloss Build, Deploy und Statusbericht
+erfolgreich ab. Die verwaltete Workflow-Annotation zur Node-20-Actions-
+Abkündigung betrifft GitHubs bereits auf Node 24 erzwungene Actions, nicht den
+App-Code.
+
+Die externe HTTPS-Matrix bestätigte anschließend Health
+`ready/daylight/0.5.1/dev`, No-Login, DE/EN-Persistenz, Offline-Wiederöffnung,
+strikte CSP, Desktop, 390 × 844 und 360 × 800 bei 200 Prozent. In allen drei
+Geometrieprofilen misst `Privacy` 49,69 × 44 Pixel und
+`OpenStreetMap contributors` 152,25 × 44 Pixel; horizontaler Überlauf und
+Konsolenfehler bleiben null.

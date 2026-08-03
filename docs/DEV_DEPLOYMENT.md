@@ -24,25 +24,28 @@ App-Datenbank, Portal-Session oder Production-Domain.
 
 | Rolle | Vollständiger SHA |
 | --- | --- |
-| Verifizierter App-Quellstand | `0ef76e08df2533949fd215b7b5564d4098f73ade` |
-| Gebautes und extern verifiziertes Pages-Artefakt | `4445064d440f0140b2c5c232e4d10f1196fd7d5d` |
-| Vorherige gesunde Quellrevision | `105d80c9028389b7e4029f18c48fb6e25f7af56c` |
-| Vorherige gesunde Pages-Revision | `b7c9a5511d52b64a6438393acc7d6a399df8129f` |
+| Verifizierter App-Quellstand | `24e8222c40af099f8d7adc25232f6376378e390e` |
+| Gebautes und extern verifiziertes Pages-Artefakt | `649118c87730e38de157be548ab1aa5feb90b228` |
+| Vorherige gesunde Quellrevision | `0ef76e08df2533949fd215b7b5564d4098f73ade` |
+| Vorherige gesunde Pages-Revision | `4445064d440f0140b2c5c232e4d10f1196fd7d5d` |
 
 Das Pages-Artefakt wurde ausschließlich mit `pnpm build` aus der
-Quellrevision `0ef76e08df2533949fd215b7b5564d4098f73ade` erzeugt. Der
+Quellrevision `24e8222c40af099f8d7adc25232f6376378e390e` erzeugt. Der
 anschließende Dokumentationscommit wird nicht als anderer App-Build
 veröffentlicht.
 
-GitHub Pages meldete die Artefaktrevision am 3. August 2026 um 03:39:21Z
-terminal als `built` (erstellt um 03:38:52Z, Fehler `null`). Die frische
+GitHub Pages veröffentlichte die Artefaktrevision über den erfolgreichen
+Workflow-Run `30785833022` (Build-Job `91599079650`, Deploy-Job
+`91599095269`). Die frische
 externe Prüfung umfasste direkte cookie-lose Desktop- und Smartphone-Aufrufe,
 echte Berlin-Suche, Offline-Wiederöffnung, DE/EN-Persistenz und 360 × 800 bei
 200 Prozent. Unter einer echten Response-CSP mit `style-src 'self'` blieben
 Shell- und Essentials-CSS extern; es gab weder Inline-Ausnahmen noch
 CSP-Fehler. Das Loader-Icon antwortete mit HTTP 200 und `image/svg+xml`; sein
 SHA-256 `fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`
-stimmte bytegenau mit `public/daylight-icon.svg` überein.
+stimmte bytegenau mit `public/daylight-icon.svg` überein. Die beiden
+app-eigenen Inline-Links maßen in Desktop, 390 × 844 und 360 × 800 bei
+200 Prozent mindestens 49,69 × 44 beziehungsweise 152,25 × 44 Pixel.
 
 Das Zwischenartefakt `e49c6b2242aa4ca73007493fff9f06d149f1360c`
 wurde durch die externe Netzgrenzen-QA verworfen und nie als gesunde Revision
@@ -56,7 +59,7 @@ Die absolute Health-URL antwortet aktuell mit:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "environment": "dev",
   "database": false
 }
@@ -84,10 +87,10 @@ DEV-Hostingdienst; das Portal ist weder Build- noch Laufzeitvoraussetzung.
 ## Rollback
 
 Die aktuelle gesunde DEV-Artefaktrevision ist
-`4445064d440f0140b2c5c232e4d10f1196fd7d5d`. Der unmittelbare Rückfallstand ist
+`649118c87730e38de157be548ab1aa5feb90b228`. Der unmittelbare Rückfallstand ist
 die vorherige gesunde Revision
-`b7c9a5511d52b64a6438393acc7d6a399df8129f`, gebaut aus
-`105d80c9028389b7e4029f18c48fb6e25f7af56c`.
+`4445064d440f0140b2c5c232e4d10f1196fd7d5d`, gebaut aus
+`0ef76e08df2533949fd215b7b5564d4098f73ade`.
 
 Ein Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision erneut als neuen, vorwärts gerichteten `gh-pages`-Commit und
