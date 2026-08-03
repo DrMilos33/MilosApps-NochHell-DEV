@@ -43,7 +43,7 @@ export const milosAppEssentials = initMilosAppEssentials({
         "strictlyNecessary": true
       },
       {
-        "key": "milosapps.daylight.offline-shell.v2",
+        "key": "milosapps.daylight.offline-shell.v3",
         "purpose": "App-Shell nach der ersten erfolgreichen Ladung für die ausdrücklich angebotene Offline-Wiederöffnung bereitstellen",
         "lifetime": "bounded",
         "strictlyNecessary": true
