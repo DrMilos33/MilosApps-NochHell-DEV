@@ -24,27 +24,29 @@ App-Datenbank, Portal-Session oder Production-Domain.
 
 | Rolle | Vollständiger SHA |
 | --- | --- |
-| Verifizierter App-Quellstand | `eb0af83ef0f9234819107ceab19a729895850021` |
-| Gebautes und extern verifiziertes Pages-Artefakt | `d13eb3c842978a8e556b79a58e2ab82417e9cab1` |
-| Vorherige gesunde Quellrevision | `bf65fcf197b1453b05dbb27337c35079b2744c6a` |
-| Vorherige gesunde Pages-Revision | `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056` |
+| Verifizierter App-Quellstand | `8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a` |
+| Gebautes und extern verifiziertes Pages-Artefakt | `25a34d537feef2c5af544a4e87737aad071ea9fd` |
+| Vorherige gesunde Quellrevision | `eb0af83ef0f9234819107ceab19a729895850021` |
+| Vorherige gesunde Pages-Revision | `d13eb3c842978a8e556b79a58e2ab82417e9cab1` |
 
 Das Pages-Artefakt wurde ausschließlich mit `pnpm build` aus der
-Quellrevision `eb0af83ef0f9234819107ceab19a729895850021` erzeugt. Der
+Quellrevision `8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a` erzeugt. Der
 anschließende Dokumentationscommit wird nicht als anderer App-Build
 veröffentlicht.
 
 GitHub Pages veröffentlichte die Artefaktrevision über den erfolgreichen
-Workflow-Run `30820540034` (Build-Job `91709072493`, Status-Job
-`91709150651`, Deploy-Job `91709150678`). Der neue Erststart zeigt Köln als
-nicht gespeicherten Standardort sofort mit berechneter Tageslichtantwort. Die
-Aktualisierungszeit besitzt eine kontrastreiche eigene Fläche; die vier
-Ereignisse bilden eine kompakte zusammenhängende Leiste statt vier großer
-Einzelkarten. 30 Unit-/Fachtests, 52 Chromium- und 43 Mobile-Chromium-Fälle
-sowie drei fokussierte Firefox-Fälle bestanden. Die frische externe Matrix
-bestätigte No-Login, DE/EN-Persistenz, echte Ortssuche, Offline-Wiederöffnung,
-strikte CSP, 1440 × 900, 390 × 844 sowie 360 × 800 bei 200 Prozent ohne
-horizontalen Überlauf und ohne Browserfehler.
+Workflow-Run `30824548875` (Build-Job `91722685464`, Status-Job
+`91722751562`, Deploy-Job `91722751576`). Die Antwortfläche priorisiert nun
+Ort, verbleibende Helligkeit und Aktualisierungszeit als drei ruhige Ebenen.
+Redundante sichtbare Überzeilen und der technische Zeitzonentext sind aus der
+Kachel entfernt; ihr notwendiger Kontext bleibt für assistive Technik
+erhalten. Die Antwort misst 244 Pixel auf Desktop und 252 Pixel bei 390 Pixel
+Breite, während der Hauptwert in beiden Profilen vertikal in der Kartenmitte
+bleibt. 30 Unit-/Fachtests, 52 Chromium-Fälle, zehn fokussierte
+Mobile-Chromium- und drei fokussierte Firefox-Fälle bestanden. Die frische
+externe Matrix bestätigte No-Login, DE/EN-Persistenz, echte Ortssuche,
+Offline-Wiederöffnung, strikte CSP, 1440 × 900, 390 × 844 sowie 360 × 800 bei
+200 Prozent ohne horizontalen Überlauf und ohne Browserfehler.
 
 Das Zwischenartefakt `e49c6b2242aa4ca73007493fff9f06d149f1360c`
 wurde durch die externe Netzgrenzen-QA verworfen und nie als gesunde Revision
@@ -58,7 +60,7 @@ Die absolute Health-URL antwortet aktuell mit:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "environment": "dev",
   "database": false
 }
@@ -86,10 +88,10 @@ DEV-Hostingdienst; das Portal ist weder Build- noch Laufzeitvoraussetzung.
 ## Rollback
 
 Die aktuelle gesunde DEV-Artefaktrevision ist
-`d13eb3c842978a8e556b79a58e2ab82417e9cab1`. Der unmittelbare Rückfallstand ist
+`25a34d537feef2c5af544a4e87737aad071ea9fd`. Der unmittelbare Rückfallstand ist
 die vorherige gesunde Revision
-`10cd1c0dd6d9c72ebaddac100a7527aac2f7d056`, gebaut aus
-`bf65fcf197b1453b05dbb27337c35079b2744c6a`.
+`d13eb3c842978a8e556b79a58e2ab82417e9cab1`, gebaut aus
+`eb0af83ef0f9234819107ceab19a729895850021`.
 
 Ein Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision erneut als neuen, vorwärts gerichteten `gh-pages`-Commit und

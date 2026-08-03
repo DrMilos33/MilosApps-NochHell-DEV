@@ -801,3 +801,37 @@ unverändert.
 Runtime-Source ist `eb0af83ef0f9234819107ceab19a729895850021`; Rollback ist
 `bf65fcf197b1453b05dbb27337c35079b2744c6a` mit Pages
 `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056`.
+
+## Ruhige Antwort-Hierarchie für Version 0.8.1
+
+Der Nutzerbefund zeigte eine fachlich richtige, aber visuell überbeschriftete
+Antwortkachel: Ortstatus, Ort, Land/Zeitzone, „Noch hell?“, Hauptwert,
+Erklärung und Aktualisierung bildeten links einen konkurrierenden Textstapel.
+Die Sonne und „Ort ändern“ funktionierten bereits und blieben unverändert.
+
+Die neue Hierarchie zeigt oben kompakt den Ort, in der Mitte ausschließlich
+den großen verbleibenden Helligkeitswert und unten Erklärung plus
+kontrastreiche Aktualisierung. `Standardort` bleibt beim ungespeicherten Köln
+sichtbar; bei einer bewussten Ortswahl verschwindet die redundante
+`Ausgewählter Ort`-Kennzeichnung. Länder-/Regionkontext und die semantische
+Antwortbezeichnung bleiben visuell verborgen im zugänglichen Dokument.
+
+Abschlussgates:
+
+| Gate | Ergebnis |
+| --- | --- |
+| Unit-/Fachtests | 30/30 PASS |
+| Build / Built-Artefakt | PASS; TypeScript, Vite und externes Essentials-Artefaktgate |
+| Desktop Chromium | 52/52 PASS |
+| Mobile Chromium fokussiert | 10 PASS, 1 beabsichtigter Desktop-Geometrieskip |
+| Firefox fokussiert | 3 PASS, 1 beabsichtigter Chromium-Geometrieskip |
+| Sichtbare QA | Desktop 244 Pixel Kartenhöhe; 390 × 844: 252 Pixel, Titelmitte 48,2 %, client/scroll 375/375 |
+| GitHub Pages | PASS; Run `30824548875`, Artefakt `25a34d537feef2c5af544a4e87737aad071ea9fd` |
+| Externes DEV | PASS; No-Login, Health 0.8.1, DE/EN, Online-Suche, Offline-Wiederöffnung, CSP, 390 und 360@200 % |
+| Portal-/Productiongrenze | PASS; cookie-lose GET+HEAD = 302 auf die unveränderte App-URL, Production = 404 |
+
+Das gebaute Artefakt war über 16 Dateien bytegleich mit `dist/`. Die externe
+strikte-CSP-Prüfung meldete null Konsolenfehler. Runtime-Source ist
+`8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a`; Rollback ist
+`eb0af83ef0f9234819107ceab19a729895850021` mit Pages
+`d13eb3c842978a8e556b79a58e2ab82417e9cab1`.

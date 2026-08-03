@@ -18,8 +18,8 @@ Stand: 3. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `eb0af83ef0f9234819107ceab19a729895850021` |
-| Pages-Artefaktrevision | `d13eb3c842978a8e556b79a58e2ab82417e9cab1` |
+| Deployte Quellrevision | `8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a` |
+| Pages-Artefaktrevision | `25a34d537feef2c5af544a4e87737aad071ea9fd` |
 | Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.5` aus Shared `2942132ad3bf6cf39edc9f52ed918de6a230be23` |
 
 ## Readiness
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "environment": "dev",
   "database": false
 }
@@ -95,9 +95,9 @@ mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
 HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
 Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
-Aktuell gesund ist `d13eb3c842978a8e556b79a58e2ab82417e9cab1`. Der
+Aktuell gesund ist `25a34d537feef2c5af544a4e87737aad071ea9fd`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056` als neuen
+Artefaktrevision `d13eb3c842978a8e556b79a58e2ab82417e9cab1` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
@@ -259,6 +259,39 @@ die unabhängige App-URL; die Productionroute bleibt HTTP 404.
 
 Rollback bleibt Source `bf65fcf197b1453b05dbb27337c35079b2744c6a` mit Pages
 `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056`.
+
+## Ruhige Antwort-Hierarchie 0.8.1
+
+Die Hauptkachel zeigt oben nur noch den Ort und – ausschließlich beim
+ungespeicherten Fallback beziehungsweise bei freiwilliger Geräteortung – eine
+kurze Herkunftskennzeichnung. Die redundante sichtbare Überzeile „Noch hell?“
+und der technische Länder-/Zeitzonentext konkurrieren nicht mehr mit der
+eigentlichen Antwort. Beide Informationen bleiben im zugänglichen
+Dokumentkontext erhalten. „Ort ändern“, Sonne und alle Fachwerte bleiben
+unverändert verfügbar.
+
+Der verbleibende Helligkeitswert steht jetzt vertikal im Zentrum der Kachel.
+Erklärung und kontrastreiche Aktualisierungszeit bilden eine ruhige Fußzeile.
+Die Live-Messung ergab 244 Pixel Kartenhöhe bei 1440 × 900 und 252 Pixel bei
+390 × 844; auf Mobil lag die Titelmitte bei 48,2 Prozent der Kartenhöhe.
+Client- und Scrollbreite waren 375/375. Die redundanten Texte messen visuell
+jeweils nur 1 × 1 Pixel, bleiben aber für Screenreader verfügbar.
+
+Source `8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a` erzeugte das über 16 Dateien
+bytegleich geprüfte Pages-Artefakt
+`25a34d537feef2c5af544a4e87737aad071ea9fd`. GitHub Pages Run
+`30824548875` mit Build-Job `91722685464`, Status-Job `91722751562` und
+Deploy-Job `91722751576` war vollständig erfolgreich. Health antwortet exakt
+mit `ready/daylight/0.8.1/dev`, `database=false`. Die externe Matrix bestätigte
+No-Login, DE/EN-Persistenz, Online-Ortssuche, Offline-Wiederöffnung, strikte
+CSP, korrekte Same-Origin-Artefakte, 390 × 844 sowie 360 × 800 bei 200 Prozent
+ohne horizontalen Überlauf. Cookie-lose GET und HEAD der unveränderten
+Portalroute liefern HTTP 302 exakt auf die App-URL; Production bleibt HTTP
+404 und wurde nicht verändert.
+
+Rollback ist der vorherige gesunde Source-Stand
+`eb0af83ef0f9234819107ceab19a729895850021` mit Pages
+`d13eb3c842978a8e556b79a58e2ab82417e9cab1`.
 
 ## Verbleibende Blocker und Grenzen
 

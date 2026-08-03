@@ -462,3 +462,20 @@ App-Task nicht verändert.
 - **Gültigkeitsgrenze:** Fachliche Polar-/Kein-Ereignis-Zustände dürfen
   weiterhin längere Texte benötigen; Dichtebudgets dürfen diese Aussagen
   nicht abschneiden oder durch erfundene Uhrzeiten ersetzen.
+
+## 2026-08-03: Sichtbare Redundanz und zugänglicher Kontext sind getrennte Ebenen
+
+- **Evidenz:** In der Hauptkachel konkurrierten Herkunftslabel,
+  Länder-/Zeitzonentext und „Noch hell?“ mit der bereits eindeutigen großen
+  Tageslichtantwort. Die korrekten Informationen ließen den Hauptwert dadurch
+  trotzdem wie einen Teil eines Textstapels wirken.
+- **Folge:** Nur der bei einem Fallback oder einer Geräteortung fachlich
+  hilfreiche Herkunftsstatus bleibt sichtbar. Regionskontext und semantische
+  Antwortbezeichnung bleiben im Dokumentbaum, werden aber visuell verborgen.
+  Hauptwert, Sonne und Ortswechsel bilden die sichtbare Primärhierarchie.
+- **Regression:** Kartenhöhe, vertikale Titelmitte und 1-×-1-Pixel-Geometrie
+  der redundanten Texte werden auf Desktop und Mobil geprüft; Axe,
+  Tastaturfluss, DE/EN und Screenreaderbeschriftung bleiben Teil der Gates.
+- **Gültigkeitsgrenze:** Visuelles Verbergen ist nur zulässig, wenn der
+  verbleibende sichtbare Kontext eindeutig ist. Fachlich notwendige Warnungen,
+  Polarzustände und Fehler dürfen nicht aus Platzgründen verborgen werden.
