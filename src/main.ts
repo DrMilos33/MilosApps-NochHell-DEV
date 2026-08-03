@@ -52,6 +52,16 @@ const runtimeConfig = await loadRuntimeConfig();
 let language: Language = languageFromShell(document.documentElement.lang);
 const environment = runtimeConfig.environment;
 
+const DEFAULT_LOCATION: DaylightLocation = {
+  id: "default-cologne",
+  name: "Köln",
+  context: "Nordrhein-Westfalen · Deutschland",
+  latitude: 50.9375,
+  longitude: 6.9603,
+  timeZone: "Europe/Berlin",
+  source: "manual",
+};
+
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) {
   throw new Error("App container is missing.");
@@ -288,8 +298,10 @@ type Feedback = {
   kind?: "info" | "error" | "success" | undefined;
 };
 
-let currentLocation: DaylightLocation | null = loadLocation();
-let locationPickerOpen = currentLocation === null;
+const storedLocation = loadLocation();
+let currentLocation: DaylightLocation | null = storedLocation ?? DEFAULT_LOCATION;
+let usingDefaultLocation = storedLocation === null;
+let locationPickerOpen = false;
 let deviceSuggestion: DaylightLocation | null =
   currentLocation?.source === "device" ? currentLocation : loadDeviceSuggestion();
 if (deviceSuggestion && currentLocation?.source === "device") {
@@ -421,7 +433,9 @@ function localPlaceSuggestions(
     }
   };
   if (deviceSuggestion) add(normalizedStoredLocation(deviceSuggestion, locale));
-  if (currentLocation) add(normalizedStoredLocation(currentLocation, locale));
+  if (currentLocation && !usingDefaultLocation) {
+    add(normalizedStoredLocation(currentLocation, locale));
+  }
   loadCachedPlaces(locale).map(normalizedPlace).forEach(add);
   return suggestions;
 }
@@ -474,10 +488,10 @@ function eventCopy(
         snapshot.location.timeZone,
         localeFor(language),
       ),
-      note: translate(
-        language,
-        kind === "tomorrow-sunrise" ? "nextDayLocalTime" : "localTime",
-      ),
+      note:
+        kind === "tomorrow-sunrise"
+          ? translate(language, "nextDayLocalTime")
+          : "",
     };
   }
 
@@ -519,7 +533,9 @@ function writeEvent(
   copy: { value: string; note: string },
 ): void {
   element<HTMLElement>(valueSelector).textContent = copy.value;
-  element<HTMLElement>(noteSelector).textContent = copy.note;
+  const note = element<HTMLElement>(noteSelector);
+  note.textContent = copy.note;
+  note.hidden = copy.note.length === 0;
 }
 
 function renderSnapshot(focusAnswer = false): void {
@@ -549,7 +565,9 @@ function renderSnapshot(focusAnswer = false): void {
     language,
     currentLocation.source === "device"
       ? "roundedDeviceLocation"
-      : "selectedLocation",
+      : usingDefaultLocation
+        ? "defaultLocation"
+        : "selectedLocation",
   );
   element("#location-detail").textContent = [
     currentLocation.source === "device"
@@ -572,11 +590,11 @@ function renderSnapshot(focusAnswer = false): void {
       localeFor(language),
     ),
   });
-  element("#calculation-date").textContent = formatLocalDate(
+  element("#calculation-date").textContent = `${formatLocalDate(
     snapshot.localDate,
     currentLocation.timeZone,
     localeFor(language),
-  );
+  )} · ${translate(language, "localTime")}`;
 
   writeEvent(
     "#sunrise-time",
@@ -615,6 +633,7 @@ function renderSnapshot(focusAnswer = false): void {
 
 function selectLocation(location: DaylightLocation): void {
   currentLocation = location;
+  usingDefaultLocation = false;
   locationPickerOpen = false;
   if (location.source === "device") {
     deviceSuggestion = location;
@@ -815,7 +834,8 @@ element<HTMLButtonElement>("#change-location").addEventListener("click", () => {
 
 clearDataButton.addEventListener("click", () => {
   const cleared = clearLocalData();
-  currentLocation = null;
+  currentLocation = DEFAULT_LOCATION;
+  usingDefaultLocation = true;
   locationPickerOpen = true;
   deviceSuggestion = null;
   if (placeSearch.input) placeSearch.input.value = "";

@@ -50,7 +50,7 @@
         "strictlyNecessary": true
       },
       {
-        "key": "milosapps.daylight.offline-shell.v3",
+        "key": "milosapps.daylight.offline-shell.v4",
         "purpose": "App-Shell nach der ersten erfolgreichen Ladung für die ausdrücklich angebotene Offline-Wiederöffnung bereitstellen",
         "lifetime": "bounded",
         "strictlyNecessary": true

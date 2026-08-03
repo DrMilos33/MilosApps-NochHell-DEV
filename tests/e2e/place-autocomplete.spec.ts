@@ -29,6 +29,14 @@ const freibachSuggestions = {
   ],
 };
 
+async function openLocationPicker(page: import("@playwright/test").Page): Promise<void> {
+  const locationCard = page.locator(".location-card");
+  if (!(await locationCard.isVisible())) {
+    await page.getByRole("button", { name: "Ort ändern", exact: true }).click();
+  }
+  await expect(locationCard).toBeVisible();
+}
+
 test.describe("dynamische Orts-Combobox", () => {
   test.beforeEach(async ({ page }) => {
     await page.route(
@@ -57,6 +65,7 @@ test.describe("dynamische Orts-Combobox", () => {
       }
     });
     await page.goto("/");
+    await openLocationPicker(page);
     const input = page.getByRole("combobox", { name: "Ort oder Region" });
     await input.fill("Fr");
     await page.waitForTimeout(550);
@@ -101,6 +110,7 @@ test.describe("dynamische Orts-Combobox", () => {
     page,
   }) => {
     await page.goto("/");
+    await openLocationPicker(page);
     const input = page.getByRole("combobox", { name: "Ort oder Region" });
     const option = page.getByRole("option", {
       name: /Freibach.*Politischer Bezirk Völkermarkt, Kärnten.*Österreich/,
@@ -148,6 +158,7 @@ test.describe("dynamische Orts-Combobox", () => {
       );
     });
     await page.goto("/");
+    await openLocationPicker(page);
     await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Freib");
 
     const options = page.getByRole("option");
@@ -176,6 +187,7 @@ test.describe("dynamische Orts-Combobox", () => {
       },
     );
     await page.goto("/");
+    await openLocationPicker(page);
     const input = page.getByRole("combobox", { name: "Ort oder Region" });
     await input.fill("Frei");
     await page.waitForTimeout(500);
@@ -193,6 +205,7 @@ test.describe("dynamische Orts-Combobox", () => {
       async (route) => route.fulfill({ status: 503, body: "unavailable" }),
     );
     await page.goto("/");
+    await openLocationPicker(page);
     await page.getByRole("combobox", { name: "Ort oder Region" }).fill("Freib");
 
     await expect(page.getByText("Die Ortssuche ist gerade nicht erreichbar.")).toBeVisible();
