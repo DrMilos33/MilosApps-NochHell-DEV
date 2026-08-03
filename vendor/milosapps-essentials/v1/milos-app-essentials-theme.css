@@ -1,10 +1,10 @@
 body[data-milos-essentials-app="daylight"] {
-  --milos-essential-accent: #c84f31;
+  --milos-essential-accent: var(--accent);
   --milos-essential-accent-contrast: #ffffff;
-  --milos-essential-surface: #fffaf1;
-  --milos-essential-surface-soft: #f7efe1;
-  --milos-essential-text: #2a211c;
-  --milos-essential-muted: #72645b;
-  --milos-essential-border: #d8c9bb;
-  --milos-essential-focus: #9a3a21;
+  --milos-essential-surface: var(--paper-solid);
+  --milos-essential-surface-soft: var(--paper-raised);
+  --milos-essential-text: var(--ink);
+  --milos-essential-muted: var(--muted);
+  --milos-essential-border: var(--line);
+  --milos-essential-focus: var(--amber);
 }

@@ -43,7 +43,7 @@ export const milosAppEssentials = initMilosAppEssentials({
         "strictlyNecessary": true
       },
       {
-        "key": "milosapps.daylight.offline-shell.v1",
+        "key": "milosapps.daylight.offline-shell.v2",
         "purpose": "App-Shell nach der ersten erfolgreichen Ladung für die ausdrücklich angebotene Offline-Wiederöffnung bereitstellen",
         "lifetime": "bounded",
         "strictlyNecessary": true
@@ -65,11 +65,11 @@ export const milosAppEssentials = initMilosAppEssentials({
     "datePicker": false,
     "placeSearch": true,
     "placeSuggestions": {
-      "enabled": false,
+      "enabled": true,
       "minChars": 3,
       "debounceMs": 350,
-      "providerCapability": "submit-only",
-      "evidenceFile": null
+      "providerCapability": "provider-autocomplete-direct",
+      "evidenceFile": "docs/GEOCODING_AUTOCOMPLETE_PROVIDER.md"
     }
   }
 });
