@@ -409,6 +409,77 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(290);
   });
 
+  test("ordnet auch die Nachtantwort wie die helle Hauptkachel", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
+
+    await openStoredLocationAt(
+      page,
+      {
+        ...berlinLocation,
+        id: "ulaanbaatar",
+        name: "Ulaanbaatar",
+        context: "Mongolei",
+        latitude: 47.8864,
+        longitude: 106.9057,
+        timeZone: "Asia/Ulaanbaatar",
+      },
+      "2026-12-21T13:00:00Z",
+    );
+
+    for (const viewport of [
+      { width: 1440, height: 900, answerMax: 260 },
+      { width: 390, height: 844, answerMax: 270 },
+    ]) {
+      await page.setViewportSize(viewport);
+      const metrics = await page.evaluate(() => {
+        const answer = document.querySelector<HTMLElement>(".answer-card");
+        const title = document.querySelector<HTMLElement>("#answer-title");
+        const meta = document.querySelector<HTMLElement>(".answer-meta");
+        const label = document.querySelector<HTMLElement>(".answer-label");
+        const locationContext = document.querySelector<HTMLElement>("#location-context");
+        const locationDetail = document.querySelector<HTMLElement>("#location-detail");
+        if (!answer || !title || !meta || !label || !locationContext || !locationDetail) {
+          throw new Error("Nachtlayout fehlt");
+        }
+        const answerRect = answer.getBoundingClientRect();
+        const titleRect = title.getBoundingClientRect();
+        const metaRect = meta.getBoundingClientRect();
+        const labelRect = label.getBoundingClientRect();
+        const detailRect = locationDetail.getBoundingClientRect();
+        return {
+          phase: answer.dataset.phase,
+          answerHeight: answerRect.height,
+          titleCenterRatio:
+            (titleRect.top + titleRect.height / 2 - answerRect.top) /
+            answerRect.height,
+          metaCenterRatio:
+            (metaRect.top + metaRect.height / 2 - answerRect.top) /
+            answerRect.height,
+          labelSize: [labelRect.width, labelRect.height],
+          detailSize: [detailRect.width, detailRect.height],
+          selectedKindHidden: locationContext.hidden,
+          horizontalOverflow:
+            document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        };
+      });
+
+      expect(metrics.phase).toBe("night");
+      expect(metrics.answerHeight).toBeLessThanOrEqual(viewport.answerMax);
+      expect(metrics.titleCenterRatio).toBeGreaterThanOrEqual(0.4);
+      expect(metrics.titleCenterRatio).toBeLessThanOrEqual(0.62);
+      expect(metrics.metaCenterRatio).toBeGreaterThanOrEqual(0.72);
+      expect(metrics.labelSize).toEqual([1, 1]);
+      expect(metrics.detailSize).toEqual([1, 1]);
+      expect(metrics.selectedKindHidden).toBe(true);
+      expect(metrics.horizontalOverflow).toBe(0);
+    }
+
+    await expect(page.getByRole("heading", { name: "Nein – es ist dunkel" })).toBeVisible();
+    await expect(page.getByText(/Sonnenaufgang in/)).toBeVisible();
+  });
+
   test("hält die Ortswahl auf Desktop schmal und den Standort als kompaktes 44-Pixel-Ziel", async ({
     page,
   }, testInfo) => {
