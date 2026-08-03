@@ -61,6 +61,18 @@ code {
   font-size: 0.88em;
 }
 
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .intro {
   max-width: 64rem;
   padding: clamp(0.65rem, 1.2vw, 0.9rem) 0 clamp(0.65rem, 1.2vw, 0.85rem);
@@ -317,7 +329,7 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
 
 .answer-card {
   position: relative;
-  min-height: 17rem;
+  min-height: 15.25rem;
   overflow: hidden;
   border-radius: 1.25rem;
   background:
@@ -351,7 +363,7 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
 
 .answer-sun {
   position: absolute;
-  top: 22%;
+  top: 46%;
   right: 10%;
   width: clamp(4.25rem, 10vw, 6.5rem);
   aspect-ratio: 1;
@@ -360,6 +372,7 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
   box-shadow:
     0 0 0 1.5rem rgba(255, 210, 124, 0.09),
     0 0 5rem rgba(255, 192, 87, 0.38);
+  transform: translateY(-50%);
 }
 
 [data-phase="night"] .answer-sun,
@@ -380,35 +393,54 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
 }
 
 .answer-content {
-  min-height: 17rem;
-  display: flex;
-  flex-direction: column;
+  min-height: 15.25rem;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   padding: clamp(0.95rem, 2vw, 1.35rem);
 }
 
 .answer-location {
   display: flex;
-  align-items: start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
 }
 
-.answer-location .section-kicker {
-  margin-bottom: 0.35rem;
-  color: rgba(255, 255, 255, 0.68);
+.answer-place-copy {
+  min-width: 0;
 }
 
-.answer-location h2 {
-  margin-bottom: 0.25rem;
-  font-size: clamp(1.2rem, 2.5vw, 1.7rem);
+.answer-place-line {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+}
+
+.answer-place-line h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  line-height: 1.1;
+}
+
+.location-kind {
+  margin: 0;
+  padding: 0.18rem 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.64rem;
+  font-weight: 760;
+  line-height: 1.2;
 }
 
 .location-detail {
-  max-width: 48rem;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 0.82rem;
-  line-height: 1.45;
+  max-width: 34rem;
+  margin: 0.25rem 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.76rem;
+  line-height: 1.3;
 }
 
 .button-glass {
@@ -420,8 +452,9 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
 }
 
 .answer-main {
-  margin: auto 0;
-  padding: 0.85rem 0 0.6rem;
+  align-self: center;
+  min-width: 0;
+  padding: 0.35rem 0;
 }
 
 .answer-label {
@@ -434,11 +467,11 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
 }
 
 .answer-main h2 {
-  max-width: 22ch;
-  margin-bottom: 0.55rem;
+  max-width: min(18ch, calc(100% - 7.5rem));
+  margin: 0;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.9rem, 3.8vw, 3.05rem);
-  line-height: 1;
+  font-size: clamp(2.15rem, 4.2vw, 3.35rem);
+  line-height: 0.96;
   letter-spacing: -0.045em;
 }
 
@@ -447,17 +480,26 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
 }
 
 .answer-detail {
-  max-width: 38rem;
+  max-width: 34rem;
   margin: 0;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: clamp(0.92rem, 1.4vw, 1.05rem);
-  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(0.8rem, 1.15vw, 0.9rem);
+  line-height: 1.35;
+}
+
+.answer-meta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.45rem 1rem;
 }
 
 .answer-updated {
   width: fit-content;
   max-width: 100%;
-  margin: auto 0 0;
+  margin: 0;
   padding: 0.35rem 0.62rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 999px;
@@ -744,6 +786,27 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
     align-self: flex-start;
   }
 
+  .answer-card,
+  .answer-content {
+    min-height: 15.75rem;
+  }
+
+  .answer-sun {
+    top: 44%;
+    right: 8%;
+  }
+
+  .answer-main h2 {
+    max-width: calc(100% - 6rem);
+    font-size: clamp(2.05rem, 10vw, 2.7rem);
+  }
+
+  .answer-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.38rem;
+  }
+
   .event-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -768,8 +831,7 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
   }
 
   .answer-location {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
   }
 }
 

@@ -31,7 +31,6 @@ import {
 import {
   formatLocalDate,
   formatLocalTime,
-  formatTimeZoneLabel,
   resolveTimeZone,
 } from "./lib/timezone";
 import { loadRuntimeConfig } from "./lib/runtime-config";
@@ -122,12 +121,14 @@ app.innerHTML = `
         </div>
         <div class="answer-content">
           <div class="answer-location">
-            <div>
-              <p id="location-context" class="section-kicker" data-i18n="selectedLocation">
-                Ausgewählter Ort
-              </p>
-              <h2 id="location-name"></h2>
-              <p id="location-detail" class="location-detail"></p>
+            <div class="answer-place-copy">
+              <div class="answer-place-line">
+                <h2 id="location-name"></h2>
+                <p id="location-context" class="location-kind" data-i18n="selectedLocation">
+                  Ausgewählter Ort
+                </p>
+              </div>
+              <p id="location-detail" class="location-detail visually-hidden"></p>
             </div>
             <button
               id="change-location"
@@ -139,11 +140,13 @@ app.innerHTML = `
             </button>
           </div>
           <div class="answer-main">
-            <p class="answer-label" data-i18n="answerLabel">Noch hell?</p>
+            <p class="answer-label visually-hidden" data-i18n="answerLabel">Noch hell?</p>
             <h2 id="answer-title" tabindex="-1"></h2>
-            <p id="answer-detail" class="answer-detail"></p>
           </div>
-          <p id="answer-updated" class="answer-updated"></p>
+          <div class="answer-meta">
+            <p id="answer-detail" class="answer-detail"></p>
+            <p id="answer-updated" class="answer-updated"></p>
+          </div>
         </div>
       </article>
 
@@ -561,7 +564,8 @@ function renderSnapshot(focusAnswer = false): void {
     currentLocation.source === "device"
       ? translate(language, "nearbyName")
       : currentLocation.name;
-  element("#location-context").textContent = translate(
+  const locationContext = element<HTMLElement>("#location-context");
+  locationContext.textContent = translate(
     language,
     currentLocation.source === "device"
       ? "roundedDeviceLocation"
@@ -569,15 +573,12 @@ function renderSnapshot(focusAnswer = false): void {
         ? "defaultLocation"
         : "selectedLocation",
   );
+  locationContext.hidden =
+    currentLocation.source !== "device" && !usingDefaultLocation;
   element("#location-detail").textContent = [
     currentLocation.source === "device"
       ? translate(language, "nearbyContext")
       : readableContext(currentLocation.context),
-    formatTimeZoneLabel(
-      snapshot.generatedAt,
-      currentLocation.timeZone,
-      localeFor(language),
-    ),
   ]
     .filter(Boolean)
     .join(" · ");

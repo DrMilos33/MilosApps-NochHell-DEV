@@ -28,7 +28,7 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "0.8.0",
+  version: "0.8.1",
   environment: "dev",
   database: false,
 });
@@ -158,9 +158,24 @@ async function verifyViewport({
       const density = await page.evaluate(() => {
         const intro = document.querySelector(".intro")?.getBoundingClientRect();
         const answer = document.querySelector(".answer-card")?.getBoundingClientRect();
+        const answerTitle = document
+          .querySelector("#answer-title")
+          ?.getBoundingClientRect();
+        const answerLabel = document
+          .querySelector(".answer-label")
+          ?.getBoundingClientRect();
         return {
           introHeight: intro?.height ?? Number.POSITIVE_INFINITY,
           answerTop: answer?.top ?? Number.POSITIVE_INFINITY,
+          answerHeight: answer?.height ?? Number.POSITIVE_INFINITY,
+          titleCenterRatio:
+            answer && answerTitle
+              ? (answerTitle.top + answerTitle.height / 2 - answer.top) /
+                answer.height
+              : Number.POSITIVE_INFINITY,
+          answerLabelSize: answerLabel
+            ? [answerLabel.width, answerLabel.height]
+            : [],
         };
       });
       assert.ok(
@@ -170,6 +185,19 @@ async function verifyViewport({
       assert.ok(
         density.answerTop <= (name === "desktop" ? 235 : 270),
         `${name}: the daylight answer for the default place must remain visible early.`,
+      );
+      assert.ok(
+        density.answerHeight <= (name === "desktop" ? 260 : 270),
+        `${name}: the answer surface must remain compact.`,
+      );
+      assert.ok(
+        density.titleCenterRatio >= 0.4 && density.titleCenterRatio <= 0.62,
+        `${name}: remaining daylight must stay visually centered.`,
+      );
+      assert.deepEqual(
+        density.answerLabelSize,
+        [1, 1],
+        `${name}: the redundant answer eyebrow must stay visually hidden.`,
       );
     }
     const footerGap = await page.locator("milos-app-shell").evaluate((shell) => {

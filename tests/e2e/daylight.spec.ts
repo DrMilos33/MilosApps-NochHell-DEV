@@ -105,7 +105,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.8.0",
+      version: "0.8.1",
       environment: "dev",
     });
   });
@@ -336,20 +336,47 @@ test.describe("öffentlicher Kernfluss", () => {
     await selectBerlin(page);
     const resultMetrics = await page.evaluate(() => {
       const answer = document.querySelector<HTMLElement>(".answer-card");
+      const answerTitle = document.querySelector<HTMLElement>("#answer-title");
+      const answerLabel = document.querySelector<HTMLElement>(".answer-label");
+      const locationContext = document.querySelector<HTMLElement>("#location-context");
+      const locationDetail = document.querySelector<HTMLElement>("#location-detail");
       const eventCards = [...document.querySelectorAll<HTMLElement>(".event-card")];
       const updated = document.querySelector<HTMLElement>(".answer-updated");
-      if (!answer || !updated || eventCards.length !== 4) {
+      if (
+        !answer ||
+        !answerTitle ||
+        !answerLabel ||
+        !locationContext ||
+        !locationDetail ||
+        !updated ||
+        eventCards.length !== 4
+      ) {
         throw new Error("Ergebnislayout fehlt");
       }
+      const answerRect = answer.getBoundingClientRect();
+      const titleRect = answerTitle.getBoundingClientRect();
+      const labelRect = answerLabel.getBoundingClientRect();
+      const locationDetailRect = locationDetail.getBoundingClientRect();
       return {
-        answerHeight: answer.getBoundingClientRect().height,
+        answerHeight: answerRect.height,
+        titleCenterRatio:
+          (titleRect.top + titleRect.height / 2 - answerRect.top) /
+          answerRect.height,
+        answerLabelSize: [labelRect.width, labelRect.height],
+        locationDetailSize: [locationDetailRect.width, locationDetailRect.height],
+        selectedKindHidden: locationContext.hidden,
         eventHeight: Math.max(...eventCards.map((card) => card.getBoundingClientRect().height)),
         updatedColor: getComputedStyle(updated).color,
         updatedBackground: getComputedStyle(updated).backgroundColor,
         visibleEventNotes: document.querySelectorAll(".event-note:not([hidden])").length,
       };
     });
-    expect(resultMetrics.answerHeight).toBeLessThanOrEqual(300);
+    expect(resultMetrics.answerHeight).toBeLessThanOrEqual(260);
+    expect(resultMetrics.titleCenterRatio).toBeGreaterThanOrEqual(0.42);
+    expect(resultMetrics.titleCenterRatio).toBeLessThanOrEqual(0.62);
+    expect(resultMetrics.answerLabelSize).toEqual([1, 1]);
+    expect(resultMetrics.locationDetailSize).toEqual([1, 1]);
+    expect(resultMetrics.selectedKindHidden).toBe(true);
     expect(resultMetrics.eventHeight).toBeLessThanOrEqual(90);
     expect(resultMetrics.updatedColor).toBe("rgb(255, 255, 255)");
     expect(resultMetrics.updatedBackground).not.toBe("rgba(0, 0, 0, 0)");
@@ -359,15 +386,25 @@ test.describe("öffentlicher Kernfluss", () => {
     await page.reload();
     const mobileResultMetrics = await page.evaluate(() => {
       const answer = document.querySelector<HTMLElement>(".answer-card");
+      const answerTitle = document.querySelector<HTMLElement>("#answer-title");
       const eventCards = [...document.querySelectorAll<HTMLElement>(".event-card")];
-      if (!answer || eventCards.length !== 4) throw new Error("Mobiles Ergebnislayout fehlt");
+      if (!answer || !answerTitle || eventCards.length !== 4) {
+        throw new Error("Mobiles Ergebnislayout fehlt");
+      }
+      const answerRect = answer.getBoundingClientRect();
+      const titleRect = answerTitle.getBoundingClientRect();
       return {
-        answerHeight: answer.getBoundingClientRect().height,
+        answerHeight: answerRect.height,
+        titleCenterRatio:
+          (titleRect.top + titleRect.height / 2 - answerRect.top) /
+          answerRect.height,
         eventHeight: Math.max(...eventCards.map((card) => card.getBoundingClientRect().height)),
-        answerTop: answer.getBoundingClientRect().top,
+        answerTop: answerRect.top,
       };
     });
-    expect(mobileResultMetrics.answerHeight).toBeLessThanOrEqual(310);
+    expect(mobileResultMetrics.answerHeight).toBeLessThanOrEqual(270);
+    expect(mobileResultMetrics.titleCenterRatio).toBeGreaterThanOrEqual(0.4);
+    expect(mobileResultMetrics.titleCenterRatio).toBeLessThanOrEqual(0.62);
     expect(mobileResultMetrics.eventHeight).toBeLessThanOrEqual(90);
     expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(290);
   });
