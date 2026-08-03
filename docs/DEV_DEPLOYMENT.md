@@ -24,22 +24,23 @@ App-Datenbank, Portal-Session oder Production-Domain.
 
 | Rolle | Vollständiger SHA |
 | --- | --- |
-| Verifizierter App-Quellstand | `24e8222c40af099f8d7adc25232f6376378e390e` |
-| Gebautes und extern verifiziertes Pages-Artefakt | `649118c87730e38de157be548ab1aa5feb90b228` |
-| Vorherige gesunde Quellrevision | `0ef76e08df2533949fd215b7b5564d4098f73ade` |
-| Vorherige gesunde Pages-Revision | `4445064d440f0140b2c5c232e4d10f1196fd7d5d` |
+| Verifizierter App-Quellstand | `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` |
+| Gebautes und extern verifiziertes Pages-Artefakt | `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` |
+| Vorherige gesunde Quellrevision | `24e8222c40af099f8d7adc25232f6376378e390e` |
+| Vorherige gesunde Pages-Revision | `649118c87730e38de157be548ab1aa5feb90b228` |
 
 Das Pages-Artefakt wurde ausschließlich mit `pnpm build` aus der
-Quellrevision `24e8222c40af099f8d7adc25232f6376378e390e` erzeugt. Der
+Quellrevision `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` erzeugt. Der
 anschließende Dokumentationscommit wird nicht als anderer App-Build
 veröffentlicht.
 
 GitHub Pages veröffentlichte die Artefaktrevision über den erfolgreichen
-Workflow-Run `30785833022` (Build-Job `91599079650`, Deploy-Job
-`91599095269`). Die frische
+Workflow-Run `30793869668` (Build-Job `91622983482`, Deploy-Job
+`91623011230`). Die frische
 externe Prüfung umfasste direkte cookie-lose Desktop- und Smartphone-Aufrufe,
-echte Berlin-Suche, Offline-Wiederöffnung, DE/EN-Persistenz und 360 × 800 bei
-200 Prozent. Unter einer echten Response-CSP mit `style-src 'self'` blieben
+echte Berlin-Suche, lokale Vorschläge nach der Eingabe `Ber`,
+Offline-Wiederöffnung, DE/EN-Persistenz und 360 × 800 bei 200 Prozent. Unter
+einer echten Response-CSP mit `style-src 'self'` blieben
 Shell- und Essentials-CSS extern; es gab weder Inline-Ausnahmen noch
 CSP-Fehler. Das Loader-Icon antwortete mit HTTP 200 und `image/svg+xml`; sein
 SHA-256 `fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`
@@ -59,7 +60,7 @@ Die absolute Health-URL antwortet aktuell mit:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "environment": "dev",
   "database": false
 }
@@ -87,10 +88,10 @@ DEV-Hostingdienst; das Portal ist weder Build- noch Laufzeitvoraussetzung.
 ## Rollback
 
 Die aktuelle gesunde DEV-Artefaktrevision ist
-`649118c87730e38de157be548ab1aa5feb90b228`. Der unmittelbare Rückfallstand ist
+`f3bae04b8b9e64f8fa3790c0d020504e0c22d2db`. Der unmittelbare Rückfallstand ist
 die vorherige gesunde Revision
-`4445064d440f0140b2c5c232e4d10f1196fd7d5d`, gebaut aus
-`0ef76e08df2533949fd215b7b5564d4098f73ade`.
+`649118c87730e38de157be548ab1aa5feb90b228`, gebaut aus
+`24e8222c40af099f8d7adc25232f6376378e390e`.
 
 Ein Rollback veröffentlicht den Inhalt der vorherigen gesunden
 Artefaktrevision erneut als neuen, vorwärts gerichteten `gh-pages`-Commit und

@@ -7,15 +7,15 @@
     "de-DE",
     "en-GB"
   ],
-  "version": "0.5.1",
+  "version": "0.6.0",
   "status": "dev-online",
   "devUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
   "localDevUrl": "http://127.0.0.1:4319/",
-  "sourceCommit": "24e8222c40af099f8d7adc25232f6376378e390e",
-  "deploymentRevision": "649118c87730e38de157be548ab1aa5feb90b228",
-  "lastHealthyDeploymentRevision": "649118c87730e38de157be548ab1aa5feb90b228",
-  "previousHealthySourceCommit": "0ef76e08df2533949fd215b7b5564d4098f73ade",
-  "previousHealthyDeploymentRevision": "4445064d440f0140b2c5c232e4d10f1196fd7d5d",
+  "sourceCommit": "e0e1dc95f31fba7dc390d1e4c4cb57663d85193e",
+  "deploymentRevision": "f3bae04b8b9e64f8fa3790c0d020504e0c22d2db",
+  "lastHealthyDeploymentRevision": "f3bae04b8b9e64f8fa3790c0d020504e0c22d2db",
+  "previousHealthySourceCommit": "24e8222c40af099f8d7adc25232f6376378e390e",
+  "previousHealthyDeploymentRevision": "649118c87730e38de157be548ab1aa5feb90b228",
   "repositoryUrl": "https://github.com/DrMilos33/MilosApps-NochHell-DEV",
   "hosting": {
     "provider": "GitHub Pages",
@@ -58,7 +58,7 @@
     "expected": {
       "status": "ready",
       "appKey": "daylight",
-      "version": "0.5.1",
+      "version": "0.6.0",
       "environment": "dev",
       "database": false
     }

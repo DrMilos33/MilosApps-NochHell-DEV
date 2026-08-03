@@ -597,3 +597,15 @@ bestandene Browserfälle bei 28 bewusst profilgebundenen Skips und 0 Fehlern in
 Chromium, Firefox und Mobile Chromium. Astro-, DST-, Polar-, Datumssprung-,
 Offline-, Resume-, DE/EN-, CSP-, 44-Pixel-, 390-Pixel- und
 360 × 800/200-Prozent-Grenzen bleiben vollständig grün.
+
+Der koordiniert veröffentlichte Source-Stand
+`e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` erzeugte das Pages-Artefakt
+`f3bae04b8b9e64f8fa3790c0d020504e0c22d2db`. Der GitHub-Pages-Workflow
+`30793869668` schloss Build, Deploy und Statusbericht vollständig erfolgreich
+ab. Die frische externe HTTPS-Matrix bestätigte No-Login, Health
+`ready/daylight/0.6.0/dev`, die echte Berlin-Suche, den anschließenden lokalen
+Treffer für `Ber`, Offline-Wiederöffnung, DE/EN-Persistenz, strikte CSP und
+null Browserfehler. Auf dem sichtbaren 390-×-844-Profil maß die geöffnete
+Ortskarte mit Trefferliste 343 Pixel Breite, die Eingabe 186,36 × 44 Pixel,
+das Gerätestandortziel 44 × 44 Pixel und die lokale Option 307,03 × 44 Pixel;
+der horizontale Überlauf blieb null.

@@ -179,8 +179,11 @@ async function verifyViewport({
       await page.getByText("Sunrise", { exact: true }).waitFor();
       await page.getByRole("button", { name: "Change place" }).click();
       await page
+        .getByRole("combobox", { name: "Place or region" })
+        .fill("Ber");
+      await page
         .locator("#local-suggestion-list")
-        .getByRole("button", { name: "Berlin Germany" })
+        .getByRole("option", { name: "Berlin Germany" })
         .waitFor();
       assert.equal(
         await page.locator(".event-card").count(),

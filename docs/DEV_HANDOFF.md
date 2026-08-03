@@ -18,8 +18,8 @@ Stand: 3. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `24e8222c40af099f8d7adc25232f6376378e390e` |
-| Pages-Artefaktrevision | `649118c87730e38de157be548ab1aa5feb90b228` |
+| Deployte Quellrevision | `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` |
+| Pages-Artefaktrevision | `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` |
 | Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.2` aus Shared `b14aac6107b75f03ff49e74160af7e7e30c29e59` |
 
 ## Readiness
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "environment": "dev",
   "database": false
 }
@@ -95,9 +95,9 @@ mit exakt der unabhängigen Daylight-DEV-URL als Ziel. App und Health liefern
 HTTP 200; die Health-Antwort stimmt mit `ready/daylight/0.3.0/dev` überein.
 Portal-CI Run `30703116695` / Job `91377476515` war vollständig erfolgreich.
 
-Aktuell gesund ist `649118c87730e38de157be548ab1aa5feb90b228`. Der
+Aktuell gesund ist `f3bae04b8b9e64f8fa3790c0d020504e0c22d2db`. Der
 app-eigene Rollback veröffentlicht den Inhalt der vorherigen gesunden
-Artefaktrevision `4445064d440f0140b2c5c232e4d10f1196fd7d5d` als neuen
+Artefaktrevision `649118c87730e38de157be548ab1aa5feb90b228` als neuen
 vorwärts gerichteten `gh-pages`-Commit. Die Quellrevision bleibt davon
 unberührt. Ein Portal-Rollback gehört ausschließlich dem Portal-Task.
 
@@ -151,6 +151,18 @@ der direkte App-Aufruf HTTP 200 mit `text/html; charset=utf-8` und Health HTTP
 200 mit `application/json; charset=utf-8` sowie exakt
 `ready/daylight/0.5.1/dev`, `database=false`. Die Productionroute bleibt HTTP
 404. Source, Pages, Portal, Shared und Production blieben unverändert.
+
+Der kompakte Ortssuche-Stand 0.6.0 wurde aus
+`e0e1dc95f31fba7dc390d1e4c4cb57663d85193e` als Pages-Artefakt
+`f3bae04b8b9e64f8fa3790c0d020504e0c22d2db` veröffentlicht. Der GitHub-Pages-
+Run `30793869668` mit Build-Job `91622983482` und Deploy-Job `91623011230`
+war vollständig erfolgreich. Die externe cookie-lose Matrix bestätigte Health
+`ready/daylight/0.6.0/dev`, echte Berlin-Suche, lokale Vorschläge nach Eingabe,
+Offline-Wiederöffnung, DE/EN-Persistenz, strikte CSP sowie Desktop,
+390 × 844 und 360 × 800 bei 200 Prozent ohne horizontalen Überlauf. Auf dem
+390-Pixel-Profil messen Eingabe und kompakter Gerätestandort jeweils 44 Pixel
+Höhe; die Icon-Aktion ist 44 × 44 Pixel groß. Die unveränderte Portalroute
+wird nach diesem app-eigenen Handoff separat read-only revalidiert.
 
 ## Verbleibende Blocker und Grenzen
 

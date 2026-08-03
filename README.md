@@ -119,7 +119,7 @@ Das vollständige technische Inventar steht unter
 
 ## DEV- und Portalstatus
 
-Der verifizierte App-Stand `24e8222c40af099f8d7adc25232f6376378e390e`
+Der verifizierte App-Stand `e0e1dc95f31fba7dc390d1e4c4cb57663d85193e`
 läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 
 - DEV: <https://drmilos33.github.io/MilosApps-NochHell-DEV/>
