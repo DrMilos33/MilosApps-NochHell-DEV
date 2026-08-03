@@ -40,10 +40,11 @@
   ],
   "portalDevIntegration": {
     "status": "validated",
-    "validatedAt": "2026-08-02",
-    "portalIntegrationCommit": "be0e17591bcc58df4317875c36f3a0e1e47f90d0",
-    "activePortalDevRevision": "be0e17591bcc58df4317875c36f3a0e1e47f90d0",
-    "activePortalDevDeployment": "7181c8f8-a30a-450f-a42c-556b74e8859c",
+    "validatedAt": "2026-08-03",
+    "portalIntegrationCommit": "bad3ba236096f5643e99ef56ab509b13611e3df2",
+    "activePortalDevRevision": "bad3ba236096f5643e99ef56ab509b13611e3df2",
+    "activePortalDevDeployment": "753d9c63-b3bb-400f-a910-f53f9f45131c",
+    "portalCiRun": "30783381444",
     "redirectTarget": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
     "productionIncluded": false
   },

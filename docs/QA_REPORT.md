@@ -505,3 +505,15 @@ bestand anschließend:
 - Loader-Icon HTTP 200, `image/svg+xml`, SHA-256
   `fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`
   und damit bytegleich zu `public/daylight-icon.svg`.
+
+### Portal-DEV-Revalidierung für 0.5.0
+
+Portal & Identity bestätigte die bestehende Route read-only auf Portal-DEV
+`bad3ba236096f5643e99ef56ab509b13611e3df2`, dem erfolgreichen CI-Lauf
+`30783381444` und dem aktiven Railway-Staging-Deployment
+`753d9c63-b3bb-400f-a910-f53f9f45131c`. Cookie-lose GET- und HEAD-Aufrufe von
+`/apps/daylight` liefern jeweils HTTP 302 exakt auf die unabhängige
+Daylight-DEV-URL. App und Health antworten HTTP 200; der Health-MIME-Typ ist
+`application/json; charset=utf-8`, der Inhalt exakt
+`ready/daylight/0.5.0/dev` und `database=false`. Die Productionroute bleibt
+HTTP 404. Weder App-Repository noch Pages wurden dafür verändert.

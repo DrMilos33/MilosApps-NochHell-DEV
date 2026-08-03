@@ -127,8 +127,15 @@ Desktop, 390 × 844 sowie 360 × 800 bei 200 Prozent ohne horizontalen
 Überlauf. `daylight-icon.svg` lieferte HTTP 200, `image/svg+xml` und den zur
 Quell-SVG identischen SHA-256
 `fe3be26d339687cfcc22809b4c9eeac055166ba512977faa709fa959a1cad645`.
-Die Portalroute wurde durch diesen App-Publish nicht verändert; ihre
-abschließende read-only Revalidierung gehört Portal & Identity.
+Portal & Identity revalidierte die unveränderte Route anschließend auf
+Portal-DEV `bad3ba236096f5643e99ef56ab509b13611e3df2`, dem erfolgreichen
+CI-Lauf `30783381444` und dem aktiven Railway-Staging-Deployment
+`753d9c63-b3bb-400f-a910-f53f9f45131c`. Cookie-lose GET- und HEAD-Aufrufe von
+`/apps/daylight` liefern jeweils HTTP 302 exakt auf die unabhängige App-URL.
+App und Health antworten HTTP 200; Health liefert
+`application/json; charset=utf-8` und exakt `ready/daylight/0.5.0/dev` mit
+`database=false`. Die Productionroute bleibt HTTP 404. App-Repository,
+Pages-Artefakt und Production blieben bei der Portalprüfung unverändert.
 
 ## Verbleibende Blocker und Grenzen
 
