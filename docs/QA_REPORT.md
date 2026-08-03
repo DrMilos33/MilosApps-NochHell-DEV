@@ -723,3 +723,14 @@ Y-Koordinate aneinander an; client/scroll war 345/345. Außenklick und Escape
 schlossen die Liste und löschten den aktiven Nachfahren, während `ArrowDown`
 den ersten Treffer mit passender `aria-selected`-/ID-Verknüpfung markierte.
 Production bleibt gesperrt.
+
+### Portal-DEV-Revalidierung für 0.7.0
+
+Portal & Identity bestätigte die unveränderte Route abschließend read-only auf
+Portal-DEV `e63af39215ed5a1431e8710ff119d39b1d10eee4`, dem erfolgreichen CI-Lauf
+`30804692653` und Railway-Staging
+`68148e4f-055d-4e11-85d1-a0f6af8ace04`. Cookie-lose GET- und HEAD-Aufrufe von
+`/apps/daylight` liefern jeweils HTTP 302 exakt auf die unabhängige App-URL.
+Direkter App-Aufruf und Health liefern HTTP 200; Health enthält exakt
+`ready/daylight/0.7.0/dev`, `database=false`. Die Productionroute bleibt HTTP
+404. App, Portalroute und Production blieben bei dieser Prüfung unverändert.

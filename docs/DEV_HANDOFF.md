@@ -191,6 +191,15 @@ Tageslichtkarten berührten sich ohne Überlagerung; client/scroll blieb
 Die vorhandene Portalroute wird nach diesem app-eigenen Handoff ausschließlich
 read-only revalidiert. Production bleibt unverändert und nicht freigegeben.
 
+Portal & Identity schloss die read-only Revalidierung auf Portal-DEV
+`e63af39215ed5a1431e8710ff119d39b1d10eee4`, CI `30804692653` und dem aktiven
+Railway-Staging-Deployment `68148e4f-055d-4e11-85d1-a0f6af8ace04` ab.
+Cookie-lose GET- und HEAD-Aufrufe von `/apps/daylight` liefern jeweils HTTP
+302 exakt auf die unabhängige Daylight-DEV-URL. Die App antwortet HTTP 200 mit
+`text/html; charset=utf-8`; Health antwortet HTTP 200 mit exakt
+`ready/daylight/0.7.0/dev`, `database=false`. Die Productionroute bleibt HTTP
+404. Für diese Prüfung wurden weder Daylight, Portal noch Production verändert.
+
 ## Verbleibende Blocker und Grenzen
 
 1. Dieses Eigentümer-Task läuft vorübergehend aus dem Workspace-Projekt. Das
