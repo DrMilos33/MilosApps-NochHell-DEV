@@ -49,10 +49,10 @@ Eine Production-Abbildung wird weder erzeugt noch veröffentlicht.
 | Feld | Wert |
 | --- | --- |
 | Contract-ID | `public-app-essentials/v1` |
-| Version | `1.1.4` |
-| Shared-Commit | `b22c94cc6d648fd3052f7d32c9bd80f703094f8d` |
-| Shared-Tag | `public-app-essentials-v1.1.4` |
-| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/b22c94cc6d648fd3052f7d32c9bd80f703094f8d/contracts/public-app-essentials/v1` |
+| Version | `1.1.5` |
+| Shared-Commit | `2942132ad3bf6cf39edc9f52ed918de6a230be23` |
+| Shared-Tag | `public-app-essentials-v1.1.5` |
+| Quelle | `https://github.com/DrMilos33/MilosApps-Shared/tree/2942132ad3bf6cf39edc9f52ed918de6a230be23/contracts/public-app-essentials/v1` |
 | Lokaler Vendor | `vendor/milosapps-essentials/v1/` |
 | Lock | `vendor/milosapps-essentials/v1/essentials-lock.json` |
 | Runtime-Abhängigkeit | keine |

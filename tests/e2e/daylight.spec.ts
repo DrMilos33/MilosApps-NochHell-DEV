@@ -93,7 +93,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.7.0",
+      version: "0.7.1",
       environment: "dev",
     });
   });
@@ -403,6 +403,116 @@ test.describe("public-app-essentials/v1", () => {
     expect(loaderMetrics.iconHeight).toBe(32);
     await expect(loader).toBeHidden();
     await expect(page.locator("h1")).toHaveCount(1);
+  });
+
+  test("hält das app-eigene Shell-Icon vor, während und nach dem Komponentenübergang bei 38 Pixel", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Der bewusst verzögerte Komponentenübergang wird einmal deterministisch geprüft.",
+    );
+
+    let releaseTheme!: () => void;
+    let releaseComponent!: () => void;
+    const themeGate = new Promise<void>((resolve) => {
+      releaseTheme = resolve;
+    });
+    const componentGate = new Promise<void>((resolve) => {
+      releaseComponent = resolve;
+    });
+
+    await page.route("**/*.css", async (route) => {
+      const pathname = new URL(route.request().url()).pathname;
+      if (/milos-app-shell-theme-.*\.css$/.test(pathname)) {
+        await themeGate;
+      } else if (/milos-app-shell-(?!theme).*\.css$/.test(pathname)) {
+        await componentGate;
+      }
+      await route.continue();
+    });
+
+    const navigation = page.goto("/", { waitUntil: "commit" });
+    const appIcon = page.locator('svg[slot="app-icon"]');
+    await expect(appIcon).toBeAttached();
+
+    const readPhase = () =>
+      appIcon.evaluate((icon) => {
+        const shell = icon.closest("milos-app-shell");
+        const componentStyles = shell?.shadowRoot?.querySelector<HTMLLinkElement>(
+          'link[data-milos-app-shell-component]',
+        );
+        const rect = icon.getBoundingClientRect();
+        const styles = getComputedStyle(icon);
+        return {
+          attrWidth: icon.getAttribute("width"),
+          attrHeight: icon.getAttribute("height"),
+          width: rect.width,
+          height: rect.height,
+          upgraded: Boolean(shell?.shadowRoot),
+          componentStylesReady: Boolean(componentStyles?.sheet),
+          visibility: styles.visibility,
+        };
+      });
+
+    const beforeUpgrade = await readPhase();
+    const loaderSize = await page.locator("[data-milos-loading-icon]").evaluate((icon) => {
+      const rect = icon.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+
+    releaseTheme();
+    await page.evaluate(() => customElements.whenDefined("milos-app-shell"));
+    await page.waitForFunction(() =>
+      Boolean(
+        document.querySelector("milos-app-shell")?.shadowRoot?.querySelector(
+          'link[data-milos-app-shell-component]',
+        ),
+      ),
+    );
+    const whileComponentCssIsDelayed = await readPhase();
+
+    releaseComponent();
+    await page.waitForFunction(() =>
+      Boolean(
+        document.querySelector("milos-app-shell")?.shadowRoot?.querySelector<HTMLLinkElement>(
+          'link[data-milos-app-shell-component]',
+        )?.sheet,
+      ),
+    );
+    await navigation;
+    const afterComponentCss = await readPhase();
+
+    expect(beforeUpgrade).toMatchObject({
+      attrWidth: "38",
+      attrHeight: "38",
+      upgraded: false,
+      componentStylesReady: false,
+      visibility: "hidden",
+    });
+    expect(beforeUpgrade.width).toBeLessThanOrEqual(38);
+    expect(beforeUpgrade.height).toBeLessThanOrEqual(38);
+
+    expect(whileComponentCssIsDelayed).toMatchObject({
+      attrWidth: "38",
+      attrHeight: "38",
+      upgraded: true,
+      componentStylesReady: false,
+      visibility: "visible",
+    });
+    expect(whileComponentCssIsDelayed.width).toBeLessThanOrEqual(38);
+    expect(whileComponentCssIsDelayed.height).toBeLessThanOrEqual(38);
+
+    expect(afterComponentCss).toMatchObject({
+      attrWidth: "38",
+      attrHeight: "38",
+      upgraded: true,
+      componentStylesReady: true,
+      visibility: "visible",
+      width: 38,
+      height: 38,
+    });
+    expect(loaderSize).toEqual({ width: 32, height: 32 });
   });
 
   test("zeigt bei ausschließlich notwendiger Speicherung eine dauerhafte Information ohne Schein-Einwilligung", async ({
@@ -774,6 +884,11 @@ test.describe("public-app-shell/v2", () => {
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
       expect(overflow).toBeLessThanOrEqual(1);
+      const appIconSize = await page.locator('svg[slot="app-icon"]').evaluate((icon) => {
+        const rect = icon.getBoundingClientRect();
+        return { width: rect.width, height: rect.height };
+      });
+      expect(appIconSize).toEqual({ width: 38, height: 38 });
       await expect(page.getByRole("link", { name: "Alle Apps" })).toBeVisible();
       await expect(page.getByRole("link", { name: "Impressum" })).toBeVisible();
       const footerGap = await page.locator("milos-app-shell").evaluate((shell) => {
@@ -799,6 +914,11 @@ test.describe("public-app-shell/v2", () => {
     }));
     expect(metrics.overflow).toBeLessThanOrEqual(1);
     expect(metrics.viewport).toBe(360);
+    const appIconSize = await page.locator('svg[slot="app-icon"]').evaluate((icon) => {
+      const rect = icon.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+    expect(appIconSize).toEqual({ width: 38, height: 38 });
     await expect(page.getByRole("button", { name: "EN", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Alle Apps" })).toBeVisible();
   });

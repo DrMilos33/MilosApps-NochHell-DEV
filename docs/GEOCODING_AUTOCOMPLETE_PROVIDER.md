@@ -58,6 +58,6 @@ https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 
 Die Providerfähigkeit und der Außenklick-Lifecycle werden nicht als
 App-Sonderlösung implementiert. Sie sind über
-`public-app-essentials/v1.1.4` am unveränderlichen Shared-Commit
-`b22c94cc6d648fd3052f7d32c9bd80f703094f8d` atomar vendort und mit dem
+`public-app-essentials/v1.1.5` am unveränderlichen Shared-Commit
+`2942132ad3bf6cf39edc9f52ed918de6a230be23` atomar vendort und mit dem
 app-eigenen Sechs-Artefakt-Lock verifiziert. Production bleibt gesperrt.

@@ -77,8 +77,8 @@ sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
 ## Public App Essentials
 
 Loader, Datenschutzinformation, Teilen und Ortssuche stammen app-eigen vendort
-aus `public-app-essentials/v1.1.4` am festen Shared-Commit
-`b22c94cc6d648fd3052f7d32c9bd80f703094f8d`. Daylight aktiviert keinen
+aus `public-app-essentials/v1.1.5` am festen Shared-Commit
+`2942132ad3bf6cf39edc9f52ed918de6a230be23`. Daylight aktiviert keinen
 Date-Picker. Die Ortssuche bleibt app-eigene Providerlogik: Open-Meteo liefert
 nach einer kurzen Eingabepause dynamische Vorschläge ab drei Zeichen,
 Nominatim bleibt die genauere, ausdrücklich per Enter oder „Suchen“ gestartete
