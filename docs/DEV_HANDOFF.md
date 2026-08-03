@@ -18,9 +18,9 @@ Stand: 3. August 2026.
 | App-Datenbank | keine |
 | Production | nicht freigegeben |
 | GitHub-Repository | `https://github.com/DrMilos33/MilosApps-NochHell-DEV` |
-| Deployte Quellrevision | `d5f2d72b66a094b5d96b6029a8e63ec58168037c` |
-| Pages-Artefaktrevision | `98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a` |
-| Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.4` aus Shared `b22c94cc6d648fd3052f7d32c9bd80f703094f8d` |
+| Deployte Quellrevision | `bf65fcf197b1453b05dbb27337c35079b2744c6a` |
+| Pages-Artefaktrevision | `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056` |
+| Gepinnte Verträge | `public-app-shell-v2.0.3` aus Shared `ed898412306e22c6ae1b10ee8953df29f8acd627`; `public-app-essentials-v1.1.5` aus Shared `2942132ad3bf6cf39edc9f52ed918de6a230be23` |
 
 ## Readiness
 
@@ -40,7 +40,7 @@ Erforderlicher Inhalt:
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "environment": "dev",
   "database": false
 }
@@ -199,6 +199,33 @@ Cookie-lose GET- und HEAD-Aufrufe von `/apps/daylight` liefern jeweils HTTP
 `text/html; charset=utf-8`; Health antwortet HTTP 200 mit exakt
 `ready/daylight/0.7.0/dev`, `database=false`. Die Productionroute bleibt HTTP
 404. Für diese Prüfung wurden weder Daylight, Portal noch Production verändert.
+
+## Shell-Icon-Übergang 0.7.1
+
+Der Kampagnenstand `public-app-shell-icon-transition-2026-08` wurde aus
+`bf65fcf197b1453b05dbb27337c35079b2744c6a` als Pages-Artefakt
+`10cd1c0dd6d9c72ebaddac100a7527aac2f7d056` veröffentlicht. GitHub Pages Run
+`30815637403` mit Build-Job `91692564682`, Status-Job `91692603885` und
+Deploy-Job `91692603836` war vollständig erfolgreich. Essentials ist atomar
+auf `public-app-essentials/v1.1.5` am Shared-Commit
+`2942132ad3bf6cf39edc9f52ed918de6a230be23` synchronisiert; Shell bleibt
+unverändert auf v2.0.3.
+
+Essentials- und Shell-Verifier, Build und echter Windows-Recheckout mit
+`core.autocrlf=true` bestanden. Der fokussierte Chromium-Test misst dasselbe
+app-eigene `svg[slot="app-icon"]` mit `width="38" height="38"`: vor Upgrade
+bei geladenem Critical CSS verborgen und höchstens 38 × 38 Pixel, nach Upgrade
+bei bewusst verzögerter Komponenten-CSS sichtbar und höchstens 38 × 38 Pixel,
+im Endzustand exakt 38 × 38 Pixel. Das Loader-Icon bleibt exakt 32 × 32 Pixel.
+390 × 844 sowie 360 × 800 bei 200 Prozent bleiben ohne horizontalen Überlauf.
+
+Die frische öffentliche Prüfung bestätigte App und Health jeweils mit HTTP
+200, Health exakt `ready/daylight/0.7.1/dev`, final 38 × 38 Pixel, Loader-CSS
+32 × 32 Pixel, 390- und 360-Pixel-Viewports ohne Überlauf sowie null
+Browserfehler. Cookie-lose GET- und HEAD-Aufrufe der unveränderten
+Portal-DEV-Route liefern HTTP 302 exakt auf die unabhängige App-URL; die
+Productionroute bleibt HTTP 404. Es wurden keine App-Fachfunktion,
+Portaldatei, Route, Infrastruktur oder Production geändert.
 
 ## Verbleibende Blocker und Grenzen
 

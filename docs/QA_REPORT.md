@@ -734,3 +734,26 @@ Portal-DEV `e63af39215ed5a1431e8710ff119d39b1d10eee4`, dem erfolgreichen CI-Lauf
 Direkter App-Aufruf und Health liefern HTTP 200; Health enthält exakt
 `ready/daylight/0.7.0/dev`, `database=false`. Die Productionroute bleibt HTTP
 404. App, Portalroute und Production blieben bei dieser Prüfung unverändert.
+
+## Shell-Icon-Übergang für Version 0.7.1
+
+Teststufe: `contract` gemäß Kampagne
+`public-app-shell-icon-transition-2026-08`. Fachfunktion, Place, Privacy,
+Share, Datum, Routing, Infrastruktur und Production blieben unverändert.
+
+| Gate | Ergebnis |
+| --- | --- |
+| Essentials-Verifier | PASS, `public-app-essentials/v1.1.5` @ `2942132ad3bf6cf39edc9f52ed918de6a230be23`, sechs gelockte Verbraucherartefakte |
+| Shell-Verifier | PASS, unverändert `public-app-shell/v2.0.3` @ `ed898412306e22c6ae1b10ee8953df29f8acd627` |
+| Build | PASS, TypeScript/Vite und gebaute externe Essentials-Artefakte bytegleich zum Lock |
+| Windows-Recheckout | PASS, `core.autocrlf=true`; Essentials-Vendor vollständig `i/lf` und `w/lf`; beide Verifier PASS |
+| Lifecycle-Browsergate | PASS; vor Upgrade verborgen und ≤38 × 38, nach Upgrade bei verzögerter Komponenten-CSS sichtbar und ≤38 × 38, final exakt 38 × 38 |
+| Loadertrennung | PASS; HTML-/CSS-Loader weiterhin exakt 32 × 32 |
+| Responsive | PASS; 390 × 844 sowie 360 × 800 bei 200 Prozent ohne horizontalen Überlauf |
+| GitHub Pages | PASS; Artefakt `10cd1c0dd6d9c72ebaddac100a7527aac2f7d056`, Run `30815637403` |
+| Externes DEV | PASS; App/Health 200, `ready/daylight/0.7.1/dev`, final 38 × 38, Loader-CSS 32 × 32, 390/360 ohne Überlauf, null Browserfehler |
+| Portal-/Productiongrenze | PASS; cookie-lose GET+HEAD `/apps/daylight` = 302 auf die unveränderte App-URL, Productionroute = 404 |
+
+Rollback bleibt der vorherige gesunde Runtime-Stand
+`d5f2d72b66a094b5d96b6029a8e63ec58168037c` mit Pages
+`98265792f5c8ff4fc5ab8e5ac4d63faddfabe55a`.
