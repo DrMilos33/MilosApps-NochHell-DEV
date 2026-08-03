@@ -586,6 +586,18 @@ milos-place-search [data-milos-place-status][data-kind="success"] {
   font-weight: 750;
 }
 
+.privacy-summary a,
+.data-attribution a {
+  display: inline-flex;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding-inline: 0.2rem;
+  vertical-align: middle;
+}
+
 .privacy-details {
   margin-top: 0.45rem;
 }

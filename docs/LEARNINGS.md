@@ -373,3 +373,21 @@ App-Task nicht verändert.
   `image/svg+xml` und einen zur Source identischen SHA-256-Hash.
 - **Gültigkeitsgrenze:** Ein Quell-Lock beweist nicht den MIME-Typ des
   Hostings; der HTTP-Nachweis bleibt Teil jedes App-DEV-Lifecycles.
+
+## 2026-08-03: Komponentenweise Touchzieltests dürfen Textlinks nicht übersehen
+
+- **Evidenz:** Shell- und Essentials-Steuerelemente waren mindestens 44 Pixel
+  groß, aber die app-eigenen Links `Privacy` und `OpenStreetMap contributors`
+  maßen mobil nur ungefähr 43,31 × 17 und 149,03 × 15 Pixel. Der bestehende
+  Test selektierte nur Shell-Komponenten und konnte die Aussage „alle Ziele“
+  deshalb nicht tragen.
+- **Folge:** Beide app-eigenen Links erhalten echte 44 × 44 Pixel große
+  Inline-Flex-Hitboxen. Der QA-Nachweis unterscheidet Komponenten-, Shell- und
+  App-Ziele ausdrücklich.
+- **Regression:** Ein eigener 390 × 844-EN-Test misst beide Links vollständig,
+  prüft null horizontalen Überlauf und lief vor der CSS-Korrektur nachweislich
+  rot.
+- **Gültigkeitsgrenze:** Normative Accessibility-Standards können Ausnahmen für
+  Inline-Text vorsehen; der hier gepinnte MilosApps-Layoutvertrag fordert für
+  sichtbare Interaktionsziele jedoch 44 × 44 Pixel und nennt für diese beiden
+  App-Links keine Ausnahme.

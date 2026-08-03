@@ -517,3 +517,21 @@ Daylight-DEV-URL. App und Health antworten HTTP 200; der Health-MIME-Typ ist
 `application/json; charset=utf-8`, der Inhalt exakt
 `ready/daylight/0.5.0/dev` und `database=false`. Die Productionroute bleibt
 HTTP 404. Weder App-Repository noch Pages wurden dafür verändert.
+
+## Touchziel-Follow-up für Version 0.5.1
+
+Eine frische sichtbare 390 × 844-Messung in der englischen Oberfläche fand
+zwei bisher vom komponentenbezogenen 44-Pixel-Test nicht erfasste Links:
+`Privacy` maß ungefähr 43,31 × 17 Pixel, `OpenStreetMap contributors`
+ungefähr 149,03 × 15 Pixel. Der verbindliche Layoutvertrag fordert sichtbare
+Interaktionsziele von mindestens 44 × 44 CSS-Pixeln und dokumentiert für diese
+app-eigenen Ziele keine Inline-Text-Ausnahme.
+
+Ein neuer Chromium-Regressionsfall reproduzierte beide Ziele zunächst rot.
+Die Links verwenden nun eng begrenzt `inline-flex`, eine Mindestgröße von
+44 × 44 Pixeln und zentrierte Inhalte. Typografie, Zieltext und umgebender
+Inhalt bleiben unverändert. Der fokussierte Test ist danach grün; die gesamte
+Matrix bestätigt 26/26 Unit-Tests, 106 bestandene Browserfälle, 26 bewusst
+profilgebundene Skips und 0 Fehler. Kompaktheitsbudgets, Desktop, 390 × 844,
+360 × 800 bei 200 Prozent, DE/EN, Fokus, CSP, Offline und DEV-Vertrag bleiben
+grün. Die externe DEV-Evidenz folgt erst nach dem koordinierten 0.5.1-Publish.

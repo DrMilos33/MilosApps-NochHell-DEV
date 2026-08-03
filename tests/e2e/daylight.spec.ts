@@ -79,7 +79,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.5.0",
+      version: "0.5.1",
       environment: "dev",
     });
   });
@@ -382,6 +382,37 @@ test.describe("public-app-essentials/v1", () => {
     await page.reload();
     await expect(page.locator("[data-milos-privacy-notice]")).toHaveCount(0);
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  });
+
+  test("hält Privacy und OpenStreetMap auch mobil als 44-Pixel-Ziele", async ({
+    page,
+  }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "chromium",
+      "Die mobile Zielgeometrie wird einmal deterministisch in Chromium geprüft.",
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    await page.getByRole("button", { name: "EN", exact: true }).click();
+
+    const targets = page.locator(".privacy-summary a, .data-attribution a");
+    await expect(targets).toHaveCount(2);
+    const sizes = await targets.evaluateAll((links) =>
+      links.map((link) => {
+        const rect = link.getBoundingClientRect();
+        return { width: rect.width, height: rect.height };
+      }),
+    );
+    expect(sizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(
+      true,
+    );
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(0);
   });
 
   test("teilt nur eine ortsneutrale kanonische App-URL und behandelt Abbruch still", async ({

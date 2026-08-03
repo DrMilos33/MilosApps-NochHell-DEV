@@ -28,7 +28,7 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "0.5.0",
+  version: "0.5.1",
   environment: "dev",
   database: false,
 });
@@ -212,6 +212,26 @@ async function verifyViewport({
       await context.setOffline(false);
     }
 
+    const appInlineTargets = await page
+      .locator(".privacy-summary a, .data-attribution a")
+      .evaluateAll((links) =>
+        links.map((link) => {
+          const rect = link.getBoundingClientRect();
+          return { width: rect.width, height: rect.height };
+        }),
+      );
+    assert.equal(
+      appInlineTargets.length,
+      2,
+      `${name}: both app-owned inline links must be present.`,
+    );
+    assert.ok(
+      appInlineTargets.every(
+        ({ width, height }) => width >= 44 && height >= 44,
+      ),
+      `${name}: Privacy and OpenStreetMap must keep 44px hit boxes.`,
+    );
+
     const unexpectedBrowserErrors = browserErrors.filter(
       (message) =>
         !(
@@ -233,6 +253,7 @@ async function verifyViewport({
         ? "online search and offline reopening passed"
         : "shell smoke passed",
       textScale: `${textScale * 100}%`,
+      appInlineTargets,
     };
   } finally {
     await context.close();

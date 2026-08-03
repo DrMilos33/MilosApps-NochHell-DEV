@@ -25,6 +25,8 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   Header-/Nav-/Main-/Footer-Struktur und genau ein Haupt-H1;
 - 44-Pixel-Shellziele, Fokusreihenfolge, Reduced Motion sowie Header und Footer
   bei Desktop, 390 × 844 und 200-Prozent-Reflow.
+- app-eigene Inline-Links für Datenschutz und OpenStreetMap-Attribution als
+  echte mindestens 44 × 44 Pixel große Ziele in DE und EN;
 - CSS-first Loader bei langsamem Start mit höchstens 56 Pixel Desktop und
   48 Pixel mobil sowie genau einer Dokumentüberschrift;
 - vollständiges Cookie-/LocalStorage-/CacheStorage-Inventar; bei ausschließlich
