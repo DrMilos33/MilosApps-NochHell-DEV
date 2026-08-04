@@ -43,16 +43,17 @@ pnpm test
 pnpm build
 pnpm test:e2e
 pnpm test:all
-pnpm verify:dev
+pnpm verify:production
 pnpm preview:capture
 ```
 
 - `test` prüft Astronomie, Zeitzonen, Speicherung und Geocoding.
 - `test:e2e` führt die Produktmatrix in Chromium, Firefox und einem mobilen
   Chromium-Profil aus.
-- `verify:dev` prüft Readiness-Identität und den strikten Abbruch bei
+- `verify:production` prüft Production-Readiness, Build-Source-SHA und den strikten Abbruch bei
   Portkollision.
-- `verify:external-dev` prüft die echte HTTPS-DEV-URL in frischen
+- `verify:external-production` prüft nach dem späteren Deployment die echte
+  HTTPS-Production-URL in frischen
   Desktop- und Smartphone-Kontexten einschließlich Sprache, Ortssuche und
   Offline-Netzgrenze sowie die CSP-sicheren externen Shell-Styles.
 - `preview:capture` erzeugt das reproduzierbare Portal-Vorschaubild aus der
@@ -68,11 +69,13 @@ Der Vite-Build hält CSS-Assets extern, damit die Shell auch unter
 `style-src 'self'` ohne `unsafe-inline`, Nonce oder Hash vollständig gestaltet
 bleibt.
 
-Im DEV-Build führen alle Shell-Links absolut zu `https://dev.milos-apps.de`.
-DEV-Badge, Linkbasis, Kurzbeschreibung und `productionApproved=false` stammen
-gemeinsam aus `milos-app.json`. Die Shell besitzt Header, Footer,
+Im Production-Kandidaten führen alle Shell-Links absolut zu
+`https://milos-apps.de`, und das DEV-Badge bleibt verborgen. Linkbasis,
+Kurzbeschreibung und `productionApproved=true` stammen gemeinsam aus
+`milos-app.json`. Die Shell besitzt Header, Footer,
 Sprachpersistenz und Locale-Event; Daylight übersetzt weiterhin die gesamte
-sichtbare Fachoberfläche. Production bleibt nicht freigegeben.
+sichtbare Fachoberfläche. Ein Ziel wird erst nach bestätigter
+Cloudflare-Project-ID veröffentlicht.
 
 ## Public App Essentials
 
@@ -80,10 +83,11 @@ Loader, Datenschutzinformation, Teilen und Ortssuche stammen app-eigen vendort
 aus `public-app-essentials/v1.1.5` am festen Shared-Commit
 `2942132ad3bf6cf39edc9f52ed918de6a230be23`. Daylight aktiviert keinen
 Date-Picker. Die Ortssuche bleibt app-eigene Providerlogik: Open-Meteo liefert
-nach einer kurzen Eingabepause dynamische Vorschläge ab drei Zeichen,
-Nominatim bleibt die genauere, ausdrücklich per Enter oder „Suchen“ gestartete
-Suche mit Takt, Cache, Attribution und austauschbarem Endpunkt. Beide Antworten
-werden auf das minimierte Daylight-Ortsschema samt IANA-Zeitzone normalisiert.
+nach einer kurzen Eingabepause dynamische Vorschläge ab drei Zeichen und
+beantwortet auch die ausdrücklich per Enter oder „Suchen“ gestartete Suche.
+Abgesendete Antworten werden höchstens 30 Tage und 20 Suchtexte lokal gecacht;
+Vorschläge bleiben flüchtig. Alle Antworten werden auf das minimierte
+Daylight-Ortsschema samt IANA-Zeitzone normalisiert.
 Bereits bekannte lokale Orte und der erst nach freiwilliger Freigabe gerundete
 eigene Ort werden in dieselbe gemeinsame, kompakte Combobox-/Listbox-Struktur
 einsortiert.
@@ -108,10 +112,9 @@ kanonische App-URL ohne Suchparameter, Fragment, Ortsname oder Koordinaten.
   notwendigen Zugriffe und führt zur Datenschutzseite sowie zur lokalen
   Datenverwaltung.
 - Koordinaten erscheinen weder in der Seiten-URL noch in Teil-URLs.
-- Ab drei Zeichen wird nur der eingegebene Suchtext für dynamische Vorschläge
-  an den konfigurierten Open-Meteo-Endpunkt gesendet. Die genauere manuelle
-  Suche fragt Nominatim erst beim Absenden. Es gibt kein serverseitiges
-  App-Profil und keine Gerätekoordinaten in diesen Requests.
+- Ab drei Zeichen und beim bewussten Absenden wird nur der eingegebene Suchtext
+  an den konfigurierten Open-Meteo-Endpunkt gesendet. Es gibt kein
+  serverseitiges App-Profil und keine Gerätekoordinaten in diesen Requests.
 - Ein gespeicherter Ort öffnet nach einer erfolgreichen Erstladung auch
   offline; eine neue Ortssuche benötigt eine Netzverbindung.
 
@@ -127,8 +130,8 @@ läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 - Health: <https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json>
 - GitHub: <https://github.com/DrMilos33/MilosApps-NochHell-DEV>
 
-Das Hosting erfolgt app-eigen über den `gh-pages`-Branch. Production ist
-ausdrücklich nicht freigegeben. Portal & Identity hat die DEV-Integration am
+Das DEV-Hosting erfolgt app-eigen über den `gh-pages`-Branch und bleibt vom
+Production-Kandidaten getrennt. Portal & Identity hat die DEV-Integration am
 30. Juli 2026 final abgenommen: Die Portalroute `/apps/daylight` leitet im
 aktiven Portal-DEV ohne Login auf die unabhängige App-URL weiter. Der
 Direktaufruf und der App-Lifecycle bleiben vom Portal unabhängig.
@@ -143,3 +146,5 @@ Details:
 - [Gepinnte Shared-Verträge](docs/SHARED_CONTRACTS.md)
 - [Datenschutz- und Endgerätezugriffe](docs/PRIVACY_INVENTORY.md)
 - [Erkenntnisse](docs/LEARNINGS.md)
+- [Production-Kandidat](docs/PRODUCTION_CANDIDATE.md)
+- [Production-QA](docs/PRODUCTION_QA.md)

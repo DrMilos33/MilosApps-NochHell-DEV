@@ -12,7 +12,7 @@
     "entryHtml": "index.html",
     "localeModule": "src/main.ts"
   },
-  "environment": "dev",
+  "environment": "production",
   "description": {
     "de": "Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.",
     "en": "Daylight times for your place – calculated locally, without an account."
@@ -33,5 +33,5 @@
     "url": "https://drmilos33.github.io/MilosApps-NochHell-DEV/",
     "healthUrl": "https://drmilos33.github.io/MilosApps-NochHell-DEV/health.json"
   },
-  "productionApproved": false
+  "productionApproved": true
 }

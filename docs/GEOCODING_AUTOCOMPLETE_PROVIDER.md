@@ -1,63 +1,67 @@
-# Dynamische Ortssuche: Providernachweis
+# Ortssuche: Production-Providernachweis
 
-Stand: 3. August 2026. Dieser Nachweis gilt ausschließlich für das öffentliche
-DEV von `Noch hell?` (`appKey=daylight`).
+Stand: 4. August 2026. Dieser Nachweis gilt für den Production-Kandidaten von
+`Noch hell?` (`appKey=daylight`).
 
-## Gewählter Vorschlagsprovider
+## Gewählter Provider und Endpunkt
 
-- Standardendpunkt:
-  `https://geocoding-api.open-meteo.com/v1/search`
-- Offizielle API-Dokumentation:
-  https://open-meteo.com/en/docs/geocoding-api
-- Nutzungsbedingungen und Grenzen:
-  https://open-meteo.com/en/terms
-- Lizenzinformation:
-  https://open-meteo.com/en/licence
-- Datenquelle und Lizenz: GeoNames, CC BY 4.0
-- Laufzeitkonfiguration: `suggestionsEndpoint` in
-  `public/runtime-config.json`; nur credential-freies HTTPS wird akzeptiert.
+- Endpunkt: `https://geocoding-api.open-meteo.com/v1/search`
+- API: https://open-meteo.com/en/docs/geocoding-api
+- Nutzungsbedingungen: https://open-meteo.com/en/terms
+- Lizenz und Attribution: https://open-meteo.com/en/licence
+- Datengrundlage: GeoNames, CC BY 4.0
+- Runtimekonfiguration: `geocodingEndpoint` und `suggestionsEndpoint` in
+  `public/runtime-config.json`; ausschließlich credential-freies HTTPS.
 
 Die API dokumentiert partielle und unscharfe Treffer ab drei Zeichen und
-liefert die für Daylight erforderliche IANA-Zeitzone direkt mit. Ein
-credential-freier Browseraufruf mit der DEV-Origin wurde am 3. August 2026
-erfolgreich mit `Access-Control-Allow-Origin: *` geprüft. Die öffentlichen
-Open-Meteo-Grenzen für nichtkommerzielle Nutzung liegen zum Prüfzeitpunkt bei
-10.000 Aufrufen pro Tag, 5.000 pro Stunde und 600 pro Minute. Diese Werte sind
-keine Verfügbarkeitsgarantie und werden vor einer späteren Productionfreigabe
-neu bewertet.
+liefert die von Daylight benötigte IANA-Zeitzone. Ein Browseraufruf mit Origin
+`https://sinddielampenan.de` wurde am 4. August 2026 mit
+`Access-Control-Allow-Origin: *` bestätigt. Die sichtbare App nennt
+Open‑Meteo, GeoNames und CC BY 4.0 unmittelbar bei den Ortsdaten.
 
-## Abgrenzung zu Nominatim
+## Production-Bewertung
 
-Die Richtlinie der öffentlichen Nominatim-Instanz verbietet clientseitiges
-Autocomplete ausdrücklich:
-https://operations.osmfoundation.org/policies/nominatim/
+Die kostenfreie Open‑Meteo-API ist nur für nichtkommerzielle Nutzung bestimmt.
+Noch hell? ist kostenlos, werbefrei, ohne Konto, Abonnement, Verkauf oder
+Monetarisierung und fällt damit im freigegebenen Stand unter diesen Zweck. Die
+zum Prüfzeitpunkt dokumentierten Grenzen sind 10.000 Aufrufe pro Tag, 5.000 pro
+Stunde, 600 pro Minute und 300.000 pro Monat. Das ist keine
+Verfügbarkeitsgarantie. Vor Werbung, Bezahlfunktion, starkem Wachstum oder
+geändertem Providervertrag muss Production erneut bewertet oder auf einen
+eigenen beziehungsweise kommerziellen Endpunkt umgestellt werden.
 
-Deshalb verwendet die App Nominatim weiterhin ausschließlich nach Enter oder
-„Suchen“, mit mindestens 1,1 Sekunden Abstand, persistentem 30-Tage-Cache,
-Attribution und austauschbarem Endpoint. Der neue Vorschlagsprovider ist davon
-getrennt und ersetzt die genauere explizite Suche nicht.
+Open‑Meteo beschreibt die technisch notwendige Verarbeitung der IP-Adresse und
+eine mögliche Protokollierung von IP-Adresse und angefragter URL bis zu 90
+Tage. Daylight sendet ausschließlich den eingegebenen Suchtext; keine
+Gerätekoordinaten, gespeicherten Orte, Kontoangaben oder App-URL-Daten.
 
-## Laufzeit- und UI-Grenzen
+## Anfrage-, Cache- und UI-Grenzen
 
-- Beginn ab drei Zeichen nach dem im Shared-Vertrag festgelegten Debounce;
-- höchstens sechs Providerergebnisse;
-- AbortController und Request-Identität verhindern veraltete Treffer;
-- flüchtiger Cache: höchstens 20 Suchtexte, höchstens sechs Stunden, keine neue
-  dauerhafte Speicherung;
-- lokale letzte Orte und der freiwillig gerundete Geräteort erscheinen in
-  derselben ARIA-Listbox wie Netztreffer;
-- genau eine Combobox/Listbox, Pfeiltasten, Enter, Escape und Schließen bei
-  Pointerinteraktion außerhalb;
-- keine automatische Standortberechtigung und keine Gerätekoordinaten im
-  Providerrequest oder in Teil-URLs;
-- Providerfehler lassen lokale Vorschläge und die explizite Nominatim-Suche
-  nutzbar.
+- dynamische Vorschläge erst ab drei Zeichen nach 350 ms Debounce, höchstens
+  sechs Ergebnisse;
+- ausdrücklich abgesendete Suche ab zwei Zeichen, höchstens sieben Ergebnisse;
+- Vorschlagscache nur flüchtig: höchstens 20 Suchtexte, höchstens sechs Stunden;
+- abgesendete Antworten lokal: höchstens 20 Suchtexte, höchstens 30 Tage;
+- genau eine Shared-Combobox/Listbox; Abschluss bei Außenklick, Escape,
+  Auswahl, Sprachwechsel und Disconnect;
+- Abort- und Generationsschutz verhindert verspätete Altantworten;
+- keine automatische Standortberechtigung und keine Ortsdaten in der URL;
+- offline funktionieren gespeicherter Ort und bekannte Cachetreffer, aber keine
+  neue Netzsuche.
 
 Der Interaktionsvertrag folgt dem WAI-ARIA-APG-Combobox-Muster:
 https://www.w3.org/WAI/ARIA/apg/patterns/combobox/
 
-Die Providerfähigkeit und der Außenklick-Lifecycle werden nicht als
-App-Sonderlösung implementiert. Sie sind über
-`public-app-essentials/v1.1.5` am unveränderlichen Shared-Commit
-`2942132ad3bf6cf39edc9f52ed918de6a230be23` atomar vendort und mit dem
-app-eigenen Sechs-Artefakt-Lock verifiziert. Production bleibt gesperrt.
+## Bewusst verworfener Production-Pfad
+
+Die öffentliche Nominatim-Instanz erlaubt moderate, nutzerinitiierte Suche,
+verbietet Autocomplete und begrenzt die gesamte Anwendung auf höchstens eine
+Anfrage pro Sekunde:
+https://operations.osmfoundation.org/policies/nominatim/
+
+Der bisherige 1,1-Sekunden-Takt war nur pro Browserinstanz und konnte die
+globale Anwendungsgrenze einer statischen öffentlichen Production nicht
+erzwingen. Deshalb enthält der Production-Runtimepfad keine Nominatim-Anfrage,
+keine Nominatim-CSP-Freigabe und keine OSM/ODbL-Attribution. Ein späterer
+Providerwechsel bleibt über die Runtimekonfiguration möglich und benötigt eine
+neue Datenschutz-, Lizenz-, Quota- und CSP-Prüfung.

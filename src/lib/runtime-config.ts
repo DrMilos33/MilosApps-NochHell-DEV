@@ -1,9 +1,9 @@
 import type { RuntimeConfig } from "../types";
 
 const defaults: RuntimeConfig = {
-  geocodingEndpoint: "https://nominatim.openstreetmap.org/search",
+  geocodingEndpoint: "https://geocoding-api.open-meteo.com/v1/search",
   suggestionsEndpoint: "https://geocoding-api.open-meteo.com/v1/search",
-  environment: "dev",
+  environment: "production",
 };
 
 export function validatedHttpsEndpoint(value: unknown, fallback: string): string {

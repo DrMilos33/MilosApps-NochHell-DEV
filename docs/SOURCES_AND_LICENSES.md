@@ -58,40 +58,21 @@ Produktversion sollte für solche Fälle eine manuelle Zonenkorrektur erwägen.
 
 ## Ortssuche
 
-Die genauere manuelle Ortssuche verwendet standardmäßig die öffentliche
-Nominatim-Instanz. Der Endpunkt ist über `public/runtime-config.json`
-austauschbar. Die App:
-
-- sendet an Nominatim nur ausdrücklich abgesendete Suchen und kein
-  Nominatim-Autocomplete;
-- begrenzt Anfragen auf höchstens eine pro 1,1 Sekunden;
-- speichert maximal 20 Suchantworten für 30 Tage lokal;
-- zeigt OpenStreetMap-Attribution;
-- hält den Dienst austauschbar und sendet keine Gerätekoordinaten dorthin.
-
-Verbindliche Quellen:
-
-- [Nominatim Usage Policy](https://operations.osmfoundation.org/policies/nominatim/)
-- [Nominatim Search API](https://nominatim.org/release-docs/develop/api/Search/)
-- [OpenStreetMap Copyright and License](https://www.openstreetmap.org/copyright/en)
-
-Die Suchdaten stehen unter ODbL; OpenStreetMap-Mitwirkende werden in der App
-sichtbar genannt. Die Oberfläche und das Portal-Vorschaubild enthalten keine
-übernommenen Kartenkacheln oder Drittanbieterbilder.
-
-Dynamische Vorschläge ab drei Zeichen verwenden den getrennt konfigurierbaren
-Open-Meteo-Geocoding-Endpunkt. Er ist für partielle und unscharfe Ortssuchen
-dokumentiert und liefert unter anderem Name, administrative Ebenen, Land,
-Ländercode, WGS84-Koordinaten und IANA-Zeitzone. Die App:
+Der Production-Kandidat verwendet für dynamische Vorschläge und bewusst
+abgesendete Suchen ausschließlich den konfigurierbaren Open‑Meteo-Geocoder. Er
+ist für partielle und unscharfe Ortssuchen dokumentiert und liefert Name,
+administrative Ebenen, Land, Ländercode, WGS84-Koordinaten und IANA-Zeitzone.
+Die App:
 
 - wartet nach der Eingabe, verwirft abgebrochene oder veraltete Antworten und
   zeigt höchstens sechs Ergebnisse;
 - hält höchstens 20 Antworten für sechs Stunden nur im flüchtigen
   Seitenspeicher;
+- speichert höchstens 20 bewusst abgesendete Antworten für 30 Tage lokal;
 - mischt lokale bekannte Orte und Providerergebnisse in genau eine
   zugängliche Combobox-/Listbox-Struktur;
 - sendet keine Gerätekoordinaten, gespeicherten Orte oder App-URL-Daten an den
-  Vorschlagsdienst;
+  Dienst;
 - behält Endpoint und Providerintegration austauschbar.
 
 Verbindliche Quellen:
@@ -102,10 +83,18 @@ Verbindliche Quellen:
 - [GeoNames](https://www.geonames.org/)
 - [Creative Commons Attribution 4.0](https://creativecommons.org/licenses/by/4.0/)
 
-Die Open-Meteo-Geocoding-Daten basieren auf GeoNames und stehen laut
-Open-Meteo unter CC BY 4.0. Beide Namen und die Lizenz werden in der App
-sichtbar genannt. Der öffentliche Dienst ist eine DEV-/nichtkommerzielle
-Abhängigkeit mit dokumentierten Nutzungsgrenzen, kein garantiertes App-Backend.
+Die Open‑Meteo-Geocoding-Daten basieren auf GeoNames und stehen laut
+Open‑Meteo unter CC BY 4.0. Provider, Datenquelle und Lizenz werden in der App
+sichtbar genannt. Der kostenfreie Dienst ist für diesen kostenlosen,
+werbefreien und nicht monetarisierten Production-Stand zulässig, besitzt aber
+dokumentierte Quoten und keine Verfügbarkeitsgarantie.
+
+Die öffentliche Nominatim-Instanz wurde für Production bewusst verworfen. Ihre
+globale Grenze von einer Anfrage pro Sekunde lässt sich durch den bisherigen
+pro-Browser-Takt in einer statischen öffentlichen App nicht fail-closed
+garantieren. Nominatim ist deshalb weder Laufzeitprovider noch CSP-Ziel des
+Production-Artefakts. Quelle der Entscheidung:
+[Nominatim Usage Policy](https://operations.osmfoundation.org/policies/nominatim/).
 
 ## Softwarelizenzen
 

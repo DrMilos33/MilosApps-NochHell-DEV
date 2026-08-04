@@ -17,8 +17,8 @@ if (!themeLink) {
 }
 registerMilosAppShell({
   "appKey": "daylight",
-  "environment": "dev",
-  "productionApproved": false,
+  "environment": "production",
+  "productionApproved": true,
   "description": {
     "de": "Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.",
     "en": "Daylight times for your place – calculated locally, without an account."

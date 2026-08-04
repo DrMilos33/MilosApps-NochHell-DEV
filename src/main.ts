@@ -206,7 +206,7 @@ app.innerHTML = `
         </span>
         <a
           data-milos-privacy-info
-          href="https://dev.milos-apps.de/datenschutz"
+          href="https://sinddielampenan.de/datenschutz.html"
           data-i18n="privacyLink"
         >Datenschutz</a>
       </p>
@@ -229,11 +229,6 @@ app.innerHTML = `
 
   <p class="data-attribution">
     <span data-i18n="attributionPrefix">Ortsdaten:</span>
-    <a href="https://www.openstreetmap.org/copyright" rel="noreferrer">
-      <span data-i18n="attributionName">OpenStreetMap-Mitwirkende</span>
-    </a>
-    <span data-i18n="attributionNominatimLicense">(ODbL)</span>
-    <span aria-hidden="true">·</span>
     <a href="https://open-meteo.com/en/docs/geocoding-api" rel="noreferrer">
       <span data-i18n="attributionSuggestionsName">Open-Meteo / GeoNames</span>
     </a>

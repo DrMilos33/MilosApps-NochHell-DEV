@@ -1,5 +1,5 @@
 {
-  "environment": "dev",
-  "geocodingEndpoint": "https://nominatim.openstreetmap.org/search",
+  "environment": "production",
+  "geocodingEndpoint": "https://geocoding-api.open-meteo.com/v1/search",
   "suggestionsEndpoint": "https://geocoding-api.open-meteo.com/v1/search"
 }

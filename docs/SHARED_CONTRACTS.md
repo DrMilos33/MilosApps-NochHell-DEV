@@ -14,7 +14,7 @@ Stand: 3. August 2026.
 | Lokaler Vendor | `vendor/milosapps-shell/v2/` |
 | Lock | `vendor/milosapps-shell/v2/shell-lock.json` |
 | Runtime-Abhängigkeit | keine |
-| Production-Freigabe | `false` |
+| Production-Freigabe | `true`, Kampagne `public-app-production-launch-2026-08` |
 
 Die Übernahme ist vollständig app-eigen. Dieses Repository importiert zur
 Laufzeit keine Datei aus `MilosApps-Shared`.
@@ -40,9 +40,10 @@ Umgesetzt sind:
 - portabler Validator und SHA-256-Lock für Component, Shadow-CSS, Bootstrap,
   Theme-CSS und Verifier.
 
-Die Shell-Umgebung steht kanonisch in `milos-app.json`. Der DEV-Build verwendet
-`environment=dev`, absolute HTTPS-DEV-URLs und `productionApproved=false`.
-Eine Production-Abbildung wird weder erzeugt noch veröffentlicht.
+Die Shell-Umgebung steht kanonisch in `milos-app.json`. Der
+Production-Kandidat verwendet `environment=production`, absolute
+Production-Links und `productionApproved=true`; das DEV-Badge bleibt verborgen.
+Der bestehende DEV-Branch und sein Pages-Artefakt werden dadurch nicht verändert.
 
 ## `public-app-essentials/v1`
 
@@ -56,19 +57,18 @@ Eine Production-Abbildung wird weder erzeugt noch veröffentlicht.
 | Lokaler Vendor | `vendor/milosapps-essentials/v1/` |
 | Lock | `vendor/milosapps-essentials/v1/essentials-lock.json` |
 | Runtime-Abhängigkeit | keine |
-| Production-Freigabe | `false` |
+| Production-Freigabe | `true`, Kampagne `public-app-production-launch-2026-08` |
 
 Daylight aktiviert den 32 × 32 Pixel großen CSS-first Startzustand, die
 dauerhafte No-Cookies-Information ohne Banner oder Schließzustand, Teilen ohne
 private Ortsdaten und die gemeinsame explizite Ort-/Regionssuche. Die eine
 Shared-Combobox verwendet für dynamische Vorschläge die vertragliche Fähigkeit
 `provider-autocomplete-direct` und schließt bei Außenklick, Escape, Auswahl,
-Sprachwechsel sowie Disconnect. Datumsauswahl bleibt deaktiviert. Die
-app-eigene Nominatim-Anbindung bleibt davon getrennt und behält für die
-explizite Enter-/Suchen-Aktion 1,1 Sekunden Mindestabstand, Cache, Attribution,
-austauschbaren Endpunkt sowie die unterschiedenen Offline-, Netzwerk-, HTTP-
-und Antwortfehler. Gerätestandorte werden weiterhin vor jeder Speicherung
-gerundet.
+Sprachwechsel sowie Disconnect. Datumsauswahl bleibt deaktiviert. Dynamische
+Vorschläge und explizite Enter-/Suchen-Aktionen verwenden im Production-
+Kandidaten denselben dokumentierten Open‑Meteo-Endpunkt; nur abgesendete
+Antworten werden begrenzt persistent gecacht. Gerätestandorte werden weiterhin
+vor jeder Speicherung gerundet und nie an den Provider gesendet.
 
 `milos-essentials.json` ist die kanonische Verbraucherdefinition. Sie bindet
 den physischen Vendorpfad getrennt vom öffentlichen Same-Origin-Pfad und nennt

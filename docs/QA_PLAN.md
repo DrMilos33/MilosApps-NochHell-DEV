@@ -21,11 +21,11 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
 - App-spezifische Readiness auf dem strikt reservierten Port 4319.
 - vollständige DE-/EN-Umschaltung von Shell, Suche, Ergebnisansicht,
   Sonnenzeiten und Fehlerzuständen mit Persistenz nach Reload;
-- DEV-Linkabbildung, `productionApproved=false`, DEV-Badge, semantische
-  Header-/Nav-/Main-/Footer-Struktur und genau ein Haupt-H1;
+- Production-Linkabbildung, `productionApproved=true`, verborgenes DEV-Badge,
+  semantische Header-/Nav-/Main-/Footer-Struktur und genau ein Haupt-H1;
 - 44-Pixel-Shellziele, Fokusreihenfolge, Reduced Motion sowie Header und Footer
   bei Desktop, 390 × 844 und 200-Prozent-Reflow.
-- app-eigene Inline-Links für Datenschutz und OpenStreetMap-Attribution als
+- app-eigene Inline-Links für Datenschutz und Open‑Meteo-/GeoNames-Attribution als
   echte mindestens 44 × 44 Pixel große Ziele in DE und EN;
 - CSS-first Loader bei langsamem Start mit exakt 32 × 32 Pixel großem Icon in
   Quellmarkup, Desktop, Mobil und 200-Prozent-Reflow sowie genau einer
@@ -37,9 +37,9 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   vollständiges Löschen von Ort, Suchcache und gerundetem Gerätevorschlag;
 - Teilen nativ mit stillem Erfolg und Abbruch, geometrisch stabilem
   Clipboard-/Fehler-Toast sowie kanonischer, ortsneutraler URL;
-- gemeinsame Combobox-/Listbox-Ortssuche für Stadt und Region mit getrennten
-  Providern: dynamische Open-Meteo-Vorschläge ab drei Zeichen und genauere
-  Nominatim-Suche ausschließlich nach Enter/Suchen;
+- gemeinsame Combobox-/Listbox-Ortssuche für Stadt und Region mit dynamischen
+  Open‑Meteo-Vorschlägen ab drei Zeichen und demselben geprüften Provider für
+  ausdrücklich abgesendete Enter-/Suchen-Aktionen;
 - lokale letzte Orte, freiwillig gerundeter Geräteort und dynamische
   Providerergebnisse in genau einer Liste, ohne automatische Permission;
   geschlossene Liste bei leerer/unpassender Eingabe, Escape, Auswahl und
@@ -55,15 +55,16 @@ Regressionen, Browserabdeckung und bekannte Grenzen stehen im
   Same-Origin-CSS-/JS-Dateien,
   korrekte MIME-Typen und strikte `style-src 'self'`-/`script-src 'self'`-CSP.
 
-## Wiederholung vor einer DEV-Veröffentlichung
+## Wiederholung vor der Production-Veröffentlichung
 
 ```powershell
 pnpm verify:shell
 pnpm test:all
-pnpm verify:dev
+pnpm verify:production
 ```
 
-`pnpm readiness` kann zusätzlich gegen einen separat gestarteten DEV-Dienst
-laufen. Eine externe DEV-Veröffentlichung benötigt außerdem einen direkten
-HTTPS-Aufruf, einen identischen Healthcheck und Portaltests für Mobil,
-Desktop, Direktaufruf sowie Portal-Ausfall.
+`pnpm readiness` kann zusätzlich gegen einen separat gestarteten
+Production-Preview laufen. Nach einem Cloudflare-Deploy prüft
+`verify:external-production` die echte HTTPS-URL, No-Login, Source-Health,
+Provider, Offlinegrenze, CSP, Desktop, Smartphone und Reflow. Die Portalroute
+wird erst nach gesundem App-Production-Stand im Portal-Lifecycle aktiviert.

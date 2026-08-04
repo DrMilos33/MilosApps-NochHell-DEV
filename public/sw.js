@@ -1,5 +1,5 @@
-const CACHE_NAME = "milosapps.daylight.offline-shell.v5";
-const CORE_URLS = ["./", "./index.html", "./runtime-config.json", "./app.webmanifest", "./health.json"];
+const CACHE_NAME = "milosapps.daylight.production-offline-shell.v1";
+const CORE_URLS = ["./", "./index.html", "./runtime-config.json", "./app.webmanifest"];
 
 async function installShell() {
   const cache = await caches.open(CACHE_NAME);
@@ -60,6 +60,12 @@ async function cacheFirst(request) {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Readiness must always describe the currently deployed artifact and must
+  // never be satisfied by an offline or stale service-worker response.
+  if (url.pathname.endsWith("/health.json")) {
     return;
   }
 

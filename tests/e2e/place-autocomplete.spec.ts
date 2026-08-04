@@ -58,10 +58,9 @@ test.describe("dynamische Orts-Combobox", () => {
     let explicitRequests = 0;
     page.on("request", (request) => {
       if (request.url().startsWith("https://geocoding-api.open-meteo.com/")) {
-        suggestionRequests += 1;
-      }
-      if (request.url().startsWith("https://nominatim.openstreetmap.org/")) {
-        explicitRequests += 1;
+        const count = new URL(request.url()).searchParams.get("count");
+        if (count === "6") suggestionRequests += 1;
+        if (count === "7") explicitRequests += 1;
       }
     });
     await page.goto("/");

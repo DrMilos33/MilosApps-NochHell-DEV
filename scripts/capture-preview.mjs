@@ -25,7 +25,7 @@ try {
   if (
     body?.status !== "ready" ||
     body?.appKey !== "daylight" ||
-    body?.environment !== "dev"
+    body?.environment !== "production"
   ) {
     throw new Error("Vorschaubild-Quelle gehört nicht zu App-Key daylight.");
   }

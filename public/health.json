@@ -1,7 +1,9 @@
 {
   "status": "ready",
   "appKey": "daylight",
-  "version": "0.8.1",
-  "environment": "dev",
-  "database": false
+  "version": "1.0.0",
+  "environment": "production",
+  "database": false,
+  "productionApproved": true,
+  "sourceCommit": "__DAYLIGHT_SOURCE_COMMIT__"
 }

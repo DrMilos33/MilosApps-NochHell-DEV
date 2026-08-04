@@ -4,23 +4,19 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
 const berlinResult = {
-  osm_id: 62422,
-  osm_type: "relation",
-  lat: "52.5173885",
-  lon: "13.3951309",
-  display_name: "Berlin, Deutschland",
+  id: 2950159,
   name: "Berlin",
-  type: "city",
-  addresstype: "city",
-  address: {
-    city: "Berlin",
-    country: "Deutschland",
-    country_code: "de",
-  },
+  latitude: 52.5173885,
+  longitude: 13.3951309,
+  feature_code: "PPLC",
+  country_code: "DE",
+  timezone: "Europe/Berlin",
+  country: "Deutschland",
+  admin1: "Berlin",
 };
 
 const berlinLocation = {
-  id: "relation-62422",
+  id: "open-meteo-2950159",
   name: "Berlin",
   context: "Deutschland",
   latitude: 52.5173885,
@@ -34,14 +30,18 @@ async function mockGeocoder(
   results: unknown[] = [berlinResult],
   delayMilliseconds = 0,
 ): Promise<void> {
-  await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
+  await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
+    if (new URL(route.request().url()).searchParams.get("count") !== "7") {
+      await route.fallback();
+      return;
+    }
     if (delayMilliseconds > 0) {
       await new Promise((resolve) => setTimeout(resolve, delayMilliseconds));
     }
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(results),
+      body: JSON.stringify({ results }),
     });
   });
 }
@@ -97,7 +97,7 @@ test.describe("öffentlicher Kernfluss", () => {
     await mockGeocoder(page);
   });
 
-  test("erkennt den eigenen DEV-Dienst am App-Key statt nur an HTTP 200", async ({
+  test("erkennt den eigenen Production-Dienst an Identität und Source-SHA", async ({
     request,
   }) => {
     const response = await request.get("/health.json");
@@ -105,8 +105,10 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.8.1",
-      environment: "dev",
+      version: "1.0.0",
+      environment: "production",
+      productionApproved: true,
+      sourceCommit: expect.stringMatching(/^[0-9a-f]{40}$/),
     });
   });
 
@@ -183,33 +185,23 @@ test.describe("öffentlicher Kernfluss", () => {
   });
 
   test("unterscheidet gleichnamige Orte durch ihren Kontext", async ({ page }) => {
-    await page.unroute("https://nominatim.openstreetmap.org/search**");
+    await page.unroute("https://geocoding-api.open-meteo.com/v1/search**");
     await mockGeocoder(page, [
       {
         ...berlinResult,
-        osm_id: 1,
-        lat: "49.3501",
-        lon: "8.1382",
+        id: 1,
+        latitude: 49.3501,
+        longitude: 8.1382,
         name: "Neustadt",
-        display_name: "Neustadt, Rheinland-Pfalz, Deutschland",
-        address: {
-          city: "Neustadt",
-          state: "Rheinland-Pfalz",
-          country: "Deutschland",
-        },
+        admin1: "Rheinland-Pfalz",
       },
       {
         ...berlinResult,
-        osm_id: 2,
-        lat: "53.5511",
-        lon: "9.9937",
+        id: 2,
+        latitude: 53.5511,
+        longitude: 9.9937,
         name: "Neustadt",
-        display_name: "Neustadt, Hamburg, Deutschland",
-        address: {
-          city: "Neustadt",
-          state: "Hamburg",
-          country: "Deutschland",
-        },
+        admin1: "Hamburg",
       },
     ]);
     await page.goto("/");
@@ -226,7 +218,7 @@ test.describe("öffentlicher Kernfluss", () => {
   });
 
   test("erklärt unbekannte Orte und erlaubt einen neuen Versuch", async ({ page }) => {
-    await page.unroute("https://nominatim.openstreetmap.org/search**");
+    await page.unroute("https://geocoding-api.open-meteo.com/v1/search**");
     await mockGeocoder(page, []);
     await page.goto("/");
     await openLocationPicker(page);
@@ -611,7 +603,7 @@ test.describe("public-app-essentials/v1", () => {
     await expect(privacy).toContainText("Ort, Sprache und ein kleiner Suchcache bleiben lokal");
     await expect(privacy.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
       "href",
-      "https://dev.milos-apps.de/datenschutz",
+      "https://sinddielampenan.de/datenschutz.html",
     );
     expect(
       await page.evaluate(() => localStorage.getItem("milosapps.daylight.privacyNotice.v1")),
@@ -636,7 +628,7 @@ test.describe("public-app-essentials/v1", () => {
     await page.getByRole("button", { name: "EN", exact: true }).click();
 
     const targets = page.locator(".privacy-summary a, .data-attribution a");
-    await expect(targets).toHaveCount(3);
+    await expect(targets).toHaveCount(2);
     const sizes = await targets.evaluateAll((links) =>
       links.map((link) => {
         const rect = link.getBoundingClientRect();
@@ -718,23 +710,17 @@ test.describe("public-app-essentials/v1", () => {
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(beforeHeight);
   });
 
-  test("trennt dynamische Vorschläge von der Nominatim-Suche per Enter", async ({
+  test("trennt flüchtige Vorschläge vom persistent gecachten Absenden", async ({
     page,
   }) => {
     let requests = 0;
     await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
+      const submitted = new URL(route.request().url()).searchParams.get("count") === "7";
+      if (submitted) requests += 1;
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ results: [] }),
-      });
-    });
-    await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
-      requests += 1;
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify([berlinResult]),
+        body: JSON.stringify({ results: submitted ? [berlinResult] : [] }),
       });
     });
     await page.goto("/");
@@ -776,34 +762,34 @@ test.describe("public-app-essentials/v1", () => {
 });
 
 test.describe("public-app-shell/v2", () => {
-  test("setzt semantische Shell, DEV-Identität und absolute DEV-Links", async ({
+  test("setzt semantische Shell, Production-Identität und absolute Production-Links", async ({
     page,
   }) => {
     await page.goto("/");
 
     await expect(page.locator("body")).toHaveAttribute("data-app-key", "daylight");
-    await expect(page.locator("body")).toHaveAttribute("data-environment", "dev");
+    await expect(page.locator("body")).toHaveAttribute("data-environment", "production");
     await expect(page.locator("header")).toHaveCount(1);
     await expect(page.locator("main")).toHaveCount(1);
     await expect(page.locator("footer")).toHaveCount(1);
     await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.getByText("DEV", { exact: true })).toBeVisible();
+    await expect(page.getByText("DEV", { exact: true })).toBeHidden();
     await expect(page.locator("milos-app-shell")).toHaveCount(1);
-    await expect(page.getByRole("link", { name: "MilosApps DEV", exact: true })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "MilosApps", exact: true }).first()).toHaveAttribute(
       "href",
-      "https://dev.milos-apps.de/",
+      "https://milos-apps.de/",
     );
     await expect(page.getByRole("link", { name: "Alle Apps" })).toHaveAttribute(
       "href",
-      "https://dev.milos-apps.de/apps",
+      "https://milos-apps.de/apps",
     );
     await expect(page.getByRole("link", { name: "Impressum" })).toHaveAttribute(
       "href",
-      "https://dev.milos-apps.de/impressum",
+      "https://milos-apps.de/impressum",
     );
     await expect(
       page.getByLabel("Rechtliches").getByRole("link", { name: "Datenschutz" }),
-    ).toHaveAttribute("href", "https://dev.milos-apps.de/datenschutz");
+    ).toHaveAttribute("href", "https://milos-apps.de/datenschutz");
     await expect(page.getByText("Tageslichtzeiten für deinen Ort – lokal berechnet, ohne Konto.")).toBeVisible();
   });
 
@@ -900,8 +886,8 @@ test.describe("public-app-shell/v2", () => {
     await expect(page.getByRole("alert")).toContainText("Location was not allowed");
     await expect(page.getByRole("combobox", { name: "Place or region" })).toBeFocused();
 
-    await page.unroute("https://nominatim.openstreetmap.org/search**");
-    await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
+    await page.unroute("https://geocoding-api.open-meteo.com/v1/search**");
+    await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
       await route.abort("internetdisconnected");
     });
     await page.getByRole("combobox", { name: "Place or region" }).fill("Hamburg");
@@ -910,7 +896,7 @@ test.describe("public-app-shell/v2", () => {
       "A new place search needs an available network connection.",
     );
 
-    await page.unroute("https://nominatim.openstreetmap.org/search**");
+    await page.unroute("https://geocoding-api.open-meteo.com/v1/search**");
     await context.setOffline(true);
     await page.getByRole("combobox", { name: "Place or region" }).fill("Bremen");
     await page.getByRole("button", { name: "Search" }).click();
@@ -935,7 +921,7 @@ test.describe("public-app-shell/v2", () => {
     await page.keyboard.press("Tab");
     await expect(page.getByRole("link", { name: "Zum Inhalt" })).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(page.getByRole("link", { name: "MilosApps DEV", exact: true })).toBeFocused();
+    await expect(page.getByRole("link", { name: "MilosApps", exact: true }).first()).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(page.getByRole("button", { name: "DE", exact: true })).toBeFocused();
     await page.keyboard.press("Tab");
@@ -954,6 +940,26 @@ test.describe("public-app-shell/v2", () => {
         }),
       );
     expect(sizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true);
+  });
+
+  test("liefert die app-eigene Datenschutzseite unter derselben strikten CSP", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Datenschutzartefakt wird einmal vollständig geprüft.");
+    await page.setViewportSize({ width: 390, height: 844 });
+    const response = await page.goto("/datenschutz.html");
+    expect(response?.status()).toBe(200);
+    expect(response?.headers()["content-security-policy"]).toContain("default-src 'self'");
+    await expect(
+      page.getByRole("heading", { name: "Deine Ortsdaten bleiben auf deinem Gerät." }),
+    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "English summary" })).toBeVisible();
+    await expect(page.getByText(/keine Cookies, kein Tracking/)).toBeVisible();
+    expect(
+      await page.evaluate(() =>
+        document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      ),
+    ).toBe(0);
   });
 
   test("bleibt bei 1440 sowie 390 × 844 einschließlich Shell überlauffrei und ohne Footer-Leerraum", async ({
@@ -992,8 +998,24 @@ test.describe("public-app-shell/v2", () => {
   }, testInfo) => {
     test.skip(testInfo.project.name !== "chromium", "Reflow-Geometrie wird einmal geprüft.");
     await page.setViewportSize({ width: 360, height: 800 });
+    await page.route("http://127.0.0.1:4319/reflow-200.css", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "text/css",
+        body: "html { font-size: 200% !important; }",
+      });
+    });
+    await page.route("http://127.0.0.1:4319/", async (route) => {
+      const response = await route.fetch();
+      await route.fulfill({
+        response,
+        body: (await response.text()).replace(
+          "</head>",
+          '<link rel="stylesheet" href="./reflow-200.css" /></head>',
+        ),
+      });
+    });
     await page.goto("/");
-    await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
     const metrics = await page.evaluate(() => ({
       overflow:
         document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -1032,27 +1054,10 @@ test.describe("public-app-shell/v2", () => {
         cspErrors.push(message.text());
       }
     });
-    await page.route("http://127.0.0.1:4319/", async (route) => {
-      const response = await route.fetch();
-      await route.fulfill({
-        response,
-        headers: {
-          ...response.headers(),
-          "content-security-policy": [
-            "default-src 'self'",
-            "script-src 'self'",
-            "style-src 'self'",
-            "img-src 'self' data:",
-            "connect-src 'self' https://nominatim.openstreetmap.org",
-            "manifest-src 'self'",
-            "worker-src 'self'",
-            "base-uri 'none'",
-          ].join("; "),
-        },
-      });
-    });
-
-    await page.goto("/");
+    const response = await page.goto("/");
+    expect(response?.headers()["content-security-policy"]).toBe(
+      "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' https://geocoding-api.open-meteo.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
+    );
     await openLocationPicker(page);
     await page.evaluate(() => customElements.whenDefined("milos-app-shell"));
     await expect(page.getByRole("link", { name: "Alle Apps" })).toBeVisible();
@@ -1338,19 +1343,13 @@ test.describe("Standortzustände und Datenschutz", () => {
   }) => {
     test.skip(browserName !== "chromium", "Request-Cache wird einmal browserseitig geprüft.");
     let requests = 0;
-    await page.route("https://nominatim.openstreetmap.org/search**", async (route) => {
-      requests += 1;
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify([berlinResult]),
-      });
-    });
     await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
+      const submitted = new URL(route.request().url()).searchParams.get("count") === "7";
+      if (submitted) requests += 1;
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ results: [] }),
+        body: JSON.stringify({ results: submitted ? [berlinResult] : [] }),
       });
     });
     await page.goto("/");
@@ -1428,6 +1427,15 @@ test.describe("langsames Netz, Offline und App-Resume", () => {
     await page.reload();
     await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
     await expect(page.getByText("Sonnenaufgang", { exact: true })).toBeVisible();
+    expect(
+      await page.evaluate(async () => {
+        try {
+          return (await fetch("./health.json", { cache: "no-store" })).ok;
+        } catch {
+          return false;
+        }
+      }),
+    ).toBe(false);
     await context.setOffline(false);
   });
 

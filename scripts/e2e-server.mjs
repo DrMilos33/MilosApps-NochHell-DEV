@@ -14,7 +14,14 @@ const response = await fetch("http://127.0.0.1:4319/health.json", {
   },
 });
 const body = response.ok ? await response.json() : null;
-if (body?.status !== "ready" || body?.appKey !== "daylight") {
+if (
+  body?.status !== "ready" ||
+  body?.appKey !== "daylight" ||
+  body?.version !== "1.0.0" ||
+  body?.environment !== "production" ||
+  body?.productionApproved !== true ||
+  !/^[0-9a-f]{40}$/.test(body?.sourceCommit ?? "")
+) {
   await server.close();
   throw new Error("E2E-Readiness gehört nicht zu App-Key daylight.");
 }

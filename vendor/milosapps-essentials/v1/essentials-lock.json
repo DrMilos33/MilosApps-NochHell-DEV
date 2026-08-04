@@ -4,7 +4,7 @@
   "sharedCommit": "2942132ad3bf6cf39edc9f52ed918de6a230be23",
   "appKey": "daylight",
   "manifest": "milos-essentials.json",
-  "manifestSha256": "sha256:b38a3b27e03482a5a492b065fbd4d391472618ca3846e87c42288f4b5c2ddf0c",
+  "manifestSha256": "sha256:d49e2a84a1367696fa39a592f8c31f4fe1564514574ae5fee14d1c58b707d758",
   "vendorDirectory": "vendor/milosapps-essentials/v1",
   "runtimeBasePath": "vendor/milosapps-essentials/v1",
   "loadingIconRuntimePath": "./daylight-icon.svg",
@@ -12,7 +12,7 @@
     "milos-app-essentials.css": "sha256:45639329f6a94093354fd7d416a636d4e0da4d751b9fa97e2c75c84c7c6c4ade",
     "milos-app-essentials-theme.css": "sha256:028570ee292250eb112f07181e63504c1fd6060edd8051a6a88f6f3ef17594ff",
     "milos-app-essentials.js": "sha256:c361558a7bd98c7a40c64b99e1b7c68916cf6711ac6da76c51482067f458c83f",
-    "bootstrap.js": "sha256:1a01c028c2f843fc6b387cd5d23ec00c3751ab28b77b79b010d769ce6e9ca260",
+    "bootstrap.js": "sha256:774b84bf34b3a40681fa1a34b7fd603bd74e1a547cd2577c0c745d07ae5b4230",
     "verify.mjs": "sha256:f9e35bef7cbae39780b96339792ac9e7e09c70fcb78c4df45e66808d79d93453",
     "essentials-manifest.schema.json": "sha256:6d87625c2bb4d10d3b18f8c4ff7f6982512ba20cb7b3105c8be00432eed40385"
   }

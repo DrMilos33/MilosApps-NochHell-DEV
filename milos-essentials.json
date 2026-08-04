@@ -4,8 +4,8 @@
   "ownerTask": "MilosApps – Noch hell?",
   "public": true,
   "loginRequired": false,
-  "environment": "dev",
-  "productionApproved": false,
+  "environment": "production",
+  "productionApproved": true,
   "entryHtml": "index.html",
   "consumerEntryModule": {
     "sourceFile": "src/main.ts",
@@ -39,7 +39,7 @@
       },
       {
         "key": "milosapps.daylight.geocoding-cache.v1",
-        "purpose": "Bereits abgesendete Ortsantworten höchstens 30 Tage provider- und rate-limit-schonend wiederverwenden",
+        "purpose": "Bereits abgesendete Open-Meteo-Ortsantworten höchstens 30 Tage provider- und rate-limit-schonend wiederverwenden",
         "lifetime": "bounded",
         "strictlyNecessary": true
       },
@@ -50,7 +50,7 @@
         "strictlyNecessary": true
       },
       {
-        "key": "milosapps.daylight.offline-shell.v5",
+        "key": "milosapps.daylight.production-offline-shell.v1",
         "purpose": "App-Shell nach der ersten erfolgreichen Ladung für die ausdrücklich angebotene Offline-Wiederöffnung bereitstellen",
         "lifetime": "bounded",
         "strictlyNecessary": true
@@ -63,7 +63,7 @@
       }
     ],
     "optionalTracking": false,
-    "privacyUrl": "https://dev.milos-apps.de/datenschutz"
+    "privacyUrl": "https://sinddielampenan.de/datenschutz.html"
   },
   "features": {
     "startup": true,

@@ -8,7 +8,7 @@
   "artifacts": {
     "milos-app-shell.js": "sha256:bff9c09ae64e453d186508a4372a1cacc17b4dcd30b770046c7f4efee53731b3",
     "milos-app-shell.css": "sha256:662093d5dce4147b7e962a882b570b478a437a78c77d92242eb3c96191a019a9",
-    "bootstrap.js": "sha256:731369ea998e3538deae3c4cae10502dcfa6aa98a05b8c77b8fac824700585af",
+    "bootstrap.js": "sha256:23b298acf742dd4d13af2fe9a4a68e9feed22d788602a6237ab32834d01b5a48",
     "milos-app-shell-theme.css": "sha256:be38a7c98b74c3094a8df25ac1a6dc9cc69158ffc9c9ec941906c0bf8c278842",
     "verify.mjs": "sha256:59dd5776bf9a71ac1e096fee9f2afce7627912bd3d8a134bb3ca91f82dd65126"
   }

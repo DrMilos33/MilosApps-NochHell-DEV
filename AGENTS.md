@@ -10,7 +10,7 @@ Dieses Repository enthält ausschließlich `Noch hell?` mit dem App-Key
 - App-Klasse: `öffentlich`
 - Plattformen: `Web, mobil und Desktop`
 - Datenhaltung: `gewählter Ort oder grobe Koordinaten lokal; keine App-Datenbank`
-- Deployment: `eigener DEV-Dienst; Production nicht freigegeben`
+- Deployment: `eigener DEV-Dienst; Production im Kampagnenfenster public-app-production-launch-2026-08 ausdrücklich freigegeben`
 - Gemeinsame Abhängigkeiten: `keine`
 
 Wenn der lokale MilosApps Workspace verfügbar ist, vor appübergreifenden
@@ -23,8 +23,9 @@ Wenn der lokale MilosApps Workspace verfügbar ist, vor appübergreifenden
 - Keine Datenbank, Cookies, Secrets oder Quellcode mit anderen Apps teilen.
 - Standort nur nach Nutzeraktion anfragen und nicht in Teil-URLs übernehmen.
 - Orts- und Zeitzonendaten auf Lizenz, Attribution und Genauigkeit prüfen.
-- DEV und Production strikt trennen; Production nur nach ausdrücklicher
-  Freigabe verändern.
+- DEV und Production strikt trennen. Die Production-Freigabe gilt nur für den
+  dokumentierten Daylight-Kandidaten und das bestätigte Cloudflare-Pages-Ziel;
+  Portal, Porkbun-Weiterleitung und fremde Repositories bleiben getrennt.
 
 ## Qualität
 

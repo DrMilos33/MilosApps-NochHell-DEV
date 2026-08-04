@@ -3,8 +3,8 @@ import { initMilosAppEssentials } from "./milos-app-essentials.js";
 document.body?.setAttribute("data-milos-essentials-app", "daylight");
 export const milosAppEssentials = initMilosAppEssentials({
   "appKey": "daylight",
-  "environment": "dev",
-  "productionApproved": false,
+  "environment": "production",
+  "productionApproved": true,
   "loading": {
     "appName": "Noch hell?",
     "iconPath": "public/daylight-icon.svg",
@@ -32,7 +32,7 @@ export const milosAppEssentials = initMilosAppEssentials({
       },
       {
         "key": "milosapps.daylight.geocoding-cache.v1",
-        "purpose": "Bereits abgesendete Ortsantworten höchstens 30 Tage provider- und rate-limit-schonend wiederverwenden",
+        "purpose": "Bereits abgesendete Open-Meteo-Ortsantworten höchstens 30 Tage provider- und rate-limit-schonend wiederverwenden",
         "lifetime": "bounded",
         "strictlyNecessary": true
       },
@@ -43,7 +43,7 @@ export const milosAppEssentials = initMilosAppEssentials({
         "strictlyNecessary": true
       },
       {
-        "key": "milosapps.daylight.offline-shell.v3",
+        "key": "milosapps.daylight.production-offline-shell.v1",
         "purpose": "App-Shell nach der ersten erfolgreichen Ladung für die ausdrücklich angebotene Offline-Wiederöffnung bereitstellen",
         "lifetime": "bounded",
         "strictlyNecessary": true
@@ -56,7 +56,7 @@ export const milosAppEssentials = initMilosAppEssentials({
       }
     ],
     "optionalTracking": false,
-    "privacyUrl": "https://dev.milos-apps.de/datenschutz"
+    "privacyUrl": "https://sinddielampenan.de/datenschutz.html"
   },
   "features": {
     "startup": true,

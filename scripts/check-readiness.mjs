@@ -14,11 +14,14 @@ const body = await response.json();
 if (
   body?.status !== "ready" ||
   body?.appKey !== "daylight" ||
-  body?.environment !== "dev"
+  body?.version !== "1.0.0" ||
+  body?.environment !== "production" ||
+  body?.productionApproved !== true ||
+  !/^[0-9a-f]{40}$/.test(body?.sourceCommit ?? "")
 ) {
   throw new Error(
-    `Falscher DEV-Dienst auf ${url}: erwartet status=ready, appKey=daylight und environment=dev.`,
+    `Wrong production service on ${url}: expected ready/daylight/1.0.0/production with an approved source SHA.`,
   );
 }
 
-console.log(`Noch hell? DEV ist bereit (${body.appKey}, ${body.version}).`);
+console.log(`Noch hell? production is ready (${body.appKey}, ${body.version}, ${body.sourceCommit}).`);

@@ -13,7 +13,7 @@ type SuggestionCacheEntry = {
   results: PlaceSearchResult[];
 };
 
-type OpenMeteoPlace = {
+export type OpenMeteoPlace = {
   id?: unknown;
   name?: unknown;
   latitude?: unknown;
@@ -39,7 +39,9 @@ function cleanText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function normalizePlace(value: OpenMeteoPlace): PlaceSearchResult | null {
+export function normalizeOpenMeteoPlace(
+  value: OpenMeteoPlace,
+): PlaceSearchResult | null {
   const id =
     typeof value.id === "number" || typeof value.id === "string"
       ? String(value.id)
@@ -143,7 +145,7 @@ export async function searchPlaceSuggestions(
   const body = (await response.json()) as { results?: unknown };
   const values = Array.isArray(body?.results) ? body.results : [];
   const results = values
-    .map((value) => normalizePlace(value as OpenMeteoPlace))
+    .map((value) => normalizeOpenMeteoPlace(value as OpenMeteoPlace))
     .filter((value): value is PlaceSearchResult => value !== null)
     .slice(0, 6);
   remember(cacheKey, { storedAt: now, results });

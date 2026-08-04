@@ -9,6 +9,21 @@ const essentialsBrowserArtifacts = [
   "bootstrap.js",
 ] as const;
 
+export const productionCsp = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self'",
+  "connect-src 'self' https://geocoding-api.open-meteo.com",
+  "manifest-src 'self'",
+  "worker-src 'self'",
+  "base-uri 'none'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 export default defineConfig({
   base: "./",
   plugins: [
@@ -30,7 +45,17 @@ export default defineConfig({
   build: {
     assetsInlineLimit: 0,
     target: "es2022",
-    sourcemap: true,
+    sourcemap: false,
+  },
+  preview: {
+    headers: {
+      "Content-Security-Policy": productionCsp,
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Permissions-Policy": "geolocation=(self), camera=(), microphone=()",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+    },
   },
   test: {
     include: ["tests/unit/**/*.test.ts"],
