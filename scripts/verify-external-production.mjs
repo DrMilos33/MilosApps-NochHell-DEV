@@ -21,6 +21,14 @@ appUrl.hash = "";
 if (!appUrl.pathname.endsWith("/")) appUrl.pathname += "/";
 const healthUrl = new URL("health.json", appUrl);
 
+for (const path of ["__qa/not-found", "assets/definitely-not-real.js"]) {
+  const response = await fetch(new URL(path, appUrl), {
+    cache: "no-store",
+    redirect: "manual",
+  });
+  assert.equal(response.status, 404, `${path} must fail closed with HTTP 404.`);
+}
+
 const healthResponse = await fetch(healthUrl, {
   cache: "no-store",
   headers: { Accept: "application/json" },
@@ -64,6 +72,9 @@ async function verifyViewport(name, viewport, reflow = false) {
   });
   page.on("pageerror", (error) => errors.push(error.message));
 
+  let releaseEntry = () => {};
+  let navigationPromise;
+
   try {
     if (reflow) {
       const reflowUrl = new URL("__qa/reflow-200.css", appUrl).href;
@@ -86,7 +97,28 @@ async function verifyViewport(name, viewport, reflow = false) {
       });
     }
 
-    const response = await page.goto(appUrl.href, { waitUntil: "networkidle" });
+    const entryRelease = new Promise((resolve) => {
+      releaseEntry = resolve;
+    });
+    await page.route("**/assets/index-*.js", async (route) => {
+      await entryRelease;
+      await route.continue();
+    }, { times: 1 });
+    const entryRequest = page.waitForRequest((request) =>
+      /\/assets\/index-[^/]+\.js$/.test(new URL(request.url()).pathname),
+    );
+    navigationPromise = page.goto(appUrl.href, { waitUntil: "networkidle" });
+    await entryRequest;
+    const loadingIcon = page.locator("[data-milos-loading-icon]");
+    await loadingIcon.waitFor({ state: "visible" });
+    const loaderSize = await loadingIcon.evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+    assert.deepEqual(loaderSize, { width: 32, height: 32 });
+    releaseEntry();
+
+    const response = await navigationPromise;
     assert.equal(response?.status(), 200, `${name}: app must return HTTP 200.`);
     const csp = response?.headers()["content-security-policy"] ?? "";
     assert.match(csp, /default-src 'self'/);
@@ -111,18 +143,14 @@ async function verifyViewport(name, viewport, reflow = false) {
       `${name}: no horizontal overflow`,
     );
 
-    const loaderSize = await page.locator("[data-milos-loading-icon]").evaluate((node) => {
-      const rect = node.getBoundingClientRect();
-      return { width: rect.width, height: rect.height };
-    });
-    assert.deepEqual(loaderSize, { width: 32, height: 32 });
-
     await page.getByRole("button", { name: "EN", exact: true }).click();
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
     await page.reload({ waitUntil: "networkidle" });
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
     assert.deepEqual(errors, [], `${name}: browser errors`);
   } finally {
+    releaseEntry();
+    await navigationPromise?.catch(() => {});
     await context.close();
   }
 }

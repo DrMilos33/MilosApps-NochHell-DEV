@@ -6,13 +6,14 @@ const appRoot = path.resolve(import.meta.dirname, "..");
 const dist = path.join(appRoot, "dist");
 const expectedCsp = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self' https://geocoding-api.open-meteo.com; manifest-src 'self'; worker-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests";
 
-const [html, health, runtime, serviceWorker, headers, privacy] = await Promise.all([
+const [html, health, runtime, serviceWorker, headers, privacy, notFound] = await Promise.all([
   readFile(path.join(dist, "index.html"), "utf8"),
   readFile(path.join(dist, "health.json"), "utf8").then(JSON.parse),
   readFile(path.join(dist, "runtime-config.json"), "utf8").then(JSON.parse),
   readFile(path.join(dist, "sw.js"), "utf8"),
   readFile(path.join(dist, "_headers"), "utf8"),
   readFile(path.join(dist, "datenschutz.html"), "utf8"),
+  readFile(path.join(dist, "404.html"), "utf8"),
 ]);
 
 assert.match(html, /data-environment="production"/);
@@ -50,6 +51,9 @@ assert.match(headers, /\/health\.json\s+Cache-Control: no-store/);
 assert.doesNotMatch(headers, /nominatim|unsafe-inline|unsafe-eval/i);
 assert.match(privacy, /Open[‑-]Meteo/);
 assert.doesNotMatch(privacy, /dev\.milos-apps\.de/);
+assert.match(notFound, /href="\/"/);
+assert.match(notFound, /href="\/privacy\.css"/);
+assert.doesNotMatch(notFound, /<script\b/i);
 await stat(path.join(dist, "daylight-icon.svg"));
 await stat(path.join(dist, "privacy.css"));
 
