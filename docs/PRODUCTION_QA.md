@@ -1,7 +1,9 @@
 # Production-QA: Noch hell? 1.0.0
 
-Stand: 4. August 2026  
-Branch: `codex/daylight-production-candidate`  
+Stand: 4. August 2026
+
+Branch: `codex/daylight-production-candidate`
+
 Teststufe: `full`
 
 ## Lokales Release-Gate
@@ -15,6 +17,7 @@ Teststufe: `full`
 | Browsermatrix | 127 PASS, 32 bewusst profilgebundene Skips, 0 Fehler; Chromium, Firefox, mobile Chromium |
 | Production-Vertrag | PASS; Port 4319 strict, App-Identität, 1.0.0, Production=true, exakter 40-stelliger Build-Source-SHA |
 | Provider-Smoke | PASS; Open‑Meteo HTTP 200, `Access-Control-Allow-Origin: *`, IANA-Zeitzone mit Origin `https://sinddielampenan.de` |
+| Windows-Frischcheckout | PASS auf `fd274c4ad3b3fbf693722c299bc0d2db302e71dc`; `core.autocrlf=true`, beide Vendorbestände vollständig `i/lf w/lf`, Shell-/Essentials-Verifier, Build und 32 Unit-/Fachtests grün |
 | Diff | `git diff --check` PASS |
 
 Die Browsermatrix umfasst:
@@ -40,8 +43,6 @@ Die Browsermatrix umfasst:
 
 ## Noch ausstehend
 
-Der echte Windows-Recheckout mit `core.autocrlf=true` wird auf dem finalen
-lokalen Kandidatencommit wiederholt, weil Manifest, Vendorbootstrap und Locks
-geändert wurden. Externe Cloudflare-, Domain- und No-Login-Prüfungen bleiben
-bis zur bestätigten Project-ID absichtlich offen; sie dürfen nicht durch eine
-erfundene URL ersetzt werden.
+Externe Cloudflare-, Domain- und No-Login-Prüfungen bleiben bis zur bestätigten
+Project-ID absichtlich offen; sie dürfen nicht durch eine erfundene URL ersetzt
+werden.

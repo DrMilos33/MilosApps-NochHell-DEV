@@ -1,7 +1,9 @@
 # Production-Kandidat: Noch hell?
 
-Stand: 4. August 2026  
-Kampagne: `public-app-production-launch-2026-08`  
+Stand: 4. August 2026
+
+Kampagne: `public-app-production-launch-2026-08`
+
 Autoritative Ausgangsrevision: `8401b8d34d9eed57f6ca840da3c6e34be6b2bc8a`
 
 ## Zielvertrag
