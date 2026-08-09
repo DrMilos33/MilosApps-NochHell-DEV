@@ -114,6 +114,17 @@ app.innerHTML = `
     </section>
 
     <section id="dashboard" class="dashboard" aria-labelledby="answer-title" hidden>
+      <div class="answer-toolbar">
+        <button
+          id="change-location"
+          class="button button-quiet answer-change-location"
+          type="button"
+          data-i18n="changeLocation"
+        >
+          Ort ändern
+        </button>
+      </div>
+
       <article id="answer-card" class="answer-card">
         <div class="answer-sky" aria-hidden="true">
           <span class="answer-sun"></span>
@@ -130,14 +141,6 @@ app.innerHTML = `
               </div>
               <p id="location-detail" class="location-detail visually-hidden"></p>
             </div>
-            <button
-              id="change-location"
-              class="button button-glass"
-              type="button"
-              data-i18n="changeLocation"
-            >
-              Ort ändern
-            </button>
           </div>
           <div class="answer-main">
             <p class="answer-label visually-hidden" data-i18n="answerLabel">Noch hell?</p>

@@ -1,3 +1,4 @@
+// Release 0.8.2 refreshes the cached HTML after the answer-toolbar layout change.
 const CACHE_NAME = "milosapps.daylight.offline-shell.v5";
 const CORE_URLS = ["./", "./index.html", "./runtime-config.json", "./app.webmanifest", "./health.json"];
 

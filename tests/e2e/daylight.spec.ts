@@ -105,7 +105,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "0.8.1",
+      version: "0.8.2",
       environment: "dev",
     });
   });
@@ -305,8 +305,8 @@ test.describe("öffentlicher Kernfluss", () => {
     test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
 
     for (const viewport of [
-      { width: 1440, height: 900, introMax: 155, answerTopMax: 235 },
-      { width: 390, height: 844, introMax: 175, answerTopMax: 270 },
+      { width: 1440, height: 900, introMax: 155, answerTopMax: 270 },
+      { width: 390, height: 844, introMax: 175, answerTopMax: 325 },
     ]) {
       await page.setViewportSize(viewport);
       await page.goto("/");
@@ -315,20 +315,36 @@ test.describe("öffentlicher Kernfluss", () => {
         const heading = document.querySelector<HTMLElement>(".intro h1");
         const location = document.querySelector<HTMLElement>(".location-card");
         const answer = document.querySelector<HTMLElement>(".answer-card");
-        if (!intro || !heading || !location || !answer) {
+        const changeLocation = document.querySelector<HTMLElement>("#change-location");
+        if (!intro || !heading || !location || !answer || !changeLocation) {
           throw new Error("Layout-Grundelement fehlt");
         }
+        const answerRect = answer.getBoundingClientRect();
+        const changeLocationRect = changeLocation.getBoundingClientRect();
         return {
           introHeight: intro.getBoundingClientRect().height,
           headingSize: Number.parseFloat(getComputedStyle(heading).fontSize),
-          answerTop: answer.getBoundingClientRect().top,
+          answerTop: answerRect.top,
           locationHidden: location.hidden,
+          changeLocationInsideAnswer: answer.contains(changeLocation),
+          changeLocationAboveAnswer: changeLocationRect.bottom <= answerRect.top,
+          changeLocationGap: answerRect.top - changeLocationRect.bottom,
+          changeLocationLeftDelta: Math.abs(changeLocationRect.left - answerRect.left),
+          changeLocationWidth: changeLocationRect.width,
+          changeLocationHeight: changeLocationRect.height,
         };
       });
       expect(metrics.introHeight).toBeLessThanOrEqual(viewport.introMax);
       expect(metrics.headingSize).toBeLessThanOrEqual(viewport.width > 500 ? 34 : 30);
       expect(metrics.answerTop).toBeLessThanOrEqual(viewport.answerTopMax);
       expect(metrics.locationHidden).toBe(true);
+      expect(metrics.changeLocationInsideAnswer).toBe(false);
+      expect(metrics.changeLocationAboveAnswer).toBe(true);
+      expect(metrics.changeLocationGap).toBeGreaterThanOrEqual(6);
+      expect(metrics.changeLocationGap).toBeLessThanOrEqual(12);
+      expect(metrics.changeLocationLeftDelta).toBeLessThanOrEqual(1);
+      expect(metrics.changeLocationWidth).toBeGreaterThanOrEqual(44);
+      expect(metrics.changeLocationHeight).toBeGreaterThanOrEqual(44);
     }
 
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -406,7 +422,7 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(mobileResultMetrics.titleCenterRatio).toBeGreaterThanOrEqual(0.4);
     expect(mobileResultMetrics.titleCenterRatio).toBeLessThanOrEqual(0.62);
     expect(mobileResultMetrics.eventHeight).toBeLessThanOrEqual(90);
-    expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(290);
+    expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(325);
   });
 
   test("ordnet auch die Nachtantwort wie die helle Hauptkachel", async ({
