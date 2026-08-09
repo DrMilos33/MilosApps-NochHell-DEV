@@ -75,6 +75,17 @@ var e=Object.create,t=Object.defineProperty,n=Object.getOwnPropertyDescriptor,r=
     </section>
 
     <section id="dashboard" class="dashboard" aria-labelledby="answer-title" hidden>
+      <div class="answer-toolbar">
+        <button
+          id="change-location"
+          class="button button-quiet answer-change-location"
+          type="button"
+          data-i18n="changeLocation"
+        >
+          Ort ändern
+        </button>
+      </div>
+
       <article id="answer-card" class="answer-card">
         <div class="answer-sky" aria-hidden="true">
           <span class="answer-sun"></span>
@@ -91,14 +102,6 @@ var e=Object.create,t=Object.defineProperty,n=Object.getOwnPropertyDescriptor,r=
               </div>
               <p id="location-detail" class="location-detail visually-hidden"></p>
             </div>
-            <button
-              id="change-location"
-              class="button button-glass"
-              type="button"
-              data-i18n="changeLocation"
-            >
-              Ort ändern
-            </button>
           </div>
           <div class="answer-main">
             <p class="answer-label visually-hidden" data-i18n="answerLabel">Noch hell?</p>
@@ -207,4 +210,4 @@ var e=Object.create,t=Object.defineProperty,n=Object.getOwnPropertyDescriptor,r=
     <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
     <circle cx="12" cy="12" r="7"></circle>
   `,e.replaceChildren(n)}function Y(e,t,n){if(e)return{value:xe(e,t.location.timeZone,N(P)),note:n===`tomorrow-sunrise`?M(P,`nextDayLocalTime`):``};let r=n===`tomorrow-sunrise`?t.tomorrow:t.today,i=n===`civil-dusk`?r.civil:r.horizon;return i.condition===`always-above`?{value:M(P,n===`civil-dusk`?`endsNever`:`noEvent`),note:M(P,n===`civil-dusk`?`sunAboveTwilight`:`polarDayNote`)}:i.condition===`always-below`?{value:M(P,n===`civil-dusk`?`noTwilight`:`noEvent`),note:M(P,n===`civil-dusk`?`sunBelowTwilight`:`polarNightNote`)}:{value:M(P,`notOnDate`),note:M(P,`eventOutsideDate`)}}function X(e,t,n){I(e).textContent=n.value;let r=I(t);r.textContent=n.note,r.hidden=n.note.length===0}function Z(e=!1){if(!H){W=!0,R.hidden=!1,V.hidden=!0,document.body.dataset.phase=`unselected`;return}let t=Fe(H),n=gt(t.summary,t.generatedAt,P);V.hidden=!1,R.hidden=!W,document.body.dataset.phase=t.summary.phase,Ct.dataset.phase=t.summary.phase,I(`#location-name`).textContent=H.source===`device`?M(P,`nearbyName`):H.name;let r=I(`#location-context`);r.textContent=M(P,H.source===`device`?`roundedDeviceLocation`:U?`defaultLocation`:`selectedLocation`),r.hidden=H.source!==`device`&&!U,I(`#location-detail`).textContent=[H.source===`device`?M(P,`nearbyContext`):Nt(H.context)].filter(Boolean).join(` · `),wt.textContent=n.answer,I(`#answer-detail`).textContent=n.detail,I(`#answer-updated`).textContent=M(P,`updated`,{time:xe(t.generatedAt,H.timeZone,N(P))}),I(`#calculation-date`).textContent=`${Se(t.localDate,H.timeZone,N(P))} · ${M(P,`localTime`)}`,X(`#sunrise-time`,`#sunrise-note`,Y(t.sunrise,t,`sunrise`)),X(`#sunset-time`,`#sunset-note`,Y(t.sunset,t,`sunset`)),X(`#civil-dusk-time`,`#civil-dusk-note`,Y(t.civilDusk,t,`civil-dusk`)),X(`#tomorrow-sunrise-time`,`#tomorrow-sunrise-note`,Y(t.tomorrowSunrise,t,`tomorrow-sunrise`));let i=t.today.bounds.durationHours;i!==24&&(I(`#calculation-date`).textContent+=` · ${M(P,`dstDay`,{hours:i})}`),e&&(wt.focus({preventScroll:!0}),V.scrollIntoView({behavior:`smooth`,block:`start`}))}function zt(e){H=e,U=!1,W=!1,e.source===`device`&&(G=e,Ve(e)),jt(ze(e)?`storedLocation`:`storageUnavailable`),J(`selectedMessage`,`success`,{name:e.source===`device`?M(P,`nearbyName`):e.name}),Z(!0)}function Bt(e){return navigator.onLine?e instanceof D&&e.code===`network`?`searchNetworkUnavailable`:e instanceof D&&e.code===`http`?`searchHttpError`:e instanceof D&&e.code===`invalid-response`?`searchInvalidResponse`:`searchFailed`:`searchOffline`}function Q(e){return{id:e.id,name:e.name,region:e.region,country:e.country,countryCode:e.countryCode,latitude:e.latitude,longitude:e.longitude,type:e.type,timeZone:e.timeZone}}function Vt(e){let t=e.id.startsWith(`device-`)?`device`:`manual`;return at({...e,context:[e.region,e.country].filter(Boolean).join(` · `),timeZone:e.timeZone??_(e.latitude,e.longitude),source:t,osmType:e.type})}function Ht(e,t){throw J(e,`error`,t),new DOMException(`Handled by Daylight`,`AbortError`)}function Ut(){return navigator.geolocation||Ht(`locationUnsupported`),J(`locationPermissionPrompt`),new Promise((e,t)=>{navigator.geolocation.getCurrentPosition(n=>{try{let t=Ue(n.coords.latitude),r=Ue(n.coords.longitude);e({id:`device-${t.toFixed(2)}-${r.toFixed(2)}`,name:M(P,`nearbyName`),region:M(P,`nearbyContext`),country:``,countryCode:``,latitude:t,longitude:r,timeZone:_(t,r),type:`device`})}catch{J(`locationProcessFailed`,`error`),t(new DOMException(`Handled by Daylight`,`AbortError`))}},e=>{J({[e.PERMISSION_DENIED]:`locationDenied`,[e.POSITION_UNAVAILABLE]:`locationUnavailable`,[e.TIMEOUT]:`locationTimeout`}[e.code]??`locationFailed`,`error`),L.input?.focus(),t(new DOMException(`Handled by Daylight`,`AbortError`))},{enableHighAccuracy:!1,timeout:1e4,maximumAge:300*1e3})})}function Wt(e){let t=vt(e);t!==P&&(L.cancelSearch(),P=t,Mt(),Z())}window.addEventListener(`milosapps:localechange`,e=>{let t=e.detail;Wt(t?.locale)}),L.setSearchProvider(async({query:e,locale:t,signal:n})=>{K=n,z.hidden=!1;try{let r=await it(e,n,t);if(n.aborted||K!==n)throw new DOMException(`Outdated place search`,`AbortError`);return r.map(Q)}catch(e){if(e instanceof DOMException&&e.name===`AbortError`)throw J(`searchCancelled`),e;let t=Bt(e);Ht(t,t===`searchHttpError`&&e instanceof D?{status:e.status??`–`}:void 0)}finally{K===n&&(K=null,z.hidden=!0)}}),L.setSuggestionsProvider(async({query:e,locale:t,signal:n})=>{let r=It(e,t);if(!navigator.onLine)return r;try{let i=await pt(e,n,t);if(n.aborted)throw new DOMException(`Outdated place suggestions`,`AbortError`);return Lt(r,i.map(Q))}catch(e){if(e instanceof DOMException&&e.name===`AbortError`)throw e;if(r.length>0)return r;throw e}}),z.addEventListener(`click`,()=>{L.cancelSearch()}),L.setLocateProvider(async()=>Ut()),Rt(),L.addEventListener(`milosapps:placechange`,e=>{let t=e.detail;zt(Vt(t))}),St.setPayloadProvider(()=>({title:document.title,text:M(P,`shareText`),url:new URL(`.`,window.location.href).href})),I(`#change-location`).addEventListener(`click`,()=>{W=!0,R.hidden=!1,L.input&&(L.input.value=``),R.scrollIntoView({behavior:`smooth`,block:`start`}),L.input?.focus({preventScroll:!0})}),Tt.addEventListener(`click`,()=>{let e=He();H=xt,U=!0,W=!0,G=null,L.input&&(L.input.value=``),Z(),jt(e?`dataCleared`:`noLocalData`),J(`dataClearedStatus`,`success`),L.input?.focus()});function $(){document.visibilityState===`visible`&&H&&Z()}if(document.addEventListener(`visibilitychange`,$),window.addEventListener(`focus`,$),window.addEventListener(`pageshow`,$),window.addEventListener(`online`,()=>J(`online`,`success`)),window.addEventListener(`offline`,()=>J(`offline`)),`serviceWorker`in navigator&&window.isSecureContext){let e=()=>{navigator.serviceWorker.register(`./sw.js`).catch(()=>{})};document.readyState===`complete`?e():window.addEventListener(`load`,e,{once:!0})}T()||jt(`browserStorageBlocked`),Mt(),Z(),globalThis.milosAppEssentials.ready(),Ot=window.setInterval(()=>Z(),6e4),window.addEventListener(`beforeunload`,()=>{Ot!==null&&window.clearInterval(Ot)});
-//# sourceMappingURL=index-QHV1Q96f.js.map
+//# sourceMappingURL=index-cvc5cOjt.js.map
