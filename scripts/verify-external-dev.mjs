@@ -164,6 +164,14 @@ async function verifyViewport({
         const answerLabel = document
           .querySelector(".answer-label")
           ?.getBoundingClientRect();
+        const changeLocation = document
+          .querySelector("#change-location")
+          ?.getBoundingClientRect();
+        const changeLocationInsideAnswer = Boolean(
+          document
+            .querySelector(".answer-card")
+            ?.contains(document.querySelector("#change-location")),
+        );
         return {
           introHeight: intro?.height ?? Number.POSITIVE_INFINITY,
           answerTop: answer?.top ?? Number.POSITIVE_INFINITY,
@@ -176,6 +184,20 @@ async function verifyViewport({
           answerLabelSize: answerLabel
             ? [answerLabel.width, answerLabel.height]
             : [],
+          changeLocationInsideAnswer,
+          changeLocationAboveAnswer:
+            Boolean(answer && changeLocation) && changeLocation.bottom <= answer.top,
+          changeLocationGap:
+            answer && changeLocation
+              ? answer.top - changeLocation.bottom
+              : Number.POSITIVE_INFINITY,
+          changeLocationLeftDelta:
+            answer && changeLocation
+              ? Math.abs(answer.left - changeLocation.left)
+              : Number.POSITIVE_INFINITY,
+          changeLocationSize: changeLocation
+            ? [changeLocation.width, changeLocation.height]
+            : [],
         };
       });
       assert.ok(
@@ -183,8 +205,30 @@ async function verifyViewport({
         `${name}: intro must stay within the compact density budget.`,
       );
       assert.ok(
-        density.answerTop <= (name === "desktop" ? 235 : 270),
+        density.answerTop <= (name === "desktop" ? 270 : 325),
         `${name}: the daylight answer for the default place must remain visible early.`,
+      );
+      assert.equal(
+        density.changeLocationInsideAnswer,
+        false,
+        `${name}: the location action must remain outside the answer surface.`,
+      );
+      assert.equal(
+        density.changeLocationAboveAnswer,
+        true,
+        `${name}: the location action must remain above the answer surface.`,
+      );
+      assert.ok(
+        density.changeLocationGap >= 6 && density.changeLocationGap <= 12,
+        `${name}: the location action must remain clearly but compactly separated.`,
+      );
+      assert.ok(
+        density.changeLocationLeftDelta <= 1,
+        `${name}: the location action must align with the answer surface.`,
+      );
+      assert.ok(
+        density.changeLocationSize[0] >= 44 && density.changeLocationSize[1] >= 44,
+        `${name}: the location action must remain a full touch target.`,
       );
       assert.ok(
         density.answerHeight <= (name === "desktop" ? 260 : 270),
