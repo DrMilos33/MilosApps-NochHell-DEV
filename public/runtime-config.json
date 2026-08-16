@@ -1,5 +1,6 @@
 {
   "environment": "production",
+  "adsEnabled": false,
   "geocodingEndpoint": "https://geocoding-api.open-meteo.com/v1/search",
   "suggestionsEndpoint": "https://geocoding-api.open-meteo.com/v1/search"
 }

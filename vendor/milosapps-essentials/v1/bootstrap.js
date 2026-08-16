@@ -43,7 +43,7 @@ export const milosAppEssentials = initMilosAppEssentials({
         "strictlyNecessary": true
       },
       {
-        "key": "milosapps.daylight.production-offline-shell.v1",
+        "key": "milosapps.daylight.production-offline-shell.v2",
         "purpose": "App-Shell nach der ersten erfolgreichen Ladung für die ausdrücklich angebotene Offline-Wiederöffnung bereitstellen",
         "lifetime": "bounded",
         "strictlyNecessary": true
@@ -56,7 +56,7 @@ export const milosAppEssentials = initMilosAppEssentials({
       }
     ],
     "optionalTracking": false,
-    "privacyUrl": "https://sinddielampenan.de/datenschutz.html"
+    "privacyUrl": "https://sinddielampenan.de/datenschutz"
   },
   "features": {
     "startup": true,

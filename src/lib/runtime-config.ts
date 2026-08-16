@@ -4,6 +4,7 @@ const defaults: RuntimeConfig = {
   geocodingEndpoint: "https://geocoding-api.open-meteo.com/v1/search",
   suggestionsEndpoint: "https://geocoding-api.open-meteo.com/v1/search",
   environment: "production",
+  adsEnabled: false,
 };
 
 export function validatedHttpsEndpoint(value: unknown, fallback: string): string {
@@ -31,6 +32,9 @@ export async function loadRuntimeConfig(): Promise<RuntimeConfig> {
       suggestionsEndpoint:
         validatedHttpsEndpoint(value.suggestionsEndpoint, defaults.suggestionsEndpoint),
       environment: value.environment === "production" ? "production" : "dev",
+      // Advertising remains fail-closed until a separate commercial provider and
+      // consent review explicitly replaces this production contract.
+      adsEnabled: false,
     };
     window.__DAYLIGHT_CONFIG__ = config;
     return config;

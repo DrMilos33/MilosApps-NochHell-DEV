@@ -14,13 +14,14 @@ const body = await response.json();
 if (
   body?.status !== "ready" ||
   body?.appKey !== "daylight" ||
-  body?.version !== "1.0.0" ||
+  body?.version !== "1.0.1" ||
   body?.environment !== "production" ||
   body?.productionApproved !== true ||
+  body?.adsEnabled !== false ||
   !/^[0-9a-f]{40}$/.test(body?.sourceCommit ?? "")
 ) {
   throw new Error(
-    `Wrong production service on ${url}: expected ready/daylight/1.0.0/production with an approved source SHA.`,
+    `Wrong production service on ${url}: expected ready/daylight/1.0.1/production with ads disabled and an approved source SHA.`,
   );
 }
 

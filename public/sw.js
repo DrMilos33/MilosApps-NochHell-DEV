@@ -1,4 +1,5 @@
-const CACHE_NAME = "milosapps.daylight.production-offline-shell.v1";
+// Release 1.0.1 refreshes the cached HTML after the separated location action.
+const CACHE_NAME = "milosapps.daylight.production-offline-shell.v2";
 const CORE_URLS = ["./", "./index.html", "./runtime-config.json", "./app.webmanifest"];
 
 async function installShell() {

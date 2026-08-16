@@ -1,6 +1,6 @@
 # Ortssuche: Production-Providernachweis
 
-Stand: 4. August 2026. Dieser Nachweis gilt für den Production-Kandidaten von
+Stand: 16. August 2026. Dieser Nachweis gilt für den Production-Kandidaten von
 `Noch hell?` (`appKey=daylight`).
 
 ## Gewählter Provider und Endpunkt
@@ -22,12 +22,14 @@ Open‑Meteo, GeoNames und CC BY 4.0 unmittelbar bei den Ortsdaten.
 ## Production-Bewertung
 
 Die kostenfreie Open‑Meteo-API ist nur für nichtkommerzielle Nutzung bestimmt.
-Noch hell? ist kostenlos, werbefrei, ohne Konto, Abonnement, Verkauf oder
-Monetarisierung und fällt damit im freigegebenen Stand unter diesen Zweck. Die
+Noch hell? ist kostenlos, mit `adsEnabled=false`, ohne Werbecode, Konto,
+Abonnement, Verkauf oder Monetarisierung und fällt damit im freigegebenen Stand
+unter diesen Zweck. Die
 zum Prüfzeitpunkt dokumentierten Grenzen sind 10.000 Aufrufe pro Tag, 5.000 pro
 Stunde, 600 pro Minute und 300.000 pro Monat. Das ist keine
 Verfügbarkeitsgarantie. Vor Werbung, Bezahlfunktion, starkem Wachstum oder
-geändertem Providervertrag muss Production erneut bewertet oder auf einen
+geändertem Providervertrag sowie zwingend vor jeder AdSense-Aktivierung muss
+Production erneut bewertet oder auf einen
 eigenen beziehungsweise kommerziellen Endpunkt umgestellt werden.
 
 Open‑Meteo beschreibt die technisch notwendige Verarbeitung der IP-Adresse und

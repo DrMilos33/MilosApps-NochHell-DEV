@@ -1,8 +1,8 @@
-# Production-QA: Noch hell? 1.0.0
+# Production-QA: Noch hell? 1.0.1
 
-Stand: 4. August 2026
+Stand: 16. August 2026
 
-Branch: `codex/daylight-production-candidate`
+Branch: `codex/daylight-production-refresh`
 
 Teststufe: `full`
 
@@ -14,10 +14,10 @@ Teststufe: `full`
 | Public App Essentials | PASS; `public-app-essentials/v1.1.5` @ `2942132ad3bf6cf39edc9f52ed918de6a230be23`, Production-Konfiguration und 6er-Lock |
 | Unit-/Fachtests | 32/32 PASS |
 | Production-Build | PASS; TypeScript, Vite, kein Sourcemap, externe Same-Origin-Assets, Icon- und Lock-Hashes |
-| Browsermatrix | 127 PASS, 32 bewusst profilgebundene Skips, 0 Fehler; Chromium, Firefox, mobile Chromium |
-| Production-Vertrag | PASS; Port 4319 strict, App-Identität, 1.0.0, Production=true, exakter 40-stelliger Build-Source-SHA |
+| Browsermatrix | 128 PASS, 34 bewusst profilgebundene Skips, 0 Fehler; Chromium, Firefox, mobile Chromium |
+| Production-Vertrag | PASS; Port 4319 strict, App-Identität, 1.0.1, Production=true, Ads=false, exakter 40-stelliger Build-Source-SHA |
 | Provider-Smoke | PASS; Open‑Meteo HTTP 200, `Access-Control-Allow-Origin: *`, IANA-Zeitzone mit Origin `https://sinddielampenan.de` |
-| Windows-Frischcheckout | PASS auf `fd274c4ad3b3fbf693722c299bc0d2db302e71dc`; `core.autocrlf=true`, beide Vendorbestände vollständig `i/lf w/lf`, Shell-/Essentials-Verifier, Build und 32 Unit-/Fachtests grün |
+| Windows-Frischcheckout | wird nach dem finalen Kandidatencommit aus einem echten `core.autocrlf=true`-Checkout wiederholt |
 | Diff | `git diff --check` PASS |
 
 Die Browsermatrix umfasst:
@@ -41,8 +41,8 @@ Die Browsermatrix umfasst:
 - app-eigene Datenschutzseite, Loader 32 × 32, Shell-Icon 38 × 38 und
   MIME-/Hash-Gates.
 
-## Noch ausstehend
-
-Externe Cloudflare-, Domain- und No-Login-Prüfungen bleiben bis zur bestätigten
-Project-ID absichtlich offen; sie dürfen nicht durch eine erfundene URL ersetzt
-werden.
+Zusätzliche Build-Gates prüfen crawlbaren Initialinhalt, Root-/Datenschutz-
+Canonical, `robots.txt`, `sitemap.xml`, die exakte Publisherzeile in
+`ads.txt`, fehlende Werbeskripte und eine CSP ohne Werbe- oder Trackingziele.
+Externe Cloudflare-, Domain-, Health-, Provider-, Offline- und Browserergebnisse
+werden erst nach dem SHA-genauen Direct Upload als production-verified gemeldet.

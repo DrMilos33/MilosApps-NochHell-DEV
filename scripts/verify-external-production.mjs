@@ -40,10 +40,11 @@ const health = await healthResponse.json();
 assert.deepEqual(health, {
   status: "ready",
   appKey: "daylight",
-  version: "1.0.0",
+  version: "1.0.1",
   environment: "production",
   database: false,
   productionApproved: true,
+  adsEnabled: false,
   sourceCommit: expectedSource,
 });
 
@@ -56,6 +57,41 @@ assert.equal(
   createHash("sha256").update(iconBytes).digest("hex"),
   createHash("sha256").update(sourceIcon).digest("hex"),
 );
+
+const [rootResponse, robotsResponse, sitemapResponse, privacyResponse, adsResponse, adsHeadResponse] = await Promise.all([
+  fetch(appUrl, { cache: "no-store" }),
+  fetch(new URL("robots.txt", appUrl), { cache: "no-store" }),
+  fetch(new URL("sitemap.xml", appUrl), { cache: "no-store" }),
+  fetch(new URL("datenschutz", appUrl), { cache: "no-store" }),
+  fetch(new URL("ads.txt", appUrl), { cache: "no-store", credentials: "omit" }),
+  fetch(new URL("ads.txt", appUrl), { cache: "no-store", credentials: "omit", method: "HEAD" }),
+]);
+assert.equal(rootResponse.status, 200);
+assert.equal(robotsResponse.status, 200);
+assert.equal(sitemapResponse.status, 200);
+assert.equal(privacyResponse.status, 200);
+assert.equal(adsResponse.status, 200);
+assert.equal(adsHeadResponse.status, 200);
+assert.match(adsResponse.headers.get("content-type") ?? "", /^text\/plain(?:;|$)/i);
+assert.match(adsHeadResponse.headers.get("content-type") ?? "", /^text\/plain(?:;|$)/i);
+const [rootHtml, robots, sitemap, privacy] = await Promise.all([
+  rootResponse.text(),
+  robotsResponse.text(),
+  sitemapResponse.text(),
+  privacyResponse.text(),
+]);
+assert.equal(
+  (await adsResponse.text()).trim(),
+  "google.com, pub-6713794414913834, DIRECT, f08c47fec0942fa0",
+);
+assert.match(rootHtml, /<link rel="canonical" href="https:\/\/sinddielampenan\.de\/"/);
+assert.match(rootHtml, /Standardort Köln/);
+assert.match(rootHtml, /data-ads-enabled="false"/);
+assert.doesNotMatch(rootHtml, /adsbygoogle|google-adsense-account|googlesyndication/i);
+assert.match(robots, /Sitemap: https:\/\/sinddielampenan\.de\/sitemap\.xml/);
+assert.match(sitemap, /https:\/\/sinddielampenan\.de\/datenschutz/);
+assert.match(privacy, /<link rel="canonical" href="https:\/\/sinddielampenan\.de\/datenschutz"/);
+assert.match(privacy, /keine Werbung/i);
 
 const browser = await chromium.launch();
 
@@ -124,8 +160,10 @@ async function verifyViewport(name, viewport, reflow = false) {
     assert.match(csp, /default-src 'self'/);
     assert.match(csp, /connect-src 'self' https:\/\/geocoding-api\.open-meteo\.com/);
     assert.doesNotMatch(csp, /unsafe-inline|unsafe-eval|nominatim/i);
+    assert.doesNotMatch(csp, /doubleclick|googlesyndication|googleadservices|google-analytics/i);
     assert.equal(await page.locator("body").getAttribute("data-app-key"), "daylight");
     assert.equal(await page.locator("body").getAttribute("data-environment"), "production");
+    assert.equal(await page.locator("body").getAttribute("data-ads-enabled"), "false");
     assert.equal(await page.getByText("DEV", { exact: true }).isVisible(), false);
     assert.equal(await page.locator("h1").count(), 1);
     assert.equal(await page.getByText(/Anmelden|Login|Konto erstellen/).count(), 0);
@@ -135,7 +173,7 @@ async function verifyViewport(name, viewport, reflow = false) {
     );
     assert.equal(
       await page.locator("[data-milos-privacy-info]").getAttribute("href"),
-      "https://sinddielampenan.de/datenschutz.html",
+      "https://sinddielampenan.de/datenschutz",
     );
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth),

@@ -1,6 +1,6 @@
 # Berechnungsquellen, Ortsdaten und Lizenzen
 
-Stand: 30. Juli 2026.
+Stand: 16. August 2026.
 
 ## Sonnenberechnung
 
@@ -89,12 +89,19 @@ sichtbar genannt. Der kostenfreie Dienst ist für diesen kostenlosen,
 werbefreien und nicht monetarisierten Production-Stand zulässig, besitzt aber
 dokumentierte Quoten und keine Verfügbarkeitsgarantie.
 
-Die öffentliche Nominatim-Instanz wurde für Production bewusst verworfen. Ihre
+Die öffentliche Nominatim-Instanz bleibt auch im Production-Refresh bewusst
+verworfen. Ihre
 globale Grenze von einer Anfrage pro Sekunde lässt sich durch den bisherigen
 pro-Browser-Takt in einer statischen öffentlichen App nicht fail-closed
 garantieren. Nominatim ist deshalb weder Laufzeitprovider noch CSP-Ziel des
 Production-Artefakts. Quelle der Entscheidung:
 [Nominatim Usage Policy](https://operations.osmfoundation.org/policies/nominatim/).
+
+`adsEnabled=false` ist Teil des Production-Readinessvertrags. Vor Werbung oder
+anderer Monetarisierung werden Open‑Meteos nichtkommerzielle Grenze, Quoten,
+Attribution und Datenschutz erneut geprüft; bis dahin enthält das Artefakt
+weder Werbeskripte noch Werbe-CSP-Ziele. Die Root-`ads.txt` dient nur der
+separat beauftragten Site-Verifizierung und aktiviert keine Anzeigen.
 
 ## Softwarelizenzen
 

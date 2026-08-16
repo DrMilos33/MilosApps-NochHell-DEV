@@ -1,6 +1,6 @@
 # Datenschutz- und Endgerätezugriffs-Inventar
 
-Stand: 4. August 2026. Dieses Inventar beschreibt den Production-Kandidaten
+Stand: 16. August 2026. Dieses Inventar beschreibt den Production-Kandidaten
 von `Noch hell?` (`appKey=daylight`). Die App besitzt kein Konto, keine
 App-Datenbank, kein Tracking und keine optionalen Speicherzwecke.
 
@@ -12,7 +12,7 @@ App-Datenbank, kein Tracking und keine optionalen Speicherzwecke.
 | `localStorage:milosapps.daylight.location.v1` | bewusst gewählten oder vorher gerundeten Ort lokal berechnen und offline wieder öffnen | bis App- oder Browserlöschung | „Lokale Daten verwalten“ |
 | `localStorage:milosapps.daylight.geocoding-cache.v1` | abgesendete Open‑Meteo-Antworten provider- und netzschonend wiederverwenden | höchstens 30 Tage, 20 Suchtexte | „Lokale Daten verwalten“ |
 | `localStorage:milosapps.daylight.device-suggestion.v1` | freiwillig abgefragten, vorher gerundeten eigenen Ort lokal erneut anbieten | bis App- oder Browserlöschung | „Lokale Daten verwalten“ |
-| `CacheStorage:milosapps.daylight.production-offline-shell.v1` | App-Shell nach erfolgreicher Erstladung offline wieder öffnen | bis Service-Worker-Upgrade oder Browserlöschung | Browserdaten; alte Daylight-Caches werden beim Upgrade entfernt |
+| `CacheStorage:milosapps.daylight.production-offline-shell.v2` | App-Shell nach erfolgreicher Erstladung offline wieder öffnen | bis Service-Worker-Upgrade oder Browserlöschung | Browserdaten; alte Daylight-Caches werden beim Upgrade entfernt |
 | temporär `localStorage:milosapps.daylight.storage-probe` | lokale Speicherfähigkeit prüfen | nur im synchronen Prüfschritt | wird sofort entfernt |
 
 Die Migration liest frühere Daylight-Orts- und Cache-Keys einmalig, übernimmt
@@ -52,11 +52,12 @@ Open‑Meteo-/GeoNames-/CC-BY-4.0-Attribution dauerhaft an.
 ## Sichtbare Information und Readiness
 
 Die dauerhafte DE-/EN-Zeile mit `data-milos-privacy-info` verweist exakt auf
-`https://sinddielampenan.de/datenschutz.html`. Die Seite erklärt dieselben
+`https://sinddielampenan.de/datenschutz`. Die Seite erklärt dieselben
 Zwecke ohne Schein-Einwilligung. Die lokale Datenverwaltung löscht Ort,
 abgesendeten Suchcache und den gerundeten Gerätevorschlag.
 
 `/health.json` enthält nur App-Identität, Version, Umgebung,
-`productionApproved`, Datenbankgrenze und exakten Build-Source-SHA. Der
+`productionApproved`, `adsEnabled=false`, Datenbankgrenze und exakten
+Build-Source-SHA. Der
 Service Worker fängt Health niemals ab; Cloudflare `_headers` setzt
 `Cache-Control: no-store`.

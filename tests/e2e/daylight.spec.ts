@@ -30,18 +30,16 @@ async function mockGeocoder(
   results: unknown[] = [berlinResult],
   delayMilliseconds = 0,
 ): Promise<void> {
+  await page.unroute("https://geocoding-api.open-meteo.com/v1/search**");
   await page.route("https://geocoding-api.open-meteo.com/v1/search**", async (route) => {
-    if (new URL(route.request().url()).searchParams.get("count") !== "7") {
-      await route.fallback();
-      return;
-    }
-    if (delayMilliseconds > 0) {
+    const submitted = new URL(route.request().url()).searchParams.get("count") === "7";
+    if (submitted && delayMilliseconds > 0) {
       await new Promise((resolve) => setTimeout(resolve, delayMilliseconds));
     }
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify({ results }),
+      body: JSON.stringify({ results: submitted ? results : [] }),
     });
   });
 }
@@ -105,9 +103,10 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(await response.json()).toMatchObject({
       status: "ready",
       appKey: "daylight",
-      version: "1.0.0",
+      version: "1.0.1",
       environment: "production",
       productionApproved: true,
+      adsEnabled: false,
       sourceCommit: expect.stringMatching(/^[0-9a-f]{40}$/),
     });
   });
@@ -297,8 +296,8 @@ test.describe("öffentlicher Kernfluss", () => {
     test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
 
     for (const viewport of [
-      { width: 1440, height: 900, introMax: 155, answerTopMax: 235 },
-      { width: 390, height: 844, introMax: 175, answerTopMax: 270 },
+      { width: 1440, height: 900, introMax: 155, answerTopMax: 270 },
+      { width: 390, height: 844, introMax: 175, answerTopMax: 325 },
     ]) {
       await page.setViewportSize(viewport);
       await page.goto("/");
@@ -307,20 +306,36 @@ test.describe("öffentlicher Kernfluss", () => {
         const heading = document.querySelector<HTMLElement>(".intro h1");
         const location = document.querySelector<HTMLElement>(".location-card");
         const answer = document.querySelector<HTMLElement>(".answer-card");
-        if (!intro || !heading || !location || !answer) {
+        const changeLocation = document.querySelector<HTMLElement>("#change-location");
+        if (!intro || !heading || !location || !answer || !changeLocation) {
           throw new Error("Layout-Grundelement fehlt");
         }
+        const answerRect = answer.getBoundingClientRect();
+        const changeLocationRect = changeLocation.getBoundingClientRect();
         return {
           introHeight: intro.getBoundingClientRect().height,
           headingSize: Number.parseFloat(getComputedStyle(heading).fontSize),
-          answerTop: answer.getBoundingClientRect().top,
+          answerTop: answerRect.top,
           locationHidden: location.hidden,
+          changeLocationInsideAnswer: answer.contains(changeLocation),
+          changeLocationAboveAnswer: changeLocationRect.bottom <= answerRect.top,
+          changeLocationGap: answerRect.top - changeLocationRect.bottom,
+          changeLocationLeftDelta: Math.abs(changeLocationRect.left - answerRect.left),
+          changeLocationWidth: changeLocationRect.width,
+          changeLocationHeight: changeLocationRect.height,
         };
       });
       expect(metrics.introHeight).toBeLessThanOrEqual(viewport.introMax);
       expect(metrics.headingSize).toBeLessThanOrEqual(viewport.width > 500 ? 34 : 30);
       expect(metrics.answerTop).toBeLessThanOrEqual(viewport.answerTopMax);
       expect(metrics.locationHidden).toBe(true);
+      expect(metrics.changeLocationInsideAnswer).toBe(false);
+      expect(metrics.changeLocationAboveAnswer).toBe(true);
+      expect(metrics.changeLocationGap).toBeGreaterThanOrEqual(6);
+      expect(metrics.changeLocationGap).toBeLessThanOrEqual(12);
+      expect(metrics.changeLocationLeftDelta).toBeLessThanOrEqual(1);
+      expect(metrics.changeLocationWidth).toBeGreaterThanOrEqual(44);
+      expect(metrics.changeLocationHeight).toBeGreaterThanOrEqual(44);
     }
 
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -376,6 +391,8 @@ test.describe("öffentlicher Kernfluss", () => {
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.reload();
+    await expect(page.getByRole("heading", { name: "Berlin" })).toBeVisible();
+    await expect(page.locator(".event-card")).toHaveCount(4);
     const mobileResultMetrics = await page.evaluate(() => {
       const answer = document.querySelector<HTMLElement>(".answer-card");
       const answerTitle = document.querySelector<HTMLElement>("#answer-title");
@@ -398,7 +415,78 @@ test.describe("öffentlicher Kernfluss", () => {
     expect(mobileResultMetrics.titleCenterRatio).toBeGreaterThanOrEqual(0.4);
     expect(mobileResultMetrics.titleCenterRatio).toBeLessThanOrEqual(0.62);
     expect(mobileResultMetrics.eventHeight).toBeLessThanOrEqual(90);
-    expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(290);
+    expect(mobileResultMetrics.answerTop).toBeLessThanOrEqual(325);
+  });
+
+  test("ordnet auch die Nachtantwort wie die helle Hauptkachel", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium", "Layout-Geometrie wird einmal geprüft.");
+
+    await openStoredLocationAt(
+      page,
+      {
+        ...berlinLocation,
+        id: "ulaanbaatar",
+        name: "Ulaanbaatar",
+        context: "Mongolei",
+        latitude: 47.8864,
+        longitude: 106.9057,
+        timeZone: "Asia/Ulaanbaatar",
+      },
+      "2026-12-21T13:00:00Z",
+    );
+
+    for (const viewport of [
+      { width: 1440, height: 900, answerMax: 260 },
+      { width: 390, height: 844, answerMax: 270 },
+    ]) {
+      await page.setViewportSize(viewport);
+      const metrics = await page.evaluate(() => {
+        const answer = document.querySelector<HTMLElement>(".answer-card");
+        const title = document.querySelector<HTMLElement>("#answer-title");
+        const meta = document.querySelector<HTMLElement>(".answer-meta");
+        const label = document.querySelector<HTMLElement>(".answer-label");
+        const locationContext = document.querySelector<HTMLElement>("#location-context");
+        const locationDetail = document.querySelector<HTMLElement>("#location-detail");
+        if (!answer || !title || !meta || !label || !locationContext || !locationDetail) {
+          throw new Error("Nachtlayout fehlt");
+        }
+        const answerRect = answer.getBoundingClientRect();
+        const titleRect = title.getBoundingClientRect();
+        const metaRect = meta.getBoundingClientRect();
+        const labelRect = label.getBoundingClientRect();
+        const detailRect = locationDetail.getBoundingClientRect();
+        return {
+          phase: answer.dataset.phase,
+          answerHeight: answerRect.height,
+          titleCenterRatio:
+            (titleRect.top + titleRect.height / 2 - answerRect.top) /
+            answerRect.height,
+          metaCenterRatio:
+            (metaRect.top + metaRect.height / 2 - answerRect.top) /
+            answerRect.height,
+          labelSize: [labelRect.width, labelRect.height],
+          detailSize: [detailRect.width, detailRect.height],
+          selectedKindHidden: locationContext.hidden,
+          horizontalOverflow:
+            document.documentElement.scrollWidth - document.documentElement.clientWidth,
+        };
+      });
+
+      expect(metrics.phase).toBe("night");
+      expect(metrics.answerHeight).toBeLessThanOrEqual(viewport.answerMax);
+      expect(metrics.titleCenterRatio).toBeGreaterThanOrEqual(0.4);
+      expect(metrics.titleCenterRatio).toBeLessThanOrEqual(0.62);
+      expect(metrics.metaCenterRatio).toBeGreaterThanOrEqual(0.72);
+      expect(metrics.labelSize).toEqual([1, 1]);
+      expect(metrics.detailSize).toEqual([1, 1]);
+      expect(metrics.selectedKindHidden).toBe(true);
+      expect(metrics.horizontalOverflow).toBe(0);
+    }
+
+    await expect(page.getByRole("heading", { name: "Nein – es ist dunkel" })).toBeVisible();
+    await expect(page.getByText(/Sonnenaufgang in/)).toBeVisible();
   });
 
   test("hält die Ortswahl auf Desktop schmal und den Standort als kompaktes 44-Pixel-Ziel", async ({
@@ -460,7 +548,7 @@ test.describe("public-app-essentials/v1", () => {
       await route.continue();
     });
 
-    const navigation = page.goto("/", { waitUntil: "load" });
+    await page.goto("/", { waitUntil: "commit" });
     const loader = page.locator("[data-milos-app-loading]");
     await expect(loader).toBeVisible();
     const loaderMetrics = await loader.evaluate((target) => {
@@ -473,7 +561,7 @@ test.describe("public-app-essentials/v1", () => {
       };
     });
     releaseRuntime();
-    await navigation;
+    await page.waitForLoadState("load");
     expect(loaderMetrics.titleTag).toBe("P");
     expect(loaderMetrics.iconWidth).toBe(32);
     expect(loaderMetrics.iconHeight).toBe(32);
@@ -603,7 +691,7 @@ test.describe("public-app-essentials/v1", () => {
     await expect(privacy).toContainText("Ort, Sprache und ein kleiner Suchcache bleiben lokal");
     await expect(privacy.getByRole("link", { name: "Datenschutz" })).toHaveAttribute(
       "href",
-      "https://sinddielampenan.de/datenschutz.html",
+      "https://sinddielampenan.de/datenschutz",
     );
     expect(
       await page.evaluate(() => localStorage.getItem("milosapps.daylight.privacyNotice.v1")),

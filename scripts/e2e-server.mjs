@@ -17,9 +17,10 @@ const body = response.ok ? await response.json() : null;
 if (
   body?.status !== "ready" ||
   body?.appKey !== "daylight" ||
-  body?.version !== "1.0.0" ||
+  body?.version !== "1.0.1" ||
   body?.environment !== "production" ||
   body?.productionApproved !== true ||
+  body?.adsEnabled !== false ||
   !/^[0-9a-f]{40}$/.test(body?.sourceCommit ?? "")
 ) {
   await server.close();

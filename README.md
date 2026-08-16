@@ -52,7 +52,7 @@ pnpm preview:capture
   Chromium-Profil aus.
 - `verify:production` prüft Production-Readiness, Build-Source-SHA und den strikten Abbruch bei
   Portkollision.
-- `verify:external-production` prüft nach dem späteren Deployment die echte
+- `verify:external-production` prüft nach einem Production-Deployment die echte
   HTTPS-Production-URL in frischen
   Desktop- und Smartphone-Kontexten einschließlich Sprache, Ortssuche und
   Offline-Netzgrenze sowie die CSP-sicheren externen Shell-Styles.
@@ -69,13 +69,13 @@ Der Vite-Build hält CSS-Assets extern, damit die Shell auch unter
 `style-src 'self'` ohne `unsafe-inline`, Nonce oder Hash vollständig gestaltet
 bleibt.
 
-Im Production-Kandidaten führen alle Shell-Links absolut zu
+In Production führen alle Shell-Links absolut zu
 `https://milos-apps.de`, und das DEV-Badge bleibt verborgen. Linkbasis,
 Kurzbeschreibung und `productionApproved=true` stammen gemeinsam aus
 `milos-app.json`. Die Shell besitzt Header, Footer,
 Sprachpersistenz und Locale-Event; Daylight übersetzt weiterhin die gesamte
-sichtbare Fachoberfläche. Ein Ziel wird erst nach bestätigter
-Cloudflare-Project-ID veröffentlicht.
+sichtbare Fachoberfläche. Das bestätigte statische Cloudflare-Pages-Ziel ist
+`https://sinddielampenan.de/`.
 
 ## Public App Essentials
 
@@ -121,7 +121,7 @@ kanonische App-URL ohne Suchparameter, Fragment, Ortsname oder Koordinaten.
 Das vollständige technische Inventar steht unter
 [Datenschutz- und Endgerätezugriffe](docs/PRIVACY_INVENTORY.md).
 
-## DEV- und Portalstatus
+## DEV-, Production- und Portalstatus
 
 Der verifizierte App-Stand `d5f2d72b66a094b5d96b6029a8e63ec58168037c`
 läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
@@ -131,7 +131,12 @@ läuft unabhängig vom Portal als öffentliche HTTPS-DEV-Version:
 - GitHub: <https://github.com/DrMilos33/MilosApps-NochHell-DEV>
 
 Das DEV-Hosting erfolgt app-eigen über den `gh-pages`-Branch und bleibt vom
-Production-Kandidaten getrennt. Portal & Identity hat die DEV-Integration am
+Cloudflare-Pages-Production-Lifecycle getrennt. Production läuft unabhängig
+unter <https://sinddielampenan.de/>; Health liegt unter
+<https://sinddielampenan.de/health.json>. Werbung bleibt mit
+`adsEnabled=false` deaktiviert, während die Root-`ads.txt` ausschließlich die
+separat freigegebene Publisherzeile für eine spätere Site-Verifizierung
+ausliefert. Portal & Identity hat die DEV-Integration am
 30. Juli 2026 final abgenommen: Die Portalroute `/apps/daylight` leitet im
 aktiven Portal-DEV ohne Login auf die unabhängige App-URL weiter. Der
 Direktaufruf und der App-Lifecycle bleiben vom Portal unabhängig.

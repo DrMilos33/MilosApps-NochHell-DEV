@@ -10,13 +10,14 @@
     <meta name="theme-color" content="#f7efe1" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://sinddielampenan.de/" />
     <link rel="manifest" href="./app.webmanifest" />
     <link vite-ignore rel="stylesheet" href="./vendor/milosapps-essentials/v1/milos-app-essentials.css" />
     <link vite-ignore rel="stylesheet" href="./vendor/milosapps-essentials/v1/milos-app-essentials-theme.css" />
     <title>Noch hell?</title>
   </head>
-  <body data-app-key="daylight" data-environment="production">
+  <body data-app-key="daylight" data-environment="production" data-ads-enabled="false">
     <section data-milos-app-loading role="status" aria-live="polite">
       <div data-milos-loading-card>
         <img
@@ -62,7 +63,18 @@
       </svg>
       <main id="main" slot="main">
         <div id="app">
-          <h1>Noch hell für einen Spaziergang?</h1>
+          <section aria-labelledby="initial-title">
+            <h1 id="initial-title">Noch hell für einen Spaziergang?</h1>
+            <p>
+              Noch hell? berechnet Sonnenaufgang, Sonnenuntergang, das Ende der
+              bürgerlichen Dämmerung und den nächsten Sonnenaufgang für deinen Ort.
+            </p>
+            <ul>
+              <li>Ohne Konto, Tracking oder Werbung.</li>
+              <li>Standardort Köln oder freiwillige Ortswahl.</li>
+              <li>Lokale Sonnenberechnung mit ehrlichen Polar- und Sommerzeitgrenzen.</li>
+            </ul>
+          </section>
         </div>
       </main>
     </milos-app-shell>

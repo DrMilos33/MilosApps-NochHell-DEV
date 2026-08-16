@@ -34,6 +34,7 @@ export interface RuntimeConfig {
   geocodingEndpoint: string;
   suggestionsEndpoint: string;
   environment: "dev" | "production";
+  adsEnabled: false;
 }
 
 declare global {
