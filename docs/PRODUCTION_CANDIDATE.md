@@ -30,6 +30,11 @@ Direct-Upload-Lifecycle sind read-only bestätigt. Der Refresh verändert weder
 Portal noch Shared-Verträge oder eine App-Datenbank. Vor dem Upload bleibt der
 aktive Production-Stand unverändert.
 
+Der production-verified Source ist
+`1e15349b4ee067a6fd569e16f1fd51fa3e99d915`; das aktive Cloudflare-Deployment
+ist `3f07fc31-cb7f-46ef-b525-055871e4ce00` unter
+`https://3f07fc31.milosapps-daylight-production.pages.dev/`.
+
 ## Build- und Readiness-Vertrag
 
 `scripts/finalize-production-build.mjs` schreibt beim Build den vollständigen
@@ -69,6 +74,10 @@ HTTP-200 oder ein offline gespeicherter Health-Response gilt nicht als bereit.
   Site-Verifizierung. Es gibt weiterhin keinen AdSense-/CMP-Code und keine
   Werbe-CSP-Ziele. Werbung benötigt eine separate Freigabe samt Provider-,
   Datenschutz- und Lizenzprüfung.
+- Cloudflare Web Analytics ist im Pages-Projekt deaktiviert
+  (`web_analytics_tag=null`, `web_analytics_token=null`). Der erste Upload
+  `9d4a6272…` mit automatisch injiziertem und von der CSP blockiertem Beacon
+  gilt nicht als gesunder Rollbackstand; erst `3f07fc31…` ist freigegeben.
 - `connect-src` enthält ausschließlich Same-Origin und
   `https://geocoding-api.open-meteo.com`; `unsafe-inline`, `unsafe-eval`,
   Nominatim und Werbedomains bleiben ausgeschlossen.
